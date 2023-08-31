@@ -1,7 +1,115 @@
 <template>
-  <div>admin layout</div>
+  <div class="grid grid-cols-12">
+    <div class="col-span-12 relative z-20 md:hidden">
+      <div class="px-4 py-4">
+        <div class="md:hidden flex items-center">
+          <button @click="isHamburgerOpen = !isHamburgerOpen">
+            <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
+                 :class="{'rotate-45 translate-y-3' : isHamburgerOpen}"/>
+            <div class="border-t-2 w-8 my-2 duration-300 transition-all"
+                 :class="{'border-t-transparent' : isHamburgerOpen , 'border-t-info-3' : !isHamburgerOpen}"/>
+            <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
+                 :class="{'-rotate-45 -translate-y-2' : isHamburgerOpen}"/>
+          </button>
+          <button @click="changeThemeStatus"
+                  class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 mr-4">
+            <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
+            <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
+          </button>
+          <img :src="logoSrc" class="w-10 h-10 mr-auto cursor-pointer" @click="router.push('/')">
+        </div>
+      </div>
+    </div>
+    <div
+        class="pt-14 md:pt-0 px-4 col-span-12 md:col-span-3 lg:col-span-2 bg-background-3 min-h-screen absolute top-0 right-0 left-0 bottom-0 md:relative z-10 flex flex-col space-y-4"
+        v-if="isHamburgerOpen || isBigScreen">
+      <div class="hidden md:flex items-center justify-between mt-4">
+        <img :src="logoSrc" class="w-10 h-10 cursor-pointer" @click="router.push('/')">
+        <button @click="changeThemeStatus"
+                class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200">
+          <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
+          <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
+        </button>
+      </div>
+      <button
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin'}" @click="router.push('/admin')">
+        <squares2-x2-icon class="w-6 h-6 ml-2"/>
+        داشبورد
+      </button>
+      <button
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin/servers'}"
+          @click="router.push('/admin/servers')">
+        <server-stack-icon class="w-6 h-6 ml-2"/>
+        سرورها
+      </button>
+      <button
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin/customers'}"
+          @click="router.push('/admin/customers')">
+        <UserGroupIcon class="w-6 h-6 ml-2"/>
+        فروشنده‌ها
+      </button>
+      <button
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin/subscriptions'}"
+          @click="router.push('/admin/subscriptions')">
+        <clipboard-document-list-icon class="text-info-3 w-6 h-6 ml-2"/>
+        اشتراک‌ها
+      </button>
+      <button
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
+          @click="router.push('/')">
+        <arrow-left-on-rectangle-icon class="text-info-3 w-6 h-6 ml-2"/>
+        خروج
+      </button>
+    </div>
+    <div class="col-span-12 md:col-span-9 lg:col-span-10 relative z-0 pt-4 px-4">
+      <slot/>
+    </div>
+  </div>
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from "vue";
+import {displayHelper} from "../helpers/displayHelper.js";
+import {
+  SunIcon,
+  MoonIcon,
+  ServerStackIcon,
+  Squares2X2Icon,
+  UserGroupIcon,
+  ClipboardDocumentListIcon,
+  ArrowLeftOnRectangleIcon
+} from "@heroicons/vue/24/outline/index.js";
+import {useDataStore} from "../store/index.js";
+import router from "../router/index.js";
+
+let windowWidth = ref(0)
+
+onMounted(() => {
+  windowWidth.value = window.innerWidth
+  window.addEventListener('resize', () => {
+    windowWidth.value = window.innerWidth
+  })
+})
+
+const isBigScreen = computed(() => {
+  return displayHelper(windowWidth.value).mdAndUp
+})
+let isHamburgerOpen = ref(false)
+
+let isDark = computed(() => {
+  return useDataStore().getDarkStatus
+})
+
+const changeThemeStatus = () => {
+  useDataStore().changeDarkStatus()
+}
+
+let logoSrc = computed(() => {
+  return useDataStore().getDarkStatus ? '../src/assets/logo-white.png' : '../src/assets/logo-black.png'
+})
 
 </script>
