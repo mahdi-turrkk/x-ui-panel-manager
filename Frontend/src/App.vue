@@ -5,9 +5,12 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import {computed, ref} from "vue";
+import {useDataStore} from "./store/index.js";
 
-let isDark = ref(true)
+let isDark = computed(()=>{
+  return useDataStore().getDarkStatus
+})
 </script>
 
 <style>
