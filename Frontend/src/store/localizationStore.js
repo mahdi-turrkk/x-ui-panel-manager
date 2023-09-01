@@ -4,7 +4,8 @@ export const useLocalization = defineStore('localize', {
     state: () => {
         return {
             language: 'fa',
-            flag : '🇮🇷',
+            flag: '🇮🇷',
+            direction: 'rtl',
             locals: {
                 fa: {
                     username: 'نام‌کاربری',
@@ -41,17 +42,21 @@ export const useLocalization = defineStore('localize', {
         getLanguage() {
             return this.language
         },
-        getFlag(){
-          return this.flag
+        getFlag() {
+            return this.flag
         },
         getLocal() {
             return this.locals[this.language]
         },
+        getDirection() {
+            return this.direction
+        },
     },
     actions: {
         changeLanguage(payload) {
-            this.language = payload[1]
             this.flag = payload[0]
+            this.language = payload[1]
+            this.direction = payload[2]
         },
     }
 })

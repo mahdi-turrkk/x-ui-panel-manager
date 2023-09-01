@@ -2,28 +2,38 @@
   <div class="grid grid-cols-12">
     <div class="col-span-12 relative z-20 md:hidden">
       <div class="px-4 py-4">
-        <div class="md:hidden flex items-center">
-          <button @click="isHamburgerOpen = !isHamburgerOpen">
-            <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
-                 :class="{'rotate-45 translate-y-3' : isHamburgerOpen}"/>
-            <div class="border-t-2 w-8 my-2 duration-300 transition-all"
-                 :class="{'border-t-transparent' : isHamburgerOpen , 'border-t-info-3' : !isHamburgerOpen}"/>
-            <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
-                 :class="{'-rotate-45 -translate-y-2' : isHamburgerOpen}"/>
-          </button>
-          <div class="relative mr-2">
-            <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer" @click="showLangMenu = !showLangMenu">{{useLocalization().getFlag}} {{useLocalization().getLanguage.toUpperCase()}}</div>
-            <div class="absolute left-0 rounded-xl flex flex-col w-max bg-primary-1 bg-opacity-20" v-if="showLangMenu">
-              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl" @click="changeLanguage(['🇮🇷','fa'])">🇮🇷 FA</div>
-              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl" @click="changeLanguage(['🇺🇸','en'])">🇺🇸 EN</div>
+        <div class="md:hidden flex items-center justify-between">
+          <div class="flex">
+            <button @click="isHamburgerOpen = !isHamburgerOpen" class="px-2">
+              <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
+                   :class="{'rotate-45 translate-y-3' : isHamburgerOpen}"/>
+              <div class="border-t-2 w-8 my-2 duration-300 transition-all"
+                   :class="{'border-t-transparent' : isHamburgerOpen , 'border-t-info-3' : !isHamburgerOpen}"/>
+              <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
+                   :class="{'-rotate-45 -translate-y-2' : isHamburgerOpen}"/>
+            </button>
+            <div class="relative px-2">
+              <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
+                   @click="showLangMenu = !showLangMenu">{{ useLocalization().getFlag }}
+                {{ useLocalization().getLanguage.toUpperCase() }}
+              </div>
+              <div class="absolute left-0 rounded-xl flex flex-col w-max bg-primary-1 bg-opacity-20"
+                   v-if="showLangMenu">
+                <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                     @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
+                </div>
+                <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                     @click="changeLanguage(['🇺🇸','en' , 'ltr'])">🇺🇸 EN
+                </div>
+              </div>
             </div>
+            <button @click="changeThemeStatus"
+                    class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200">
+              <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
+              <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
+            </button>
           </div>
-          <button @click="changeThemeStatus"
-                  class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 ">
-            <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
-            <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
-          </button>
-          <img :src="logoSrc" class="w-10 h-10 mr-auto cursor-pointer" @click="router.push('/')">
+          <img :src="logoSrc" class="mx-2 w-10 h-10 cursor-pointer" @click="router.push('/')">
         </div>
       </div>
     </div>
@@ -34,10 +44,17 @@
         <img :src="logoSrc" class="w-10 h-10 cursor-pointer" @click="router.push('/')">
         <div class="flex space-x-2 items-center">
           <div class="relative">
-            <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer" @click="showLangMenu = !showLangMenu">{{useLocalization().getFlag}} {{useLocalization().getLanguage.toUpperCase()}}</div>
+            <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
+                 @click="showLangMenu = !showLangMenu">{{ useLocalization().getFlag }}
+              {{ useLocalization().getLanguage.toUpperCase() }}
+            </div>
             <div class="absolute left-0 rounded-xl flex flex-col w-max bg-primary-1 bg-opacity-20" v-if="showLangMenu">
-              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl" @click="changeLanguage(['🇮🇷','fa'])">🇮🇷 FA</div>
-              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl" @click="changeLanguage(['🇺🇸','en'])">🇺🇸 EN</div>
+              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                   @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
+              </div>
+              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                   @click="changeLanguage(['🇺🇸','en' , 'ltr'])">🇺🇸 EN
+              </div>
             </div>
           </div>
           <button @click="changeThemeStatus"
@@ -48,37 +65,39 @@
         </div>
       </div>
       <button
-          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
-          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin'}" @click="router.push('/admin')">
-        <squares2-x2-icon class="w-6 h-6 ml-2"/>
-        {{ local.dashboard }}
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
+          @click="router.push('/admin')">
+        <squares2-x2-icon class="w-6 h-6"/>
+        <div class="px-3">{{ local.dashboard }}</div>
       </button>
       <button
-          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
-          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin/servers'}"
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/servers' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/servers' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/servers')">
-        <server-stack-icon class="w-6 h-6 ml-2"/>
-        {{ local.servers }}
+        <server-stack-icon class="w-6 h-6"/>
+        <div class="px-3">{{ local.servers }}</div>
       </button>
       <button
-          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
-          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin/customers'}"
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/customers' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/customers' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/customers')">
-        <UserGroupIcon class="w-6 h-6 ml-2"/>
-        {{ local.customers }}
+        <UserGroupIcon class="w-6 h-6"/>
+        <div class="px-3">{{ local.customers }}</div>
       </button>
       <button
-          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
-          :class="{'bg-opacity-20 px-2 mr-2': $route.fullPath == '/admin/subscriptions'}"
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/subscription' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/subscription' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/subscriptions')">
-        <clipboard-document-list-icon class="text-info-3 w-6 h-6 ml-2"/>
-        {{ local.subscriptions }}
+        <clipboard-document-list-icon class="text-info-3 w-6 h-6"/>
+        <div class="px-3">{{ local.subscriptions }}</div>
       </button>
       <button
-          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 hover:mr-2 transition-all duration-200"
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/')">
-        <arrow-left-on-rectangle-icon class="text-info-3 w-6 h-6 ml-2"/>
-        {{ local.signOut }}
+        <arrow-left-on-rectangle-icon class="w-6 h-6"/>
+        <div class="px-3">{{ local.signOut }}</div>
       </button>
     </div>
     <div class="col-span-12 md:col-span-9 lg:col-span-10 relative z-0 pt-4 px-4">
@@ -130,13 +149,16 @@ let logoSrc = computed(() => {
 })
 
 let showLangMenu = ref(false)
-let changeLanguage = (payload)=>{
+let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
 }
 
-let local = computed(()=>{
+let local = computed(() => {
   return useLocalization().getLocal
 })
 
+let isRtl = computed(() => {
+  return useLocalization().getDirection == 'rtl'
+})
 </script>
