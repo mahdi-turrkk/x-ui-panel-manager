@@ -6,7 +6,7 @@
 
 <script setup>
 import {computed, ref} from "vue";
-import {useDataStore} from "./store/index.js";
+import {useDataStore} from "./store/dataStore.js";
 
 let isDark = computed(()=>{
   return useDataStore().getDarkStatus
