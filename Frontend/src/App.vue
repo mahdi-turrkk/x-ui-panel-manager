@@ -19,8 +19,6 @@ let isDark = computed(() => {
 <style>
 .appStaticColors {
   --color-error: 358 100% 50%;
-  --color-pending: 63 100% 50%;
-  --color-success: 125 100% 50%;
   --color-primary-1: 216 100% 50%;
   --color-primary-2: 216 100% 40%;
   --color-primary-3: 216 100% 30%;
@@ -36,6 +34,8 @@ let isDark = computed(() => {
   --color-info-1: 216 100% 85%;
   --color-info-2: 216 100% 75%;
   --color-info-3: 216 100% 5%;
+  --color-success: 130 100% 35%;
+  --color-warning: 57 100% 45%;
 }
 
 .dark-theme {
@@ -45,6 +45,8 @@ let isDark = computed(() => {
   --color-info-1: 216 100% 75%;
   --color-info-2: 216 100% 85%;
   --color-info-3: 216 100% 98%;
+  --color-success: 125 100% 50%;
+  --color-warning: 63 100% 50%;
 }
 
 .dir-rtl {

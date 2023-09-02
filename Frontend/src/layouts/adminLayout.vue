@@ -17,13 +17,15 @@
                    @click="showLangMenu = !showLangMenu">{{ useLocalization().getFlag }}
                 {{ useLocalization().getLanguage.toUpperCase() }}
               </div>
-              <div class="absolute left-0 rounded-xl flex flex-col w-max bg-primary-1 bg-opacity-20"
+              <div class="absolute left-0 rounded-xl w-max bg-background-3"
                    v-if="showLangMenu">
-                <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
-                     @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
-                </div>
-                <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
-                     @click="changeLanguage(['🇺🇸','en' , 'ltr'])">🇺🇸 EN
+                <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
+                  <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                       @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
+                  </div>
+                  <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                       @click="changeLanguage(['🇺🇸','en' , 'ltr'])">🇺🇸 EN
+                  </div>
                 </div>
               </div>
             </div>
@@ -48,12 +50,14 @@
                  @click="showLangMenu = !showLangMenu">{{ useLocalization().getFlag }}
               {{ useLocalization().getLanguage.toUpperCase() }}
             </div>
-            <div class="absolute left-0 rounded-xl flex flex-col w-max bg-primary-1 bg-opacity-20" v-if="showLangMenu">
-              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
-                   @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
-              </div>
-              <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
-                   @click="changeLanguage(['🇺🇸','en' , 'ltr'])">🇺🇸 EN
+            <div class="absolute left-0 rounded-xl bg-background-3" v-if="showLangMenu">
+              <div class="flex flex-col w-max rounded-xl bg-primary-1 bg-opacity-20">
+                <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                     @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
+                </div>
+                <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
+                     @click="changeLanguage(['🇺🇸','en' , 'ltr'])">🇺🇸 EN
+                </div>
               </div>
             </div>
           </div>
@@ -86,10 +90,10 @@
         <div class="px-3">{{ local.customers }}</div>
       </button>
       <button
-          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          class="text-info-3 text-lg rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/subscription' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/subscription' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/subscriptions')">
-        <clipboard-document-list-icon class="text-info-3 w-6 h-6"/>
+        <clipboard-document-list-icon class="w-6 h-6"/>
         <div class="px-3">{{ local.subscriptions }}</div>
       </button>
       <button
