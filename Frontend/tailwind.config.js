@@ -25,7 +25,7 @@ export default {
                     3: 'hsl(var(--color-info-3) / <alpha-value>)'
                 },
                 error: 'hsl(var(--color-error) / <alpha-value>)',
-                pending: 'hsl(var(--color-pending) / <alpha-value>)',
+                warning: 'hsl(var(--color-warning) / <alpha-value>)',
                 success: 'hsl(var(--color-success) / <alpha-value>)',
             }
         },
