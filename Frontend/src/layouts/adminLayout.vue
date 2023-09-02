@@ -40,7 +40,7 @@
       </div>
     </div>
     <div
-        class="pt-14 md:pt-0 px-4 col-span-12 md:col-span-3 lg:col-span-2 bg-background-3 min-h-screen absolute top-0 right-0 left-0 bottom-0 md:relative z-10 flex flex-col space-y-4"
+        class="pt-14 md:pt-0 px-4 col-span-12 md:col-span-3 lg:col-span-2 bg-background-3 h-screen absolute md:sticky top-0 right-0 left-0 bottom-0 z-10 flex flex-col space-y-4"
         v-if="isHamburgerOpen || isBigScreen">
       <div class="hidden md:flex items-center justify-between mt-4">
         <img :src="logoSrc" class="w-10 h-10 cursor-pointer" @click="router.push('/')">
