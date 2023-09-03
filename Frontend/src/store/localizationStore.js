@@ -35,7 +35,9 @@ export const useLocalization = defineStore('localize', {
                     inbound: 'دسته کانفیگ',
                     title: 'عنوان',
                     port: 'پورت',
-                    status: 'وضعیت'
+                    status: 'وضعیت',
+                    save: 'ذخیره',
+                    cancel: 'لغو'
                 },
                 en: {
                     username: 'Username',
@@ -65,7 +67,9 @@ export const useLocalization = defineStore('localize', {
                     inbound: 'Inbound',
                     title: 'title',
                     port: 'port',
-                    status: 'status'
+                    status: 'status',
+                    save: 'Save',
+                    cancel: 'Cancel'
                 },
             }
         }

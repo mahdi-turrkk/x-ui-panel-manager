@@ -46,13 +46,13 @@
             </div>
             <div class="relative">
               <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
-                                  @mouseleave="showEditTag = false"/>
+                                  @mouseleave="showEditTag = false" @click="emits('openEditServerDialog' , server)"/>
               <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
                    :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showEditTag">{{ local.edit }}
                 {{ local.server }}
               </div>
             </div>
-            <div class="relative">
+            <div class="relative" v-if="false">
               <plus-icon class="w-6 h-6 text-success mx-1" @mouseenter="showAddTag = true"
                          @mouseleave="showAddTag = false"/>
               <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -105,7 +105,7 @@ import InboundListItem from "./inboundListItem.vue";
 import {useDataStore} from "../store/dataStore.js";
 
 let props = defineProps(['onboarding', 'server', 'inbounds'])
-const emits = defineEmits(['setOnboarding'])
+const emits = defineEmits(['setOnboarding', 'openEditServerDialog'])
 
 const expansionText = ref(null)
 
