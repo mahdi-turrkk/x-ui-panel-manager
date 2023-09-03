@@ -7,7 +7,7 @@
       <div class="w-[20%] flex justify-center no-scrollbar">{{ local.actions }}</div>
       <chevron-down-icon class="h-5 w-5 text-background-3"/>
     </div>
-    <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" v-for="customer in customers" :onboarding="onboarding"  @set-onboarding="setOnboarding" :customer="customer.customer" :subscriptions="customer.subscriptions"/>
+    <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog" v-for="customer in customers" :onboarding="onboarding"  @set-onboarding="setOnboarding" :customer="customer.customer" :subscriptions="customer.subscriptions"/>
   </div>
 </template>
 
@@ -19,7 +19,7 @@ import CustomersListItem from "./customersListItem.vue";
 import {PencilSquareIcon} from "@heroicons/vue/24/outline/index.js";
 
 const props = defineProps(['customers'])
-const emits = defineEmits(['openEditCustomerDialog'])
+const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog'])
 
 const setOnboarding = (index) =>{
   if(index == onboarding.value){
@@ -38,6 +38,9 @@ const openEditCustomerDialog = (payload) => {
 let local = computed(()=>{
   return useLocalization().getLocal
 })
+const openLinkDialog = (payload)=>{
+  emits('openLinkDialog' , payload)
+}
 </script>
 
 <style>

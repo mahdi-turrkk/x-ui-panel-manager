@@ -1,5 +1,6 @@
 <template>
   <admin-layout>
+    <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
     <customer-dialog :show-dialog="showCustomerDialog" @close-dialog="showCustomerDialog = false" :customer="customer"/>
     <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.customers }}</div>
@@ -10,7 +11,7 @@
         {{ local.add }} {{ local.customer }}
       </button>
     </div>
-    <customers-list @open-edit-Customer-dialog="openEditCustomerDialog" :customers="customers"/>
+    <customers-list @open-edit-Customer-dialog="openEditCustomerDialog" :customers="customers" @open-link-dialog="openLinkDialog"/>
     <div class="flex mt-6">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
@@ -26,6 +27,7 @@ import {useLocalization} from "../../../store/localizationStore.js";
 import {PlusIcon} from "@heroicons/vue/24/solid/index.js";
 import CustomersList from "../../../components/customersList.vue";
 import CustomerDialog from "../../../components/customerDialog.vue";
+import SubscriptionLinkDialog from "../../../components/subscriptionLinkDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -34,12 +36,18 @@ let pages = ref(10)
 let onboarding = ref(1)
 
 let showCustomerDialog = ref(false)
+let showLinkDialog = ref(false)
 
 let customer = reactive(undefined)
+let link = ref('')
 
 const openEditCustomerDialog = (payload) => {
   customer = payload
   showCustomerDialog.value = true
+}
+const openLinkDialog = (payload) => {
+  link = payload
+  showLinkDialog.value = true
 }
 
 let customers = ref([
@@ -51,7 +59,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 1'
     }]
   },
   {
@@ -62,7 +71,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 2'
     }]
   },
   {
@@ -73,7 +83,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 3'
     }]
   },
   {
@@ -84,7 +95,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 4'
     }]
   },
   {
@@ -95,7 +107,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 5'
     }]
   },
   {
@@ -106,7 +119,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 6'
     }]
   },
   {
@@ -117,7 +131,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 7'
     }]
   },
   {
@@ -128,7 +143,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 8'
     }]
   },
   {
@@ -139,7 +155,8 @@ let customers = ref([
       expireDate: '2023/09/08',
       totalUse: '419430400000',
       totalFlow: '545259520000',
-      status: true
+      status: true,
+      link: 'this is test link for qr generating 9'
     }]
   },
 ])

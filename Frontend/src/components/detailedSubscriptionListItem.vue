@@ -30,7 +30,7 @@
     <div class="w-[20%] md:w-[15%] flex justify-center">
       <div class="relative cursor-pointer">
         <qr-code-icon class="w-6 h-6 text-success mx-1" @mouseenter="showUrlTag = true"
-                      @mouseleave="showUrlTag = false"/>
+                      @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
         <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
              :class="{'-left-8' : !isRtl , '-right-14' : isRtl}" v-if="showUrlTag">{{ local.show }}
           {{ local.url }}
@@ -55,7 +55,7 @@ import {QrCodeIcon , ArrowPathRoundedSquareIcon} from "@heroicons/vue/24/outline
 
 
 const props = defineProps(['subscription'])
-const emits = defineEmits(['openRenewSubscriptionDialog'])
+const emits = defineEmits(['openRenewSubscriptionDialog' , 'openLinkDialog'])
 
 
 let isRtl = computed(() => {

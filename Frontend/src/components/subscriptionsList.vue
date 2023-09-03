@@ -8,7 +8,7 @@
       <div class="w-[30%] md:w-[15%] text-center">{{ local.subscription }} {{ local.status }}</div>
       <div class="w-[20%] md:w-[15%] flex justify-center text-center">{{ local.actions }}</div>
     </div>
-    <detailed-subscription-list-item @open-renew-subscription-dialog="openRenewSubscriptionDialog" v-for="subscription in subscriptions" :subscription="subscription"/>
+    <detailed-subscription-list-item @open-link-dialog="openLinkDialog" @open-renew-subscription-dialog="openRenewSubscriptionDialog" v-for="subscription in subscriptions" :subscription="subscription"/>
   </div>
 </template>
 
@@ -19,7 +19,7 @@ import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
 import DetailedSubscriptionListItem from "./detailedSubscriptionListItem.vue";
 
 const props = defineProps(['subscriptions'])
-const emits = defineEmits(['openRenewSubscriptionDialog'])
+const emits = defineEmits(['openRenewSubscriptionDialog' , 'openLinkDialog'])
 
 const setOnboarding = (index) =>{
   if(index == onboarding.value){
@@ -38,6 +38,10 @@ const openRenewSubscriptionDialog = (payload) => {
 let local = computed(()=>{
   return useLocalization().getLocal
 })
+
+const openLinkDialog = (payload)=>{
+  emits('openLinkDialog' , payload)
+}
 </script>
 
 <style>
