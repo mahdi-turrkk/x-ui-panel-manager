@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/solid";
+import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
 import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import InboundListItem from "./inboundListItem.vue";
