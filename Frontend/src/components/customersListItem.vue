@@ -55,7 +55,7 @@
           <div class="w-[30%] md:w-[20%] text-center">{{ local.status }}</div>
           <div class="w-[10%] text-center">{{ local.url }}</div>
         </div>
-        <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription"/>
+        <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription" @open-link-dialog="openLinkDialog"/>
       </div>
     </div>
   </div>
@@ -70,7 +70,7 @@ import SubscriptionListItem from "./subscriptionListItem.vue";
 import {QrCodeIcon} from "@heroicons/vue/24/outline/index.js";
 
 let props = defineProps(['onboarding', 'customer', 'subscriptions'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog' , 'openLinkDialog'])
 
 const expansionText = ref(null)
 
@@ -93,6 +93,10 @@ let showDeactivateTag = ref(false)
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
 })
+
+const openLinkDialog = (payload)=>{
+  emits('openLinkDialog' , payload)
+}
 </script>
 
 

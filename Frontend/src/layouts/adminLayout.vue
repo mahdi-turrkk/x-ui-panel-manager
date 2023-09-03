@@ -91,7 +91,7 @@
       </button>
       <button
           class="text-info-3 text-lg rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
-          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/subscription' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/subscription' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/subscriptions' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/subscriptions' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/subscriptions')">
         <clipboard-document-list-icon class="w-6 h-6"/>
         <div class="px-3">{{ local.subscriptions }}</div>

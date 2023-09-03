@@ -22,16 +22,7 @@ const routes = [
             },
             {
                 path: 'customers',
-                children: [
-                    {
-                        path: '',
-                        component: () => import('../views/admin/customers/index.vue')
-                    },
-                    {
-                        path: ':id',
-                        component: () => import('../views/admin/customers/customerDetail/index.vue')
-                    }
-                ]
+                component: () => import('../views/admin/customers/index.vue')
             },
         ]
     },

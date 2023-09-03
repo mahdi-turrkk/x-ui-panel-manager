@@ -47,8 +47,16 @@ export const useLocalization = defineStore('localize', {
                     cancel: 'لغو',
                     show: 'نمایش',
                     url: 'لینک',
-                    startEndDate : 'تاریخ شروع/پایان',
-                    usage: 'مصرف'
+                    startEndDate: 'تاریخ شروع/پایان',
+                    usage: 'مصرف',
+                    renew: 'تمدید',
+                    totalFlow : 'حجم کل',
+                    ipLimit: 'تعداد کاربر',
+                    periodLength: 'طول دوره (روز)',
+                    clickToCopy: 'برای کپی روی کیو‌آر‌کد یا لینک کلیک کنید.',
+                    subscriptionUrl : 'لینک اشتراک',
+                    copySuccessful : 'لینک کپی شد',
+                    copyUnsuccessful : 'خطایی رخ داده',
                 },
                 en: {
                     username: 'Username',
@@ -90,8 +98,16 @@ export const useLocalization = defineStore('localize', {
                     cancel: 'Cancel',
                     show: 'Show',
                     url: 'Url',
-                    startEndDate : 'Start/End Date',
-                    usage: 'Usage'
+                    startEndDate: 'Start/End Date',
+                    usage: 'Usage',
+                    renew: 'renew',
+                    totalFlow : 'Total flow',
+                    ipLimit: 'Ip limit',
+                    periodLength: 'Period length (days)',
+                    clickToCopy: 'Click on QR code or link to copy link.',
+                    subscriptionUrl: 'Subscription link',
+                    copySuccessful : 'Link copied successfully',
+                    copyUnsuccessful : 'Error occurred',
                 },
             }
         }
