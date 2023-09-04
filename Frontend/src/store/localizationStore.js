@@ -57,7 +57,7 @@ export const useLocalization = defineStore('localize', {
                     subscriptionUrl : 'لینک اشتراک',
                     copySuccessful : 'لینک کپی شد',
                     copyUnsuccessful : 'خطایی رخ داده',
-                    subLookUp : 'وضعیت اشتراک',
+                    subLookUp : 'استعلام وضعیت اشتراک',
                     startDate: 'تاریخ شروع',
                     expireDate: 'تاریخ انقضا',
                     totalUsed: 'حجم مصرف‌شده',
