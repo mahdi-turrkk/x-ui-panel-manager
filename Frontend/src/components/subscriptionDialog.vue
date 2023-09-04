@@ -1,6 +1,6 @@
 <template>
   <div class="absolute h-full w-full bg-gray-900 bg-opacity-70 top-0 left-0  z-50 flex justify-center items-start pt-40"
-       v-if="showDialog">
+       v-if="showDialog" @click="backdropClicked" ref="backdrop">
     <div class="bg-background-3 text-info-3 px-6 min-w-fit rounded-xl flex flex-col py-4 relative">
       <div
           @click="emits('closeDialog')"
@@ -53,5 +53,12 @@ watch(() => props.subscription, (newVal) => {
 })
 
 const emits = defineEmits(['closeDialog'])
+
+let backdrop = ref(null)
+const backdropClicked = (data)=>{
+  if(data.target === backdrop.value){
+    emits('closeDialog')
+  }
+}
 
 </script>
