@@ -31,11 +31,7 @@ const routes = [
         children: [
             {
                 path: '',
-                component: () => import('../views/customer/dashboard/index.vue')
-            },
-            {
-                path: 'subscriptions',
-                component: () => import('../views/customer/subscriptions/index.vue')
+                component: () => import('../views/customer/index.vue')
             },
         ]
     },
