@@ -13,6 +13,8 @@ import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +82,24 @@ public class SubscriptionService {
             }
         }
         clientRepository.saveAll(clientEntities);
+    }
+
+    public SubscriptionDto update(Long id, SubscriptionRequest request) {
+        // todo
+        return null;
+    }
+
+    @Transactional
+    public void delete(Long id) throws Exception {
+        List<ClientEntity> clients = clientRepository.findAllBySubscriptionId(id);
+        panelService.deleteClients(clients);
+        clientRepository.deleteAll(clients);
+        subscriptionRepository.deleteById(id);
+
+    }
+
+    public Page<SubscriptionDto> getAll(Pageable pageable) {
+        return subscriptionRepository.findAll(pageable).map(SubscriptionDto::new);
     }
 }
 

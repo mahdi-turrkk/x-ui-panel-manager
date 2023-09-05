@@ -3,10 +3,9 @@ package online.gixmetir.xuipanelmanagerbackend.controllers;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,5 +21,21 @@ public class SubscriptionController {
     @PostMapping("/create")
     public List<SubscriptionDto> create(@RequestBody SubscriptionRequest request) throws Exception {
         return subscriptionService.createSubscription(request);
+    }
+
+    @PutMapping("/update")
+    public SubscriptionDto update(@RequestParam Long id, @RequestBody SubscriptionRequest request) {
+        return subscriptionService.update(id, request);
+    }
+
+    @DeleteMapping("/delete")
+    public void delete(@RequestParam Long id) {
+        subscriptionService.delete(id);
+    }
+
+    @GetMapping("list")
+    public Page<SubscriptionDto> getAll(Pageable pageable) {
+        return subscriptionService.getAll(pageable);
+
     }
 }

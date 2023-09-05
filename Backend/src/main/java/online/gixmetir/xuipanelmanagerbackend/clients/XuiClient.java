@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @FeignClient(name = "panel", url = "https://test.gixmetir.online:9090/")
-public interface XuiLoginClient {
+public interface XuiClient {
     @PostMapping("/login")
     ResponseEntity<ResponseModel> login(@RequestBody LoginModel loginModel);
 
@@ -17,9 +17,11 @@ public interface XuiLoginClient {
     InboundsResponseModel getInbounds(@RequestHeader("cookie") String header);
 
     @PostMapping(value = "/panel/api/inbounds/addClient", consumes = "application/json;charset=utf-8")
-    ResponseEntity<ResponseModel> addClient(@RequestHeader("cookie") String header, @RequestBody String json);
+    ResponseEntity<ResponseModel> updateClient(@RequestHeader("cookie") String header, @RequestBody String json);
 
     @PostMapping(value = "/panel/api/inbounds/updateClient/{uuid}", consumes = "application/json;charset=utf-8")
-    ResponseEntity<ResponseModel> addClient(@RequestHeader("cookie") String header, @PathVariable(value = "uuid") String uuid, @RequestBody String json);
+    ResponseEntity<ResponseModel> updateClient(@RequestHeader("cookie") String header, @PathVariable(value = "uuid") String uuid, @RequestBody String json);
+    @PostMapping(value = "/panel/api/inbounds/{inboundId}/delClient/{clientUuid}", consumes = "application/json;charset=utf-8")
+    ResponseEntity<ResponseModel> deleteClient(@RequestHeader("cookie") String header, @PathVariable(value = "inboundId") Long inboundId, @PathVariable(value = "clientUuid") String clientUuid);
 
 }

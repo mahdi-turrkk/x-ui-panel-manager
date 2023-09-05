@@ -1,37 +1,32 @@
 package online.gixmetir.xuipanelmanagerbackend.services.xui;
 
-import online.gixmetir.xuipanelmanagerbackend.clients.XuiLoginClient;
+import online.gixmetir.xuipanelmanagerbackend.clients.XuiClient;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.*;
-import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
-import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
-import online.gixmetir.xuipanelmanagerbackend.services.app.ServerService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PanelService {
-    private final XuiLoginClient xuiLoginClient;
-    private final ServerService serverService;
-    private final InboundRepository inboundRepository;
+    private final XuiClient xuiClient;
     private final ServerRepository serverRepository;
 
-    public PanelService(XuiLoginClient xuiLoginClient, ServerService serverService, InboundRepository inboundRepository, ServerRepository serverRepository) {
-        this.xuiLoginClient = xuiLoginClient;
-        this.serverService = serverService;
-        this.inboundRepository = inboundRepository;
+    public PanelService(XuiClient xuiClient, ServerRepository serverRepository) {
+        this.xuiClient = xuiClient;
         this.serverRepository = serverRepository;
     }
 
     public String login(LoginModel loginModel) throws Exception {
-        ResponseEntity<ResponseModel> response = xuiLoginClient.login(loginModel);
+        ResponseEntity<ResponseModel> response = xuiClient.login(loginModel);
         if (!response.getBody().getSuccess()) {
             throw new Exception("نام کاربری یا رمز عبور اشتباه هست ");
         }
@@ -50,7 +45,7 @@ public class PanelService {
                 .build());
 
         ArrayList<ClientModel> clients = new ArrayList<>();
-        InboundsResponseModel model = xuiLoginClient.getInbounds(sessionKey);
+        InboundsResponseModel model = xuiClient.getInbounds(sessionKey);
         if (model.getSuccess()) {
             return model.getObj();
         } else {
@@ -88,11 +83,25 @@ public class PanelService {
         jsonObject.put("settings", new JSONObject().put("clients", clientsArray).toString());
         jsonObject.put("id", inboundId);
 
-        ResponseEntity<ResponseModel> response = xuiLoginClient.addClient(sessionKey, jsonObject.toString());
+        ResponseEntity<ResponseModel> response = xuiClient.updateClient(sessionKey, jsonObject.toString());
         if (response.getBody().getSuccess()) {
             return response;
         } else {
             throw new Exception(response.getBody().getMsg());
+        }
+
+    }
+
+    public void deleteClients(List<ClientEntity> clientEntities) throws Exception {
+        for (ClientEntity client : clientEntities) {
+            ServerEntity serverEntity = client.getInbound().getServer();
+            String sessionKey = login(LoginModel.builder()
+                    .username(serverEntity.getUsername())
+                    .password(serverEntity.getPassword())
+                    .build());
+            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(sessionKey, client.getInboundId(), client.getUuid());
+            if (!response.getBody().getSuccess())
+                throw new Exception(response.getBody().getMsg());
         }
 
     }
