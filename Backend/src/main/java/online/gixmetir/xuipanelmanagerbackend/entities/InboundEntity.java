@@ -1,11 +1,17 @@
 package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "inbounds")
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class InboundEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +29,7 @@ public class InboundEntity {
     @Column(name = "tag")
     private String tag;
     @Column(name = "port")
-    private Short port;
+    private String port;
     @Column(name = "listen")
     private String listen;
     @Column(name = "protocol")
@@ -39,7 +45,7 @@ public class InboundEntity {
     @Column(name = "enable")
     private Boolean enable;
     @Column(name = "expire-date")
-    private LocalDate expireDate;
+    private String expireDate;
     @Column(name = "setting")
     private String setting;
     @Column(name = "stream-settings")

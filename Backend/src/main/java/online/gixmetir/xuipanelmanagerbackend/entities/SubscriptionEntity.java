@@ -1,11 +1,17 @@
 package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "subscriptions")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SubscriptionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +38,7 @@ public class SubscriptionEntity {
     private Integer periodLength;
     @Column(name = "status")
     private Boolean status;
+    @Column(name = "title")
+    private String title;
 
 }

@@ -3,9 +3,15 @@
 package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "servers")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class ServerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
