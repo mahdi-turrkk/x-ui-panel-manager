@@ -9,6 +9,7 @@ import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
+import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
@@ -84,8 +85,13 @@ public class SubscriptionService {
         clientRepository.saveAll(clientEntities);
     }
 
-    public SubscriptionDto update(Long id, SubscriptionRequest request) {
-        // todo
+    public SubscriptionDto update(Long id, SubscriptionRequest request, SubscriptionUpdateType updateType) {
+        switch (updateType) {
+            case Edit:
+                return null;
+            case ReNew:
+                return null;
+        }
         return null;
     }
 

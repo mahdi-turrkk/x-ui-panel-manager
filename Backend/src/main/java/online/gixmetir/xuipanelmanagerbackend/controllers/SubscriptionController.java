@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.controllers;
 
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
+import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +25,12 @@ public class SubscriptionController {
     }
 
     @PutMapping("/update")
-    public SubscriptionDto update(@RequestParam Long id, @RequestBody SubscriptionRequest request) {
-        return subscriptionService.update(id, request);
+    public SubscriptionDto update(@RequestParam Long id, @RequestBody SubscriptionRequest request, @RequestParam SubscriptionUpdateType updateType) {
+        return subscriptionService.update(id, request,updateType);
     }
 
     @DeleteMapping("/delete")
-    public void delete(@RequestParam Long id) {
+    public void delete(@RequestParam Long id) throws Exception {
         subscriptionService.delete(id);
     }
 
