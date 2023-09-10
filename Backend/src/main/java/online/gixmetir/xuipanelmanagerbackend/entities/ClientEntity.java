@@ -1,15 +1,23 @@
 package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "clients")
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClientEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "uuid")
+    private String uuid;
     @Column(name = "inbound-id", nullable = false)
     private Long inboundId;
     @ManyToOne
