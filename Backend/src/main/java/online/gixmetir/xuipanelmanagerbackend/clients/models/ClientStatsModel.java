@@ -17,7 +17,7 @@ import java.time.ZoneId;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientStats {
+public class ClientStatsModel {
     @JsonProperty("id")
     private String id;
     @JsonProperty("inboundId")

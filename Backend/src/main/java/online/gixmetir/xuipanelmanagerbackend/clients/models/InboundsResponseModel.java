@@ -19,7 +19,7 @@ public class InboundsResponseModel {
     @JsonProperty("success")
     private Boolean success;
     @JsonProperty("obj")
-    private Inbound[] obj;
+    private InboundModel[] obj;
     public static InboundsResponseModel fromJson(StringBuilder settings) throws IOException {
 //        settings.replace(0, 1, "");
 //        settings.replace(settings.length() - 1, settings.length(), "");
