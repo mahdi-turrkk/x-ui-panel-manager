@@ -17,7 +17,7 @@ public interface XuiClient {
     InboundsResponseModel getInbounds(@RequestHeader("cookie") String header);
 
     @PostMapping(value = "/panel/api/inbounds/addClient", consumes = "application/json;charset=utf-8")
-    ResponseEntity<ResponseModel> updateClient(@RequestHeader("cookie") String header, @RequestBody String json);
+    ResponseEntity<ResponseModel> addClient(@RequestHeader("cookie") String header, @RequestBody String json);
 
     @PostMapping(value = "/panel/api/inbounds/updateClient/{uuid}", consumes = "application/json;charset=utf-8")
     ResponseEntity<ResponseModel> updateClient(@RequestHeader("cookie") String header, @PathVariable(value = "uuid") String uuid, @RequestBody String json);

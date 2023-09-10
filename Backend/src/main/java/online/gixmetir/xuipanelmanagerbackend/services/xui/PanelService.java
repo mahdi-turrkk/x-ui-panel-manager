@@ -5,24 +5,20 @@ import online.gixmetir.xuipanelmanagerbackend.clients.models.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
-import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PanelService {
     private final XuiClient xuiClient;
-    private final ServerRepository serverRepository;
 
-    public PanelService(XuiClient xuiClient, ServerRepository serverRepository) {
+    public PanelService(XuiClient xuiClient) {
         this.xuiClient = xuiClient;
-        this.serverRepository = serverRepository;
     }
 
     public String login(LoginModel loginModel) throws Exception {
@@ -36,33 +32,44 @@ public class PanelService {
 
 
     public InboundModel[] loadAllInboundsFromXuiPanel(ServerDto serverDto) throws Exception {
-        List<ServerEntity> servers = serverRepository.findAll();
-
-
         String sessionKey = login(LoginModel.builder()
                 .username(serverDto.getUsername())
                 .password(serverDto.getPassword())
                 .build());
-
-        ArrayList<ClientModel> clients = new ArrayList<>();
         InboundsResponseModel model = xuiClient.getInbounds(sessionKey);
         if (model.getSuccess()) {
             return model.getObj();
         } else {
             throw new Exception(model.getMsg());
         }
-//        /*
-//
     }
-
 
     public ResponseEntity<ResponseModel> addClient(List<ClientModel> clients, ServerDto serverDto, Long inboundId) throws Exception {
         String sessionKey = login(LoginModel.builder()
                 .username(serverDto.getUsername())
                 .password(serverDto.getPassword())
                 .build());
-        Helper helper = new Helper();
+        JSONObject jsonObject = convertListOfClientModelToJsonStructure(clients, inboundId);
+        ResponseEntity<ResponseModel> response = xuiClient.addClient(sessionKey, jsonObject.toString());
+        if (response.getBody().getSuccess()) {
+            return response;
+        } else {
+            throw new Exception(response.getBody().getMsg());
+        }
+    }
 
+    public void updateClient(List<ClientModel> clients, ServerDto serverDto, Long inboundId) throws Exception {
+        String sessionKey = login(LoginModel.builder()
+                .username(serverDto.getUsername())
+                .password(serverDto.getPassword())
+                .build());
+        for (ClientModel model : clients) {
+            JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(model), inboundId);
+            xuiClient.updateClient(sessionKey, model.getId(), jsonObject.toString());
+        }
+    }
+
+    private static JSONObject convertListOfClientModelToJsonStructure(List<ClientModel> clients, Long inboundId) {
         JSONObject jsonObject = new JSONObject();
         JSONArray clientsArray = new JSONArray();
         for (ClientModel model : clients) {
@@ -82,14 +89,7 @@ public class PanelService {
 
         jsonObject.put("settings", new JSONObject().put("clients", clientsArray).toString());
         jsonObject.put("id", inboundId);
-
-        ResponseEntity<ResponseModel> response = xuiClient.updateClient(sessionKey, jsonObject.toString());
-        if (response.getBody().getSuccess()) {
-            return response;
-        } else {
-            throw new Exception(response.getBody().getMsg());
-        }
-
+        return jsonObject;
     }
 
     public void deleteClients(List<ClientEntity> clientEntities) throws Exception {

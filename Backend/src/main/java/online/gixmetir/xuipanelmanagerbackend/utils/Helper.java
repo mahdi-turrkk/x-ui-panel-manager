@@ -1,6 +1,5 @@
 package online.gixmetir.xuipanelmanagerbackend.utils;
 
-import java.nio.charset.Charset;
 import java.util.Random;
 
 public class Helper {
@@ -25,5 +24,8 @@ public class Helper {
 
     public long GBToByte(int i) {
         return (long) i * 1024 * 1024 * 1024;
+    }
+    public String generateLink(String uuid) {
+        return "https://subscription.gixmetir.online:6000/api/v1/subscriptions/" + uuid;
     }
 }

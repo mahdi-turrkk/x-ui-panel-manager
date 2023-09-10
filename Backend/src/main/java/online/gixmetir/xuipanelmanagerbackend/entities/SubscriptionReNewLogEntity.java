@@ -1,12 +1,18 @@
 package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "subscriptions-renew-log")
-public class SubscriptionReNewLog {
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class SubscriptionReNewLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,8 +23,8 @@ public class SubscriptionReNewLog {
     private SubscriptionEntity subscription;
     @Column(name = "date")
     private LocalDate date;
-    @Column(name = "total-gb")
-    private Long totalGb;
+    @Column(name = "total-flow")
+    private Long totalFlow;
     @Column(name = "period-length")
-    private Long periodLength;
+    private Integer periodLength;
 }

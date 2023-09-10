@@ -31,4 +31,15 @@ public class SubscriptionRequest {
                 .title(this.title)
                 .build();
     }
+
+    public SubscriptionEntity toEntity(SubscriptionEntity entity) {
+        entity.setTotalFlow(this.totalFlow * 1024 * 1024 * 1024);
+        entity.setExpireDate(this.expireDate);
+        entity.setStartDate(this.startDate);
+        entity.setStartAfterFirstUse(this.startAfterFirstUse);
+        entity.setPeriodLength(this.periodLength);
+        entity.setStatus(this.status);
+        entity.setTitle(this.title);
+        return entity;
+    }
 }
