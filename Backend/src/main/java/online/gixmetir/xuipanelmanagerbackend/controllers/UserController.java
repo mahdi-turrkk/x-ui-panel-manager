@@ -1,5 +1,6 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
+import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.UserDto;
 import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
@@ -17,22 +18,22 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping
-    public Page<UserDto> getAll(Pageable pageable) {
-        return service.getAll(pageable);
+    @GetMapping("/get-all")
+    public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
+        return service.getAll(filter, pageable);
     }
 
-    @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody UserRequest request) {
+    @PostMapping("/create")
+    public ResponseEntity<UserDto> create(@RequestBody UserRequest request) throws Exception {
         return ResponseEntity.ok(service.create(request));
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<UserDto> update(@RequestParam Long id, @RequestBody UserRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/delete")
     public void delete(@RequestParam Long id) {
         service.delete(id);
     }

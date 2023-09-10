@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.models;
 
 import lombok.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
+import org.hibernate.Hibernate;
 
 @Getter
 @Setter
@@ -16,6 +17,9 @@ public class UserDto {
     private String phoneNumber;
     private String address;
     private Role role;
+    private String username;
+    private Boolean enabled;
+
 
     public UserDto(UserEntity entity) {
         this.id = entity.getId();
@@ -25,6 +29,7 @@ public class UserDto {
         this.phoneNumber = entity.getPhoneNumber();
         this.address = entity.getAddress();
         this.role = entity.getRole();
-
+        this.username = entity.getAuthentication() != null ? entity.getAuthentication().getUsername() : null;
+        this.enabled = entity.isEnabled();
     }
 }

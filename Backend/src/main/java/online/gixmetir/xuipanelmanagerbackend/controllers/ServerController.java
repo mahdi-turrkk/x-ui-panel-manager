@@ -18,22 +18,22 @@ public class ServerController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping("/get-all")
     public Page<ServerDto> getAll(Pageable pageable) {
         return service.getAll(pageable);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<ServerDto> create(@RequestBody ServerRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<ServerDto> update(@RequestParam Long id, @RequestBody ServerRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/delete")
     public void delete(@RequestParam Long id) {
         service.delete(id);
     }

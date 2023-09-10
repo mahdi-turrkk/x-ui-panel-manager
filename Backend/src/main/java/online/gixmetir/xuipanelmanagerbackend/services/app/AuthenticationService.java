@@ -1,7 +1,11 @@
 package online.gixmetir.xuipanelmanagerbackend.services.app;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import online.gixmetir.xuipanelmanagerbackend.entities.AuthenticationEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,25 +16,24 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService implements UserDetailsService {
 
     private final AuthenticationRepository repository;
-
+private final UserRepository userRepository;
     @Autowired
-    public AuthenticationService(AuthenticationRepository repository) {
+    public AuthenticationService(AuthenticationRepository repository, UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        UserEntity entity = repository.findByUsername(username)
-//                .map(AuthenticationEntity::getUser)
-//                .orElseThrow(
-//                        () -> new UsernameNotFoundException(String.format("Username %s not found", username))
-//                );
-//        System.out.println(entity.getAuthorizations().toString());
-//        entity.getAuthorities();
-//
-//        return entity;
-        return null;
-    }
+    public UserEntity loadUserByUsername(String username) throws UsernameNotFoundException {
+        AuthenticationEntity authenticationEntity = repository.findByUsername(username)
+                .orElseThrow(
+                        () -> new UsernameNotFoundException(String.format("Username %s not found", username))
+                );
 
+        UserEntity entity = userRepository.findById(authenticationEntity.getUserId()).orElseThrow(()-> new EntityNotFoundException("User not found"));
+//        System.out.println(entity.getAuthorities().toString());
+//        entity.getAuthentication();
+        return entity;
+    }
 }

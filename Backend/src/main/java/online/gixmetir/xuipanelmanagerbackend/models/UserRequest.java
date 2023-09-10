@@ -15,9 +15,11 @@ public class UserRequest {
     private String phoneNumber;
     private String address;
     private Role role;
+    private String password;
+    private String username;
+    private Boolean enabled;
 
     public UserEntity toEntity() {
-
         return UserEntity.builder()
                 .address(this.address)
                 .email(this.email)
@@ -25,6 +27,7 @@ public class UserRequest {
                 .firstName(this.firstName)
                 .lastName(this.lastName)
                 .phoneNumber(this.phoneNumber)
+                .enabled(this.enabled)
                 .build();
     }
 
@@ -35,6 +38,7 @@ public class UserRequest {
         entity.setFirstName(this.firstName);
         entity.setLastName(this.lastName);
         entity.setPhoneNumber(this.phoneNumber);
+        entity.setEnabled(this.enabled);
         return entity;
     }
 }
