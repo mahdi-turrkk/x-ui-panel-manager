@@ -1,14 +1,18 @@
 <template>
-  <div class="h-screen w-screen flex justify-center items-center bg-background-1">
+  <div class="h-screen w-screen flex justify-center items-center bg-background-1 relative">
+    <div class="absolute top-4 bg-error text-white z-50 flex rounded-xl px-3 py-1" v-if="showErrorMessage">
+      <XCircleIcon class="w-7 h-7 mx-2"/>
+      {{ local.loginErrorMessage }}
+    </div>
     <div class="bg-background-3 px-6 py-6 rounded-xl flex justify-center items-center flex-col drop-shadow-xl">
       <div class="text-primary-1 text-3xl mb-10">
         <img src="/src/assets/logo-white.png" class="h-16 w-16" v-if="useDataStore().getDarkStatus">
         <img src="/src/assets/logo-black.png" class="h-16 w-16" v-else>
       </div>
-      <input type="text" :placeholder="local.username"
+      <input type="text" :placeholder="local.username" v-model="username"
              class="w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
       <div class="flex relative">
-        <input :type="showPass ? 'text' : 'password'" :placeholder="local.password"
+        <input :type="showPass ? 'text' : 'password'" :placeholder="local.password" v-model="password"
                class="w-72 md:w-96 shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}"
         />
@@ -19,7 +23,8 @@
                         :class="{'left-2' : isRtl , 'right-2' : !isRtl}" v-else
                         @click="showPass = !showPass"/>
       </div>
-      <button class="rounded-xl bg-primary-3 w-full py-2 text-white hover:brightness-125 transition-all duration-150">
+      <button class="rounded-xl bg-primary-3 w-full py-2 text-white hover:brightness-125 transition-all duration-150"
+              @click="signIn">
         {{ local.signIn }}
       </button>
       <div class="relative mt-4">
@@ -42,11 +47,14 @@
 <script setup>
 import {
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
+  XCircleIcon
 } from "@heroicons/vue/24/outline/index.js";
 import {computed, ref} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
 import {useLocalization} from "../../store/localizationStore.js";
+import axios from "axios";
+import router from "../../router/index.js";
 
 let showPass = ref(false)
 
@@ -63,5 +71,37 @@ let local = computed(() => {
 let isRtl = computed(() => {
   return useLocalization().getDirection == 'rtl'
 })
+
+let showErrorMessage = ref(false)
+
+let username = ref(undefined)
+let password = ref(undefined)
+
+const signIn = () => {
+  if (username.value && password.value) {
+    axios.post(`${useDataStore().getServerAddress}/authentication/login`,
+        {
+          username: username.value,
+          password: password.value
+        }
+    ).then((response) => {
+      useDataStore().setToken(response.data.token)
+      if (response.data.role === 'Admin')
+        router.push('/admin')
+      else if (response.data.role === 'Customer')
+        router.push('/customer')
+    }).catch((error) => {
+      showErrorMessage.value = true;
+      setTimeout(() => {
+        showErrorMessage.value = false
+      }, 2000)
+    })
+  } else {
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 2000)
+  }
+}
 
 </script>
