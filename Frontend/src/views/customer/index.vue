@@ -36,7 +36,8 @@
               </div>
             </button>
           </div>
-          <img :src="logoSrc" class="mx-2 w-10 h-10 cursor-pointer" @click="router.push('/')">
+          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-if="useDataStore().getDarkStatus">
+          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-else>
         </div>
       </div>
     </div>

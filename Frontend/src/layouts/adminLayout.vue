@@ -35,7 +35,8 @@
               <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
             </button>
           </div>
-          <img :src="logoSrc" class="mx-2 w-10 h-10 cursor-pointer" @click="router.push('/')">
+          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-if="useDataStore().getDarkStatus">
+          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-else>
         </div>
       </div>
     </div>
@@ -43,7 +44,8 @@
         class="pt-14 md:pt-0 px-4 col-span-12 md:col-span-3 lg:col-span-2 bg-background-3 h-screen absolute md:sticky top-0 right-0 left-0 bottom-0 z-10 flex flex-col space-y-4"
         v-if="isHamburgerOpen || isBigScreen">
       <div class="hidden md:flex items-center justify-between mt-4">
-        <img :src="logoSrc" class="w-10 h-10 cursor-pointer" @click="router.push('/')">
+        <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-if="useDataStore().getDarkStatus">
+        <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-else>
         <div class="flex space-x-2 items-center">
           <div class="relative">
             <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
@@ -147,10 +149,6 @@ let isDark = computed(() => {
 const changeThemeStatus = () => {
   useDataStore().changeDarkStatus()
 }
-
-let logoSrc = computed(() => {
-  return useDataStore().getDarkStatus ? '../src/assets/logo-white.png' : '../src/assets/logo-black.png'
-})
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {

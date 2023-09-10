@@ -2,7 +2,8 @@
   <div class="h-screen w-screen flex justify-center items-center bg-background-1">
     <div class="bg-background-3 px-6 py-6 rounded-xl flex justify-center items-center flex-col drop-shadow-xl">
       <div class="text-primary-1 text-3xl mb-10">
-        <img :src="logoSrc" class="h-16 w-16">
+        <img src="/src/assets/logo-white.png" class="h-16 w-16" v-if="useDataStore().getDarkStatus">
+        <img src="/src/assets/logo-black.png" class="h-16 w-16" v-else>
       </div>
       <input type="text" :placeholder="local.username"
              class="w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
@@ -48,10 +49,6 @@ import {useDataStore} from "../../store/dataStore.js";
 import {useLocalization} from "../../store/localizationStore.js";
 
 let showPass = ref(false)
-
-let logoSrc = computed(() => {
-  return useDataStore().getDarkStatus ? '../src/assets/logo-white.png' : '../src/assets/logo-black.png'
-})
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {

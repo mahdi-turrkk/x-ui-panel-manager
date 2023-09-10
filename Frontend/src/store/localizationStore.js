@@ -53,7 +53,7 @@ export const useLocalization = defineStore('localize', {
                     totalFlow : 'حجم کل',
                     ipLimit: 'تعداد کاربر',
                     periodLength: 'طول دوره (روز)',
-                    clickToCopy: 'برای کپی روی کیو‌آر‌کد یا لینک کلیک کنید.',
+                    clickToCopy: 'برای کپی روی بارکد یا لینک کلیک کنید.',
                     subscriptionUrl : 'لینک اشتراک',
                     copySuccessful : 'لینک کپی شد',
                     copyUnsuccessful : 'خطایی رخ داده',
