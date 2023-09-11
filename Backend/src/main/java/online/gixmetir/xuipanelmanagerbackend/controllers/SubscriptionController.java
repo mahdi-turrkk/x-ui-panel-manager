@@ -1,5 +1,6 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
+import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
@@ -34,9 +35,9 @@ public class SubscriptionController {
         subscriptionService.delete(id);
     }
 
-    @GetMapping("list")
-    public Page<SubscriptionDto> getAll(Pageable pageable) {
-        return subscriptionService.getAll(pageable);
+    @GetMapping("/get-all")
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter,Pageable pageable) {
+        return subscriptionService.getAll(filter,pageable);
 
     }
 }

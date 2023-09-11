@@ -8,6 +8,7 @@ import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionReNewLogEntity;
+import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
@@ -118,8 +119,8 @@ public class SubscriptionService {
 
     }
 
-    public Page<SubscriptionDto> getAll(Pageable pageable) {
-        return subscriptionRepository.findAll(pageable).map(SubscriptionDto::new);
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable) {
+        return subscriptionRepository.findAll(filter, pageable).map(SubscriptionDto::new);
     }
 }
 
