@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.config;
 
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.security.filter.JwtAuthenticationFilter;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
 import org.springframework.context.annotation.Bean;
@@ -34,11 +35,16 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("djkfslfjdasklfjlkjsdfklsjdafkjsdfkjakjdfkjf");
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                                request.requestMatchers("**").permitAll()
+                                request.requestMatchers("swagger-ui/**").permitAll()
+                                        .requestMatchers("v3/api-docs**").permitAll()
+                                        .requestMatchers("v3/api-docs/**").permitAll()
+                                        .requestMatchers("api/v1/subscriptions/create").hasAnyAuthority("Admin")
+                                        .requestMatchers("api/v1/authentication/**").permitAll()
 //                                .requestMatchers("/v3/api-docs/**").permitAll()
 //                                .requestMatchers("/api/ident/**").authenticated()
 //                                .requestMatchers("/api/ident/**").permitAll()

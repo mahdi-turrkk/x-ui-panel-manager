@@ -40,7 +40,7 @@ public class UserService {
     }
 
     public UserDto create(UserRequest request) throws Exception {
-        if (authenticationService.loadUserByUsername(request.getUsername()) != null) {
+        if (authenticationRepository.findByUsername(request.getUsername()).orElse(null) != null) {
             throw new Exception("User with username: " + request.getUsername() + " already exists");
         }
         UserEntity userEntity = request.toEntity();
