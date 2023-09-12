@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.config;
 
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.security.filter.JwtAuthenticationFilter;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
 import org.springframework.context.annotation.Bean;
@@ -34,17 +35,20 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("djkfslfjdasklfjlkjsdfklsjdafkjsdfkjakjdfkjf");
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                                request.requestMatchers("**").permitAll()
-//                                .requestMatchers("/v3/api-docs/**").permitAll()
-//                                .requestMatchers("/api/ident/**").authenticated()
-//                                .requestMatchers("/api/ident/**").permitAll()
-//                                .requestMatchers("/api/public/**").permitAll()
-                        /*.requestMatchers("/api/admin/**").permitAll()*/)/*hasRole("ADMIN"))*/
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        request.requestMatchers("swagger-ui/**").permitAll()
+                                .requestMatchers("v3/api-docs**").permitAll()
+                                .requestMatchers("v3/api-docs/**").permitAll()
+                                .requestMatchers("api/v1/subscriptions/**").hasAnyAuthority(Role.Admin.name(), Role.Customer.name())
+                                .requestMatchers("api/v1/servers/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/inbounds/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/users/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("api/v1/authentication/**").permitAll()
+                ).sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

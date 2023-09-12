@@ -40,5 +40,9 @@ public class SubscriptionEntity {
     private Boolean status;
     @Column(name = "title")
     private String title;
-
+    @Column(name = "user-id", nullable = false)
+    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user-id", updatable = false, insertable = false)
+    private UserEntity entity;
 }
