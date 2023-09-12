@@ -4,22 +4,20 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientModel;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ResponseModel;
-import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionReNewLogEntity;
-import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
+import online.gixmetir.xuipanelmanagerbackend.entities.*;
+import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
+import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionReNewLogRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
+import org.apache.catalina.security.SecurityConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -44,9 +42,12 @@ public class SubscriptionService {
     @Transactional
     public List<SubscriptionDto> createSubscription(SubscriptionRequest request) throws Exception {
         List<SubscriptionEntity> subscriptionEntities = new ArrayList<>();
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         for (int i = 0; i < request.getNumberSubscriptionsToGenerate(); i++) {
             SubscriptionEntity entity = request.toEntity();
             entity.setUuid(UUID.randomUUID().toString());
+            entity.setUserId(userEntity.getId());
             subscriptionEntities.add(entity);
         }
         subscriptionRepository.saveAll(subscriptionEntities);
@@ -115,11 +116,15 @@ public class SubscriptionService {
         panelService.deleteClients(clients);
         clientRepository.deleteAll(clients);
         subscriptionRepository.deleteById(id);
-
     }
 
-    public Page<SubscriptionDto> getAll(Pageable pageable) {
-        return subscriptionRepository.findAll(pageable).map(SubscriptionDto::new);
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable) {
+        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (entity.getRole() == Role.Customer) {
+            SubscriptionFilter filter1 = new SubscriptionFilter(filter.id(), filter.Uuid(), filter.status(), filter.title(), entity.getId());
+            return subscriptionRepository.findAll(filter1, pageable).map(SubscriptionDto::new);
+        }
+        return subscriptionRepository.findAll(filter, pageable).map(SubscriptionDto::new);
     }
 }
 
