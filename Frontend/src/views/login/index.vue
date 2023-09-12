@@ -50,7 +50,7 @@ import {
   EyeSlashIcon,
   XCircleIcon
 } from "@heroicons/vue/24/outline/index.js";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
 import {useLocalization} from "../../store/localizationStore.js";
 import axios from "axios";
@@ -62,6 +62,9 @@ let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
+  let cookie = JSON.parse(document.cookie)
+  cookie.language = payload
+  document.cookie = JSON.stringify(cookie)
 }
 
 let local = computed(() => {
@@ -86,6 +89,12 @@ const signIn = () => {
         }
     ).then((response) => {
       useDataStore().setToken(response.data.token)
+      let cookieObj = {
+        token: response.data.token,
+        isDark: useDataStore().getDarkStatus,
+        language: [useLocalization().getFlag, useLocalization().getLanguage, useLocalization().getDirection]
+      }
+      document.cookie = JSON.stringify(cookieObj)
       if (response.data.role === 'Admin')
         router.push('/admin')
       else if (response.data.role === 'Customer')
@@ -103,5 +112,26 @@ const signIn = () => {
     }, 2000)
   }
 }
+
+onMounted(() => {
+  let cookie = JSON.parse(document.cookie)
+  if (cookie) {
+    useDataStore().setToken(cookie.token)
+    useDataStore().setDarkStatus(cookie.isDark)
+    useLocalization().changeLanguage(cookie.language)
+    axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
+        {
+          headers :{
+            Authorization: useDataStore().getToken
+          }
+        }
+    ).then((response) => {
+      if (response.data === 'Admin')
+        router.push('/admin')
+      else if (response.data === 'Customer')
+        router.push('/customer')
+    })
+  }
+})
 
 </script>
