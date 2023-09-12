@@ -6,10 +6,7 @@ import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientModel;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ResponseModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
-import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
+import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionReNewLogRepository;
@@ -119,10 +116,14 @@ public class SubscriptionService {
         panelService.deleteClients(clients);
         clientRepository.deleteAll(clients);
         subscriptionRepository.deleteById(id);
-
     }
 
     public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable) {
+        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (entity.getRole() == Role.Customer) {
+            SubscriptionFilter filter1 = new SubscriptionFilter(filter.id(), filter.Uuid(), filter.status(), filter.title(), entity.getId());
+            return subscriptionRepository.findAll(filter1, pageable).map(SubscriptionDto::new);
+        }
         return subscriptionRepository.findAll(filter, pageable).map(SubscriptionDto::new);
     }
 }

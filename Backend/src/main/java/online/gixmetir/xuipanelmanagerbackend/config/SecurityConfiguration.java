@@ -40,17 +40,15 @@ public class SecurityConfiguration {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                                request.requestMatchers("swagger-ui/**").permitAll()
-                                        .requestMatchers("v3/api-docs**").permitAll()
-                                        .requestMatchers("v3/api-docs/**").permitAll()
-                                        .requestMatchers("api/v1/subscriptions/create").hasAnyAuthority("Admin")
-                                        .requestMatchers("api/v1/authentication/**").permitAll()
-//                                .requestMatchers("/v3/api-docs/**").permitAll()
-//                                .requestMatchers("/api/ident/**").authenticated()
-//                                .requestMatchers("/api/ident/**").permitAll()
-//                                .requestMatchers("/api/public/**").permitAll()
-                        /*.requestMatchers("/api/admin/**").permitAll()*/)/*hasRole("ADMIN"))*/
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        request.requestMatchers("swagger-ui/**").permitAll()
+                                .requestMatchers("v3/api-docs**").permitAll()
+                                .requestMatchers("v3/api-docs/**").permitAll()
+                                .requestMatchers("api/v1/subscriptions/**").hasAnyAuthority(Role.Admin.name(), Role.Customer.name())
+                                .requestMatchers("api/v1/servers/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/inbounds/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/users/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("api/v1/authentication/**").permitAll()
+                ).sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

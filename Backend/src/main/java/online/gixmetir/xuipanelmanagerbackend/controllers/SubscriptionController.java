@@ -27,7 +27,7 @@ public class SubscriptionController {
 
     @PutMapping("/update")
     public SubscriptionDto update(@RequestParam Long id, @RequestBody SubscriptionRequest request, @RequestParam SubscriptionUpdateType updateType) {
-        return subscriptionService.update(id, request,updateType);
+        return subscriptionService.update(id, request, updateType);
     }
 
     @DeleteMapping("/delete")
@@ -36,8 +36,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/get-all")
-    public Page<SubscriptionDto> getAll(SubscriptionFilter filter,Pageable pageable) {
-        return subscriptionService.getAll(filter,pageable);
-
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable) {
+        return subscriptionService.getAll(filter, pageable);
     }
 }
