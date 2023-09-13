@@ -12,12 +12,11 @@ import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionReNewLogRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
-import org.apache.catalina.security.SecurityConfig;
+import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -42,12 +41,14 @@ public class SubscriptionService {
     @Transactional
     public List<SubscriptionDto> createSubscription(SubscriptionRequest request) throws Exception {
         List<SubscriptionEntity> subscriptionEntities = new ArrayList<>();
-        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+            request.setUserId(userEntity.getId());
+        }
         for (int i = 0; i < request.getNumberSubscriptionsToGenerate(); i++) {
             SubscriptionEntity entity = request.toEntity();
             entity.setUuid(UUID.randomUUID().toString());
-            entity.setUserId(userEntity.getId());
             subscriptionEntities.add(entity);
         }
         subscriptionRepository.saveAll(subscriptionEntities);
@@ -68,7 +69,7 @@ public class SubscriptionService {
                 } else {
                     ClientModel clientModel = ClientModel.builder()
                             .id(UUID.randomUUID().toString())
-                            .email(inbound.getRemark() + "-" + subscription.getTitle() + "-" + subscription.getTotalFlow() + "GB-" + new Random().nextLong())
+                            .email(inbound.getRemark() + "-" + subscription.getTitle() + "-" + new Helper().byteToGB(subscription.getTotalFlow()) + "GB-" + new Random().nextLong())
                             .flow("")
                             .totalGb(subscription.getTotalFlow())
                             .expiryTime(0L)
@@ -85,7 +86,7 @@ public class SubscriptionService {
                 }
                 clientEntitiesToAdd.add(clientEntity);
             }
-            ResponseEntity<ResponseModel> response = panelService.addClient(clientModelsToAdd, new ServerDto(inbound.getServer()), inbound.getId());
+            ResponseEntity<ResponseModel> response = panelService.addClient(clientModelsToAdd, new ServerDto(inbound.getServer()), inbound.getIdFromPanel());
             if (!response.getBody().getSuccess()) {
                 throw new Exception(response.getBody().getMsg());
             }

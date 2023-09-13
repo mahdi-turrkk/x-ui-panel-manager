@@ -19,6 +19,7 @@ public class SubscriptionRequest {
     private Boolean status;
     private String title;
     private Integer numberSubscriptionsToGenerate;
+    private Long userId;
 
     public SubscriptionEntity toEntity() {
         return SubscriptionEntity.builder()
@@ -29,6 +30,7 @@ public class SubscriptionRequest {
                 .periodLength(this.periodLength)
                 .status(this.status)
                 .title(this.title)
+                .userId(this.userId)
                 .build();
     }
 
@@ -40,6 +42,7 @@ public class SubscriptionRequest {
         entity.setPeriodLength(this.periodLength);
         entity.setStatus(this.status);
         entity.setTitle(this.title);
+        entity.setUserId(this.userId);
         return entity;
     }
 }

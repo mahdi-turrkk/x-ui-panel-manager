@@ -44,12 +44,12 @@ public class PanelService {
         }
     }
 
-    public ResponseEntity<ResponseModel> addClient(List<ClientModel> clients, ServerDto serverDto, Long inboundId) throws Exception {
+    public ResponseEntity<ResponseModel> addClient(List<ClientModel> clients, ServerDto serverDto, Long inboundIdFromPanel) throws Exception {
         String sessionKey = login(LoginModel.builder()
                 .username(serverDto.getUsername())
                 .password(serverDto.getPassword())
                 .build());
-        JSONObject jsonObject = convertListOfClientModelToJsonStructure(clients, inboundId);
+        JSONObject jsonObject = convertListOfClientModelToJsonStructure(clients, inboundIdFromPanel);
         ResponseEntity<ResponseModel> response = xuiClient.addClient(sessionKey, jsonObject.toString());
         if (response.getBody().getSuccess()) {
             return response;
@@ -69,7 +69,7 @@ public class PanelService {
         }
     }
 
-    private static JSONObject convertListOfClientModelToJsonStructure(List<ClientModel> clients, Long inboundId) {
+    private static JSONObject convertListOfClientModelToJsonStructure(List<ClientModel> clients, Long inboundIdFromPanel) {
         JSONObject jsonObject = new JSONObject();
         JSONArray clientsArray = new JSONArray();
         for (ClientModel model : clients) {
@@ -88,7 +88,7 @@ public class PanelService {
         }
 
         jsonObject.put("settings", new JSONObject().put("clients", clientsArray).toString());
-        jsonObject.put("id", inboundId);
+        jsonObject.put("id", inboundIdFromPanel);
         return jsonObject;
     }
 
