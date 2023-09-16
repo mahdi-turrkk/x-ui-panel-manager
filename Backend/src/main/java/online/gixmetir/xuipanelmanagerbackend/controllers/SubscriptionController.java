@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/subscriptions")
-@CrossOrigin(origins ="*")
 
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
@@ -40,5 +39,15 @@ public class SubscriptionController {
     @GetMapping("/get-all")
     public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable) {
         return subscriptionService.getAll(filter, pageable);
+    }
+
+    @PutMapping("/change-status")
+    public SubscriptionDto changeStatus(@RequestBody Boolean newStatus, @RequestBody Long id) throws Exception {
+        return subscriptionService.changeStatus(newStatus, id);
+    }
+
+    @GetMapping("/report")
+    public SubscriptionDto report(@RequestParam String subLink) throws Exception {
+        return subscriptionService.report(subLink);
     }
 }

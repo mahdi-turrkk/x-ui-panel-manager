@@ -13,6 +13,7 @@ public class ServerRequest {
     private String username;
     private String password;
     private Boolean generatable;
+    private Boolean status;
 
     public ServerEntity toEntity() {
         return ServerEntity.builder()
@@ -20,6 +21,7 @@ public class ServerRequest {
                 .generatable(this.generatable)
                 .username(this.username)
                 .password(this.password)
+                .status(this.status)
                 .build();
     }
 
@@ -28,6 +30,7 @@ public class ServerRequest {
         entity.setPassword(this.getPassword());
         entity.setUsername(this.getUsername());
         entity.setUrl(this.getUrl());
+        entity.setStatus(this.getStatus());
         return entity;
     }
 }

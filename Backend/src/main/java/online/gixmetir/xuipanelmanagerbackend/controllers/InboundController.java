@@ -1,12 +1,15 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
+import online.gixmetir.xuipanelmanagerbackend.filters.InboundFilter;
+import online.gixmetir.xuipanelmanagerbackend.models.InboundDto;
 import online.gixmetir.xuipanelmanagerbackend.services.app.InboundService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/inbounds")
-@CrossOrigin(origins ="*")
 
 public class InboundController {
 
@@ -22,9 +25,14 @@ public class InboundController {
         inboundService.loadAllInboundsFromPanels();
     }
 
-    @PostMapping("/change-inbound-generatable")
-    public void addClient(@RequestBody Long inboundId, @RequestBody Boolean generatable) throws Exception {
+    @PutMapping("/change-inbound-generatable")
+    public void changeInboundGeneratable(@RequestBody Long inboundId, @RequestBody Boolean generatable) throws Exception {
         inboundService.changeInboundGeneratable(inboundId, generatable);
+    }
+
+    @GetMapping("/get-all")
+    public Page<InboundDto> getAll(InboundFilter filter, Pageable pageable) {
+        return inboundService.getAll(filter, pageable);
     }
 
 }

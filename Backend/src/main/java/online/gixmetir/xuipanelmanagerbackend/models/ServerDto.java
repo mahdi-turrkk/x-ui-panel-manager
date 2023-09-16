@@ -1,6 +1,5 @@
 package online.gixmetir.xuipanelmanagerbackend.models;
 
-import jakarta.persistence.Column;
 import lombok.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
 
@@ -15,6 +14,7 @@ public class ServerDto {
     private String username;
     private String password;
     private Boolean generatable;
+    private Boolean status;
 
     public ServerDto(ServerEntity entity) {
         this.id = entity.getId();
@@ -22,5 +22,6 @@ public class ServerDto {
         this.generatable = entity.getGeneratable();
         this.password = entity.getPassword();
         this.username = entity.getUsername();
+        this.status = entity.getStatus();
     }
 }

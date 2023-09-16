@@ -3,8 +3,6 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "inbounds")
 @Builder
@@ -52,5 +50,4 @@ public class InboundEntity {
     private String streamSettings;
     @Column(name = "sniffing")
     private String sniffing;
-
 }

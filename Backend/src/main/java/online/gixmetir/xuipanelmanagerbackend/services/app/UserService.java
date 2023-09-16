@@ -7,6 +7,7 @@ import online.gixmetir.xuipanelmanagerbackend.entities.AuthenticationEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.AuthDto;
+import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.models.UserDto;
 import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
@@ -14,8 +15,7 @@ import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -83,4 +83,24 @@ public class UserService {
     }
 
 
+    public UserDto changeStatus(Boolean newStatus) {
+        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        entity.setEnabled(newStatus);
+        repository.save(entity);
+        return new UserDto(entity);
+    }
+
+    public void changePassword(Long userId, String oldPassword, String newPassword) throws Exception {
+        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AuthenticationEntity authenticationEntity = null;
+        if (entity.getRole() == Role.Admin) {
+            authenticationEntity = authenticationRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("user not found"));
+        } else {
+            if (encoder.matches(oldPassword, entity.getPassword())) {
+                authenticationEntity = authenticationRepository.findByUserId(entity.getId()).orElseThrow(() -> new EntityNotFoundException("user not found"));
+            } else throw new Exception("old password doesnt.");
+        }
+        authenticationEntity.setPassword(encoder.encode(newPassword));
+        authenticationRepository.save(authenticationEntity);
+    }
 }

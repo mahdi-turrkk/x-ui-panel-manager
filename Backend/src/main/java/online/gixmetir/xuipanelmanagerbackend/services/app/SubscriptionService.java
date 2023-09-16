@@ -127,5 +127,23 @@ public class SubscriptionService {
         }
         return subscriptionRepository.findAll(filter, pageable).map(SubscriptionDto::new);
     }
+
+    @Transactional
+    public SubscriptionDto changeStatus(Boolean newStatus, Long id) throws Exception {
+        SubscriptionEntity entity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
+        entity.setStatus(newStatus);
+        addOrUpdateClientsRelatedToSubscription(List.of(entity));
+        return new SubscriptionDto(entity);
+    }
+
+    public SubscriptionDto report(String subLink) throws Exception {
+        String uuid = new Helper().extractUuidFromLink(subLink);
+        SubscriptionEntity entity = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Subscription with uuid: " + subLink + " non found"));
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (userEntity.getId() == entity.getUserId() || userEntity.getRole() == Role.Admin)
+            return new SubscriptionDto(entity);
+        else throw new EntityNotFoundException("link is invalid.");
+    }
+
 }
 

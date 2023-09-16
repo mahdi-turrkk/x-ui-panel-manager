@@ -24,5 +24,7 @@ public class ServerEntity {
     private String password;
     @Column(name = "generatable")
     private Boolean generatable;
+    @Column(name = "status")
+    private Boolean status;
 
 }

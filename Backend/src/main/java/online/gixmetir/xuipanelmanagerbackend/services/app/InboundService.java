@@ -2,13 +2,16 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.persistence.EntityNotFoundException;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModel;
-import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundSettingModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
+import online.gixmetir.xuipanelmanagerbackend.filters.InboundFilter;
+import online.gixmetir.xuipanelmanagerbackend.models.InboundDto;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -54,5 +57,9 @@ public class InboundService {
     private void updateInbound(InboundModel model, InboundEntity entity) {
         entity = model.toEntity(entity);
         inboundRepository.save(entity);
+    }
+
+    public Page<InboundDto> getAll(InboundFilter filter, Pageable pageable) {
+        return inboundRepository.findAll(filter, pageable).map(InboundDto::new);
     }
 }

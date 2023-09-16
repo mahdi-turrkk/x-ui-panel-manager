@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/servers")
-@CrossOrigin(origins ="*")
 public class ServerController {
     private final ServerService service;
 
@@ -37,5 +36,10 @@ public class ServerController {
     @DeleteMapping("/delete")
     public void delete(@RequestParam Long id) {
         service.delete(id);
+    }
+
+    @PutMapping("/change-status")
+    public ServerDto changeStatus(@RequestBody Boolean newStatus, @RequestBody Long id) {
+        return service.changeStatus(newStatus, id);
     }
 }
