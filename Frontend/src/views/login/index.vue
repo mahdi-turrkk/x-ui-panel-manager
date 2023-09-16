@@ -95,6 +95,7 @@ const signIn = () => {
         language: [useLocalization().getFlag, useLocalization().getLanguage, useLocalization().getDirection]
       }
       document.cookie = JSON.stringify(cookieObj)
+      console.log(useDataStore().getToken)
       if (response.data.role === 'Admin')
         router.push('/admin')
       else if (response.data.role === 'Customer')
@@ -114,8 +115,8 @@ const signIn = () => {
 }
 
 onMounted(() => {
-  let cookie = JSON.parse(document.cookie)
-  if (cookie) {
+  if (document.cookie) {
+    let cookie = JSON.parse(document.cookie)
     useDataStore().setToken(cookie.token)
     useDataStore().setDarkStatus(cookie.isDark)
     useLocalization().changeLanguage(cookie.language)

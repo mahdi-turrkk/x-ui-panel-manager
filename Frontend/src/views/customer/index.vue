@@ -36,8 +36,10 @@
               </div>
             </button>
           </div>
-          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-if="useDataStore().getDarkStatus">
-          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-else>
+          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer"
+               @click="logOut"
+               v-if="useDataStore().getDarkStatus">
+          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
         </div>
       </div>
     </div>
@@ -118,7 +120,7 @@
         <div class="flex mt-6">
           <div
               class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-              v-for="i in pages" :class="{'bg-opacity-50' : onboarding == i}" @click="onboarding = i">{{ i }}
+              v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i">{{ i }}
           </div>
         </div>
       </div>
@@ -135,12 +137,13 @@ import {
   PlusIcon,
   SunIcon
 } from "@heroicons/vue/24/outline/index.js";
-import {computed, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
 import SubscriptionsList from "../../components/subscriptionsList.vue";
 import SubscriptionDialog from "../../components/subscriptionDialog.vue";
 import SubscriptionLinkDialog from "../../components/subscriptionLinkDialog.vue";
 import SubLookupDialog from "../../components/subLookupDialog.vue";
+import axios from "axios";
 
 let isDark = computed(() => {
   return useDataStore().getDarkStatus
@@ -148,16 +151,18 @@ let isDark = computed(() => {
 
 const changeThemeStatus = () => {
   useDataStore().changeDarkStatus()
+  let cookie = JSON.parse(document.cookie)
+  cookie.isDark = useDataStore().getDarkStatus
+  document.cookie = JSON.stringify(cookie)
 }
-
-let logoSrc = computed(() => {
-  return useDataStore().getDarkStatus ? '../src/assets/logo-white.png' : '../src/assets/logo-black.png'
-})
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
+  let cookie = JSON.parse(document.cookie)
+  cookie.language = payload
+  document.cookie = JSON.stringify(cookie)
 }
 
 let local = computed(() => useLocalization().getLocal)
@@ -322,4 +327,50 @@ const openLinkDialog = (payload) => {
 let showLookupTag = ref(false)
 let showLookupDialog = ref(false)
 
+const getSubscriptions = () => {
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?size=10&page=${onboarding.value-1}` ,
+      {
+        headers : {
+          Authorization : useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    pages.value = response.data.totalPages
+    subscriptions.value = response.data.content
+  })
+}
+
+onMounted(() => {
+  if (document.cookie) {
+    let cookie = JSON.parse(document.cookie)
+    if (cookie.token) {
+      useDataStore().setToken(cookie.token)
+      useDataStore().setDarkStatus(cookie.isDark)
+      useLocalization().changeLanguage(cookie.language)
+      axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
+          }
+      ).then((response) => {
+        if (response.data !== 'Customer')
+          router.push('/')
+        else {
+          getSubscriptions()
+        }
+      })
+    }
+    else router.push('/')
+  }
+  else router.push('/')
+})
+
+const logOut = () => {
+  let cookie = JSON.parse(document.cookie);
+  cookie.token = '';
+  console.log(cookie)
+  document.cookie = JSON.stringify(cookie);
+  router.push('/')
+}
 </script>

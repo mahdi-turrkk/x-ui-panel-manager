@@ -1,11 +1,12 @@
 <template>
   <admin-layout>
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
-    <customer-dialog :show-dialog="showCustomerDialog" @close-dialog="showCustomerDialog = false" :customer="customer"/>
+    <customer-add-dialog :show-dialog="showCustomerAddDialog" @close-dialog="showCustomerAddDialog = false"/>
+    <customer-edit-dialog :show-dialog="showCustomerEditDialog" @close-dialog="showCustomerEditDialog = false" :customer="customer"/>
     <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.customers }}</div>
       <button
-          @click="()=>{customer = {};showCustomerDialog = true}"
+          @click="()=>{showCustomerAddDialog = true}"
           class="outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-6 py-2 flex space-x-1 items-center text-sm">
         <plus-icon class="w-4 h-4"/>
         {{ local.add }} {{ local.customer }}
@@ -15,19 +16,22 @@
     <div class="flex mt-6">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-          v-for="i in pages" :class="{'bg-opacity-50' : onboarding == i}" @click="onboarding = i">{{ i }}
+          v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i">{{ i }}
       </div>
     </div>
   </admin-layout>
 </template>
 <script setup>
 import AdminLayout from "../../../layouts/adminLayout.vue";
-import {computed, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
 import {PlusIcon} from "@heroicons/vue/24/solid/index.js";
 import CustomersList from "../../../components/customersList.vue";
-import CustomerDialog from "../../../components/customerDialog.vue";
+import CustomerAddDialog from "../../../components/customerAddDialog.vue";
 import SubscriptionLinkDialog from "../../../components/subscriptionLinkDialog.vue";
+import CustomerEditDialog from "../../../components/customerEditDialog.vue";
+import axios from "axios";
+import {useDataStore} from "../../../store/dataStore.js";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -35,7 +39,8 @@ let local = computed(() => {
 let pages = ref(10)
 let onboarding = ref(1)
 
-let showCustomerDialog = ref(false)
+let showCustomerAddDialog = ref(false)
+let showCustomerEditDialog = ref(false)
 let showLinkDialog = ref(false)
 
 let customer = reactive(undefined)
@@ -43,11 +48,24 @@ let link = ref('')
 
 const openEditCustomerDialog = (payload) => {
   customer = payload
-  showCustomerDialog.value = true
+  showCustomerEditDialog.value = true
 }
 const openLinkDialog = (payload) => {
   link = payload
   showLinkDialog.value = true
+}
+
+const getCustomers = () => {
+  axios.get(`${useDataStore().getServerAddress}/users/get-all?size=10&role=Customer&page=${onboarding.value-1}` ,
+      {
+        headers : {
+          Authorization : useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    pages.value = response.data.totalPages
+    customers.value = response.data.content
+  }).catch((error) => console.log(error))
 }
 
 let customers = ref([
@@ -160,4 +178,8 @@ let customers = ref([
     }]
   },
 ])
+
+onMounted(()=>{
+  getCustomers()
+})
 </script>

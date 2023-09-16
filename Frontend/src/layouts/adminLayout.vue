@@ -35,8 +35,8 @@
               <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
             </button>
           </div>
-          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-if="useDataStore().getDarkStatus">
-          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-else>
+          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-if="useDataStore().getDarkStatus">
+          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
         </div>
       </div>
     </div>
@@ -44,8 +44,8 @@
         class="pt-14 md:pt-0 px-4 col-span-12 md:col-span-3 lg:col-span-2 bg-background-3 h-screen absolute md:sticky top-0 right-0 left-0 bottom-0 z-10 flex flex-col space-y-4"
         v-if="isHamburgerOpen || isBigScreen">
       <div class="hidden md:flex items-center justify-between mt-4">
-        <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-if="useDataStore().getDarkStatus">
-        <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="router.push('/')" v-else>
+        <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-if="useDataStore().getDarkStatus">
+        <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
         <div class="flex space-x-2 items-center">
           <div class="relative">
             <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
@@ -101,7 +101,7 @@
       <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
-          @click="router.push('/')">
+          @click="logOut">
         <arrow-left-on-rectangle-icon class="w-6 h-6"/>
         <div class="px-3">{{ local.signOut }}</div>
       </button>
@@ -127,6 +127,7 @@ import {
 import {useDataStore} from "../store/dataStore.js";
 import router from "../router/index.js";
 import {useLocalization} from "../store/localizationStore.js";
+import axios from "axios";
 
 let windowWidth = ref(0)
 
@@ -148,12 +149,18 @@ let isDark = computed(() => {
 
 const changeThemeStatus = () => {
   useDataStore().changeDarkStatus()
+  let cookie = JSON.parse(document.cookie)
+  cookie.isDark = useDataStore().getDarkStatus
+  document.cookie = JSON.stringify(cookie)
 }
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
+  let cookie = JSON.parse(document.cookie)
+  cookie.language = payload
+  document.cookie = JSON.stringify(cookie)
 }
 
 let local = computed(() => {
@@ -162,5 +169,39 @@ let local = computed(() => {
 
 let isRtl = computed(() => {
   return useLocalization().getDirection == 'rtl'
+})
+
+const logOut = () => {
+  let cookie = JSON.parse(document.cookie);
+  cookie.token = '';
+  console.log(cookie)
+  document.cookie = JSON.stringify(cookie);
+  router.push('/')
+}
+
+onMounted(() => {
+  if (document.cookie) {
+    let cookie = JSON.parse(document.cookie)
+    if (cookie.token) {
+      useDataStore().setToken(cookie.token)
+      useDataStore().setDarkStatus(cookie.isDark)
+      useLocalization().changeLanguage(cookie.language)
+      axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
+          }
+      ).then((response) => {
+        console.log(response)
+        if (response.data !== 'Admin')
+          router.push('/')
+      }).catch((error) => {
+        console.log(error)
+      })
+    }
+    else router.push('/')
+  }
+  else router.push('/')
 })
 </script>
