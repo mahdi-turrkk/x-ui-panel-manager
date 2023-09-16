@@ -9,7 +9,7 @@
       <div class="w-[50%] lg:w-[10%] flex justify-center no-scrollbar">{{ local.actions }}</div>
       <chevron-down-icon class="h-5 w-5 text-background-3"/>
     </div>
-    <servers-list-item @open-edit-server-dialog="openEditServerDialog" v-for="server in servers" :onboarding="onboarding"  @set-onboarding="setOnboarding" :server="server.server" :inbounds="server.inbounds"/>
+    <servers-list-item @open-edit-server-dialog="openEditServerDialog" v-for="server in servers" :onboarding="onboarding"  @set-onboarding="setOnboarding" :server="server"/>
   </div>
 </template>
 

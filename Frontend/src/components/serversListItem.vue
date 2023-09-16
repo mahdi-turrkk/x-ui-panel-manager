@@ -3,11 +3,11 @@
     <div>
       <div
           class="bg-background-3 flex rounded-t-xl justify-between items-center px-4 py-4 z-20 relative cursor-pointer text-info-3"
-          :class="{'rounded-b-xl' : server.id != onboarding}">
+          :class="{'rounded-b-xl' : server.id !== onboarding}">
         <div class="flex w-full items-center space-x-2">
           <div class="w-[25%] lg:w-[10%] no-scrollbar" @click="emits('setOnboarding' , server.id)">{{ server.id }}</div>
           <div class="hidden lg:inline-block lg:w-[30%] no-scrollbar" @click="emits('setOnboarding' , server.id)">
-            {{ server.serverUrl }}
+            {{ server.url }}
           </div>
           <div class="hidden lg:inline-block lg:w-[10%] no-scrollbar" @click="emits('setOnboarding' , server.id)">
             {{ server.username }}
@@ -19,7 +19,7 @@
             <div
                 class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 text-success relative w-fit px-4"
                 v-if="server.generatable" @mouseenter="showDeactivateTag = true"
-                @mouseleave="showDeactivateTag = false">{{ local.active }}
+                @mouseleave="showDeactivateTag = false" @click="changeGeneratable(false)">{{ local.active }}
               <div class="absolute -top-4 bg-background-3 w-max rounded-xl px-2 py-1 text-error"
                    :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeactivateTag">{{ local.deactivate }}
                 {{ local.generatable }}
@@ -27,7 +27,7 @@
             </div>
             <div
                 class="bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 text-error relative w-fit px-4"
-                v-if="!server.generatable" @mouseenter="showActivateTag = true" @mouseleave="showActivateTag = false">
+                v-if="!server.generatable" @mouseenter="showActivateTag = true" @mouseleave="showActivateTag = false" @click="changeGeneratable(true)">
               {{ local.inactive }}
               <div class="absolute -top-4 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
                    :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showActivateTag">{{ local.activate }}
@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="w-[50%] lg:w-[10%] flex justify-center no-scrollbar">
-            <div class="relative">
+            <div class="relative" v-if="false">
               <ArrowPathIcon class="w-6 h-6 text-success mx-1" @mouseenter="showUpdateTag = true"
                              @mouseleave="showUpdateTag = false"/>
               <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -71,7 +71,7 @@
         <div class="flex flex-col lg:hidden space-y-2">
           <div class="flex">
             <div class="font-bold">{{ local.serverUrl }} :</div>
-            <div class="mx-4">{{ server.serverUrl }}</div>
+            <div class="mx-4">{{ server.url }}</div>
           </div>
           <div class="flex">
             <div class="font-bold">{{ local.username }} :</div>
@@ -99,12 +99,13 @@
 
 <script setup>
 import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import InboundListItem from "./inboundListItem.vue";
 import {useDataStore} from "../store/dataStore.js";
+import axios from "axios";
 
-let props = defineProps(['onboarding', 'server', 'inbounds'])
+let props = defineProps(['onboarding', 'server'])
 const emits = defineEmits(['setOnboarding', 'openEditServerDialog'])
 
 const expansionText = ref(null)
@@ -121,6 +122,8 @@ let local = computed(() => {
   return useLocalization().getLocal
 })
 
+let inbounds = ref([])
+
 let showUpdateTag = ref(false)
 let showEditTag = ref(false)
 let showAddTag = ref(false)
@@ -130,6 +133,38 @@ let showDeactivateTag = ref(false)
 let isRtl = computed(() => {
   return useLocalization().getDirection == 'rtl'
 })
+
+onMounted(() => {
+  axios.get(`${useDataStore().getServerAddress}/inbounds/getAll?serverId=${props.server.id}` ,
+      {
+        headers : {
+          Authorization : useDataStore().getToken
+        }
+      }
+  ).then((resposnse) => {
+    inbounds.value = resposnse.data.content
+  }).catch((error) => console.log(error))
+})
+
+const changeGeneratable = (payload) => {
+  axios.put(`${useDataStore().getServerAddress}/servers/update?id=${props.server.id}` ,
+      {
+        url : props.server.url,
+        username : props.server.username,
+        password : props.server.password,
+        generatable : payload
+      },
+      {
+        headers : {
+          Authorization : useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    props.server.generatable = payload
+  }).catch((error) => {
+    alert(error)
+  })
+}
 </script>
 
 <style>

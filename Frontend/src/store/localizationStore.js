@@ -69,7 +69,15 @@ export const useLocalization = defineStore('localize', {
                     lastMonthSells: 'فروش ماه گذشته',
                     totalSells: 'فروش کلی',
                     totalUpload: 'کل حجم آپلودی',
-                    totalDownload: 'کل حجم دانلودی'
+                    totalDownload: 'کل حجم دانلودی',
+                    errorSavingCustomer: 'مشکلی در ثبت مشتری به وجود آمده.دوباره تلاش کنید.',
+                    errorFieldsOfCustomer: 'فیلد هارا به صورت درست پر کنید',
+                    customerSavedSuccessfully : 'مشتری با موفقیت ثبت شد',
+                    errorSavingServer: 'مشکلی در ثبت سرور به وجود آمده.دوباره تلاش کنید.',
+                    errorFieldsOfServer: 'فیلد هارا به صورت درست پر کنید',
+                    serverSavedSuccessfully : 'سرور با موفقیت ثبت شد',
+                    inboundsLoadFailed : 'عملیات با خطا مواجه شد.دوباره امتحان کنید.',
+                    inboundsLoadSuccessfully : 'دسته کانفیگ ها با موفقیت بروزرسانی شدند.'
                 },
                 en: {
                     username: 'Username',
@@ -133,7 +141,15 @@ export const useLocalization = defineStore('localize', {
                     lastMonthSells: 'Last month sells',
                     totalSells: 'Total sells',
                     totalUpload: 'Total upload',
-                    totalDownload: 'Total download'
+                    totalDownload: 'Total download',
+                    errorSavingCustomer: 'Error occurred while saving customer.Try again.',
+                    errorFieldsOfCustomer: 'Fill the fields correctly.',
+                    customerSavedSuccessfully : 'Customer saved successfully',
+                    errorSavingServer: 'Error occurred while saving server.Try again.',
+                    errorFieldsOfServer: 'Fill the fields correctly.',
+                    serverSavedSuccessfully : 'Server saved successfully',
+                    inboundsLoadFailed : 'Loading inbounds failed.Try again.',
+                    inboundsLoadSuccessfully : 'Inbounds loaded successfully.'
                 },
             }
         }

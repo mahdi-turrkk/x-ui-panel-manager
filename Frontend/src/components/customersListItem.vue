@@ -12,7 +12,7 @@
           <div class="w-[20%] no-scrollbar flex justify-center">
             <div
                 class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 text-success relative w-fit px-4"
-                v-if="customer.status" @mouseenter="showDeactivateTag = true"
+                v-if="customer.enabled" @mouseenter="showDeactivateTag = true"
                 @mouseleave="showDeactivateTag = false">{{ local.active }}
               <div class="absolute -top-4 bg-background-3 w-max rounded-xl px-2 py-1 text-error"
                    :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeactivateTag">{{ local.deactivate }}
@@ -21,7 +21,7 @@
             </div>
             <div
                 class="bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 text-error relative w-fit px-4"
-                v-if="!customer.status" @mouseenter="showActivateTag = true" @mouseleave="showActivateTag = false">
+                v-if="!customer.enabled" @mouseenter="showActivateTag = true" @mouseleave="showActivateTag = false">
               {{ local.inactive }}
               <div class="absolute -top-4 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
                    :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showActivateTag">{{ local.activate }}
@@ -63,13 +63,14 @@
 
 <script setup>
 import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
 import {QrCodeIcon} from "@heroicons/vue/24/outline/index.js";
+import axios from "axios";
 
-let props = defineProps(['onboarding', 'customer', 'subscriptions'])
+let props = defineProps(['onboarding', 'customer'])
 const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog' , 'openLinkDialog'])
 
 const expansionText = ref(null)
@@ -97,6 +98,20 @@ let isRtl = computed(() => {
 const openLinkDialog = (payload)=>{
   emits('openLinkDialog' , payload)
 }
+
+let subscriptions = ref([])
+
+onMounted(()=>{
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.customer.id}` ,
+      {
+        headers : {
+          Authorization : useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    subscriptions.value = response.data.content
+  }).catch((error) => console.log(error))
+})
 </script>
 
 

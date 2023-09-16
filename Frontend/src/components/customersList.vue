@@ -7,7 +7,7 @@
       <div class="w-[20%] flex justify-center no-scrollbar">{{ local.actions }}</div>
       <chevron-down-icon class="h-5 w-5 text-background-3"/>
     </div>
-    <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog" v-for="customer in customers" :onboarding="onboarding"  @set-onboarding="setOnboarding" :customer="customer.customer" :subscriptions="customer.subscriptions"/>
+    <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog" v-for="customer in customers" :onboarding="onboarding"  @set-onboarding="setOnboarding" :customer="customer.customer"/>
   </div>
 </template>
 

@@ -1,6 +1,14 @@
 <template>
   <div class="absolute h-full w-full bg-gray-900 bg-opacity-70 top-0 left-0  z-50 flex justify-center items-start pt-40"
        v-if="showDialog" @click="backdropClicked" ref="backdrop">
+    <div class="absolute top-1 bg-error text-white flex" v-if="showErrorMessage">
+      <x-circle-icon class="w-5 h-5"/>
+      <div>{{ errorMessage }}</div>
+    </div>
+    <div class="absolute top-1 bg-success text-white flex" v-if="showSuccessMessage">
+      <check-circle-icon class="w-5 h-5"/>
+      <div>{{ local.serverSavedSuccessfully }}</div>
+    </div>
     <div class="bg-background-3 text-info-3 px-6 min-w-fit rounded-xl flex flex-col py-4 relative">
       <div
           @click="emits('closeDialog')"
@@ -32,7 +40,9 @@
 <script setup>
 import {computed, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {XMarkIcon} from "@heroicons/vue/24/solid/index.js";
+import {CheckCircleIcon, XCircleIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
+import axios from "axios";
+import {useDataStore} from "../store/dataStore.js";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -42,11 +52,12 @@ let serverId = ref(undefined)
 let serverUrl = ref('')
 let serverUsername = ref('')
 let serverPassword = ref('')
+let type = ref('add')
 const props = defineProps(['showDialog', 'server'])
 
 watch(() => props.server, (newVal) => {
   serverId.value = props.server.serverId
-  serverUrl.value = props.server.serverUrl
+  serverUrl.value = props.server.url
   serverUsername.value = props.server.username
   serverPassword.value = props.server.password
 })
@@ -54,9 +65,77 @@ watch(() => props.server, (newVal) => {
 const emits = defineEmits(['closeDialog'])
 
 let backdrop = ref(null)
-const backdropClicked = (data)=>{
-  if(data.target === backdrop.value){
+const backdropClicked = (data) => {
+  if (data.target === backdrop.value) {
     emits('closeDialog')
+  }
+}
+
+let showErrorMessage = ref(false)
+let showSuccessMessage = ref(false)
+let errorMessage = ref('')
+
+const saveServer = () => {
+  if (serverUrl.value && serverUsername.value && serverPassword.value) {
+    if (serverId.value) {
+      axios.put(`${useDataStore().getServerAddress}/servers/update?id=${serverId.value}`,
+          {
+            url: serverUrl.value,
+            username: serverUsername.value,
+            password: serverPassword.value,
+            generatable: props.server.generatable
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
+          }
+      ).then((response) => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+        }, 1000)
+        emits('closeDialog')
+      }).catch((error) => {
+        errorMessage.value = useLocalization().errorSavingServer
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+        }, 2000)
+      })
+    } else {
+      axios.post(`${useDataStore().getServerAddress}/servers/create`,
+          {
+            url: serverUrl.value,
+            username: serverUsername.value,
+            password: serverPassword.value,
+            generatable: true
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
+          }
+      ).then((response) => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+        }, 1000)
+        emits('closeDialog')
+      }).catch((error) => {
+        errorMessage.value = useLocalization().errorSavingServer
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+        }, 2000)
+      })
+    }
+  } else {
+    errorMessage.value = useLocalization().errorFieldsOfServer
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 2000)
   }
 }
 
