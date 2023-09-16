@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/authentication")
+@CrossOrigin(origins = "*")
+
 public class AuthenticationController {
     private final UserService service;
 
@@ -24,9 +26,9 @@ public class AuthenticationController {
     }
 
     @GetMapping("/get-role")
-    public ResponseEntity<Role> getRole() {
+    public Role getRole() {
         UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(entity.getRole());
+        return entity.getRole();
     }
 
 }

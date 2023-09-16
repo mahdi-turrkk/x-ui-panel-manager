@@ -9,8 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController()
+@RestController
 @RequestMapping("/api/v1/servers")
+@CrossOrigin(origins ="*")
 public class ServerController {
     private final ServerService service;
 

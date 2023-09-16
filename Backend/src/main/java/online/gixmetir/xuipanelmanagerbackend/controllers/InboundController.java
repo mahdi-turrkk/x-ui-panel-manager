@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/inbounds")
+@CrossOrigin(origins ="*")
+
 public class InboundController {
 
     private final InboundService inboundService;

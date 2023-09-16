@@ -2,7 +2,6 @@ package online.gixmetir.xuipanelmanagerbackend.config;
 
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
-import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.security.filter.JwtAuthenticationFilter;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +13,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,20 +33,17 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("djkfslfjdasklfjlkjsdfklsjdafkjsdfkjakjdfkjf");
         http
                 .cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers("swagger-ui/**").permitAll()
                                 .requestMatchers("v3/api-docs**").permitAll()
                                 .requestMatchers("v3/api-docs/**").permitAll()
-                                .requestMatchers("api/v1/subscriptions/**").hasAnyAuthority(Role.Admin.name(), Role.Customer.name())
-                                .requestMatchers("api/v1/servers/**").hasAnyAuthority(Role.Admin.name())
-                                .requestMatchers("/api/v1/inbounds/**").hasAnyAuthority(Role.Admin.name())
-                                .requestMatchers("/api/v1/users/**").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("api/v1/subscriptions/**").hasAnyAuthority("Admin", "Customer")
+                                .requestMatchers("api/v1/servers/**", "/api/v1/inbounds/**", "/api/v1/users/**").hasAnyAuthority("Admin")
                                 .requestMatchers("api/v1/authentication/**").permitAll()
-                ).sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .anyRequest().authenticated()
+                )
                 .authenticationProvider(authenticationProvider()).addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -67,7 +62,7 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
+//
     @Bean
     public WebMvcConfigurer configurer() {
         return new WebMvcConfigurer() {
