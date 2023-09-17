@@ -17,7 +17,7 @@ public class SubscriptionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "uuid")
-    private String Uuid;
+    private String uuid;
     @Column(name = "total_flow")
     private Long totalFlow;
     @Column(name = "remaining_flow")

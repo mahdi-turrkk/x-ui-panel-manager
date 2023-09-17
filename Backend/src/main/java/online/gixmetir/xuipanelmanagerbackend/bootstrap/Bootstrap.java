@@ -63,7 +63,7 @@ public class Bootstrap implements ApplicationRunner {
 
     }
 
-    private void bootstrapServer() {
+    private void bootstrapServer() throws Exception {
         ServerEntity entity = serverRepository.findByUrl("https://test.gixmetir.online:9090/").orElse(null);
         if (entity != null) return;
         serverService.create(

@@ -16,14 +16,13 @@ public class ServerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "url")
+    @Column(name = "url", unique = true)
     private String url;
     @Column(name = "username")
     private String username;
     @Column(name = "password")
     private String password;
-    @Column(name = "generatable")
-    private Boolean generatable;
+
     @Column(name = "status")
     private Boolean status;
 

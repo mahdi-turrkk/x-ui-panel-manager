@@ -6,13 +6,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
+import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @Nonnull HttpServletRequest request,
             @Nonnull HttpServletResponse response,
             @Nonnull FilterChain filterChain) throws ServletException, IOException {
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -43,16 +45,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userEmail = jwtService.extractUserName(jwt);
         if (StringUtils.isNotEmpty(userEmail)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = authenticationService.loadUserByUsername(userEmail);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+            UserEntity userDetails = authenticationService.loadUserByUsername(userEmail);
+            boolean access = getAccess(request, userDetails.getRole());
+            if (!access) {
+                denyAccess(response);
+                filterChain.doFilter(request, response);
+                return;
+            }
+            boolean tokenValid = jwtService.isTokenValid(jwt, userDetails);
+            if (tokenValid) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
+
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 context.setAuthentication(authToken);
                 SecurityContextHolder.setContext(context);
+            } else {
+                denyAccess(response);
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean getAccess(@Nonnull HttpServletRequest request, Role role) {
+        String uri = request.getRequestURI();
+
+        if (uri.contains("servers") || uri.contains("inbounds")) {
+            return role == Role.Admin;
+        }
+
+        if (uri.contains("authentication")) {
+            return true;
+        }
+
+        if (uri.contains("users")) {
+            if (uri.contains("change-password"))
+                return role == Role.Admin || role == Role.Customer;
+            return role == Role.Admin;
+        }
+        if (uri.contains("subscriptions")) {
+            if (uri.contains("report"))
+                return true;
+            if (uri.contains("create") || uri.contains("get-all"))
+                return role == Role.Admin || role == Role.Customer;
+            return role == Role.Admin;
+        }
+        return false;
+    }
+
+    private void denyAccess(@Nonnull HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\": \"Access Forbidden\"}");
+        response.getWriter().flush();
     }
 }

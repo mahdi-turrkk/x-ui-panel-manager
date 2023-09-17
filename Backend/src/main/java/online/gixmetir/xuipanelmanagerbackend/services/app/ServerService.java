@@ -27,7 +27,9 @@ public class ServerService {
         return serverRepository.findAll(pageable).map(ServerDto::new);
     }
 
-    public ServerDto create(ServerRequest request) {
+    public ServerDto create(ServerRequest request) throws Exception {
+        ServerEntity serverFromDb = serverRepository.findByUrl(request.getUrl()).orElse(null);
+        if (serverFromDb != null) throw new Exception("Server with url: " + request.getUrl() + " already exists");
         ServerEntity entity = request.toEntity();
         serverRepository.save(entity);
         return new ServerDto(entity);
@@ -50,9 +52,11 @@ public class ServerService {
         ServerEntity entity = serverRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Server with id:" + id + " not found"));
         entity.setStatus(newStatus);
         serverRepository.save(entity);
-        List<InboundEntity> inbounds = inboundRepository.findByServerId(entity.getId());
-        inbounds.forEach(a -> a.setGeneratable(newStatus));
-        inboundRepository.saveAll(inbounds);
+        if (!newStatus) {
+            List<InboundEntity> inbounds = inboundRepository.findByServerId(entity.getId());
+            inbounds.forEach(a -> a.setGeneratable(newStatus));
+            inboundRepository.saveAll(inbounds);
+        }
         return new ServerDto(entity);
     }
 }

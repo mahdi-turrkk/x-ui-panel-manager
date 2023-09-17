@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/servers")
+//
 public class ServerController {
     private final ServerService service;
 
@@ -24,7 +25,7 @@ public class ServerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ServerDto> create(@RequestBody ServerRequest request) {
+    public ResponseEntity<ServerDto> create(@RequestBody ServerRequest request) throws Exception {
         return ResponseEntity.ok(service.create(request));
     }
 
@@ -39,7 +40,7 @@ public class ServerController {
     }
 
     @PutMapping("/change-status")
-    public ServerDto changeStatus(@RequestBody Boolean newStatus, @RequestBody Long id) {
+    public ServerDto changeStatus(@RequestParam Boolean newStatus, @RequestParam Long id) {
         return service.changeStatus(newStatus, id);
     }
 }

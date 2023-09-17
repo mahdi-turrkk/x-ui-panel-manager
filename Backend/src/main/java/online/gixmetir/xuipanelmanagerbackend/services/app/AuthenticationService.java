@@ -31,9 +31,8 @@ private final UserRepository userRepository;
                         () -> new UsernameNotFoundException(String.format("Username %s not found", username))
                 );
 
-        UserEntity entity = userRepository.findById(authenticationEntity.getUserId()).orElseThrow(()-> new EntityNotFoundException("User not found"));
-//        System.out.println(entity.getAuthorities().toString());
+        //        System.out.println(entity.getAuthorities().toString());
 //        entity.getAuthentication();
-        return entity;
+        return userRepository.findById(authenticationEntity.getUserId()).orElseThrow(()-> new EntityNotFoundException("User not found"));
     }
 }

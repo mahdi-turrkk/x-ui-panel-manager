@@ -26,7 +26,7 @@ public class InboundController {
     }
 
     @PutMapping("/change-inbound-generatable")
-    public void changeInboundGeneratable(@RequestBody Long inboundId, @RequestBody Boolean generatable) throws Exception {
+    public void changeInboundGeneratable(@RequestParam Long inboundId, @RequestParam Boolean generatable) throws Exception {
         inboundService.changeInboundGeneratable(inboundId, generatable);
     }
 

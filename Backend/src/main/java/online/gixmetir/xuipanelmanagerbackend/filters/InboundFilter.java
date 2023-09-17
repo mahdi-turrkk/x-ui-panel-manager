@@ -21,9 +21,8 @@ public record InboundFilter(
         String tag,
         String port,
         String protocol,
-        Long up,
-        Long down,
-        Long totalUsed,
+
+
         String remark,
         Boolean enable,
         String expireDate
@@ -37,6 +36,33 @@ public record InboundFilter(
 
         if (id != null) {
             predicates.add(builder.equal(root.get("id"), id));
+        }
+        if (serverId != null) {
+            predicates.add(builder.equal(root.get("serverId"), serverId));
+        }
+        if (generatable != null) {
+            predicates.add(builder.equal(root.get("generatable"), generatable));
+        }
+        if (idFromPanel != null) {
+            predicates.add(builder.equal(root.get("idFromPanel"), idFromPanel));
+        }
+        if (tag != null) {
+            predicates.add(builder.like(root.get("tag"), tag));
+        }
+        if (port != null) {
+            predicates.add(builder.equal(root.get("port"), port));
+        }
+        if (protocol != null) {
+            predicates.add(builder.equal(root.get("protocol"), protocol));
+        }
+        if (remark != null) {
+            predicates.add(builder.like(root.get("remark"), remark));
+        }
+        if (enable != null) {
+            predicates.add(builder.equal(root.get("enable"), enable));
+        }
+        if (expireDate != null) {
+            predicates.add(builder.equal(root.get("expireDate"), expireDate));
         }
 
         return predicates.stream().reduce(builder::and).orElse(null);

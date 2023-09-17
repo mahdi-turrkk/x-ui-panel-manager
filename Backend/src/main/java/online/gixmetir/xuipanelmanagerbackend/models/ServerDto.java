@@ -13,13 +13,11 @@ public class ServerDto {
     private String url;
     private String username;
     private String password;
-    private Boolean generatable;
     private Boolean status;
 
     public ServerDto(ServerEntity entity) {
         this.id = entity.getId();
         this.url = entity.getUrl();
-        this.generatable = entity.getGeneratable();
         this.password = entity.getPassword();
         this.username = entity.getUsername();
         this.status = entity.getStatus();

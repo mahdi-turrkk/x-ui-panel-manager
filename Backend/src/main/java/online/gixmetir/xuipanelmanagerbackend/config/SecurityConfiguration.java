@@ -1,8 +1,10 @@
 package online.gixmetir.xuipanelmanagerbackend.config;
 
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import online.gixmetir.xuipanelmanagerbackend.security.filter.JwtAuthenticationFilter;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,30 +19,58 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration implements WebMvcConfigurer {
+public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter filter;
     private final AuthenticationService authenticationService;
 
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+    @Bean
+    public WebMvcConfigurer configurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@Nonnull CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
+            }
+        };
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("swagger-ui/**").permitAll()
-                                .requestMatchers("v3/api-docs**").permitAll()
-                                .requestMatchers("v3/api-docs/**").permitAll()
-                                .requestMatchers("api/v1/subscriptions/**").hasAnyAuthority("Admin", "Customer")
-                                .requestMatchers("api/v1/authentication/get-role", "api/v1/servers/**", "/api/v1/inbounds/**", "/api/v1/users/**").hasAnyAuthority("Admin")
-                                .requestMatchers("api/v1/authentication/**").permitAll()
-                ).sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        request
+//                                .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
+//                                .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
+//                                .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")
+//                                .requestMatchers("api/v1/servers/*").hasAnyAuthority("Admin")
+                                .requestMatchers("**").permitAll()
+//                                .requestMatchers("v3/api-docs**", "swagger-ui/*", "api/v1/authentication/*").permitAll()
+//                                .anyRequest().authenticated()
+
+                )
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -50,7 +80,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         return new BCryptPasswordEncoder();
     }
 
-    //    @Bean
+
+//    @Bean
 //    public CorsConfigurationSource corsConfiguration() {
 //        CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.addAllowedOrigin("*");
@@ -59,23 +90,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 //        source.registerCorsConfiguration("/**", configuration);
 //        return source;
 //    }
+
+
 //
-//    @Bean
-//    public WebMvcConfigurer configurer() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(@Nonnull CorsRegistry registry) {
-//                registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
-//            }
-//        };
-//    }
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Allow all URLs
-                .allowedOrigins("*") // Allow requests from any origin
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow specific HTTP methods
-                .allowedHeaders("*"); // Allow all headers
-    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

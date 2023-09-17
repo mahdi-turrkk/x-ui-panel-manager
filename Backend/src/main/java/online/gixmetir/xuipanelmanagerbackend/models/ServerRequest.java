@@ -18,7 +18,6 @@ public class ServerRequest {
     public ServerEntity toEntity() {
         return ServerEntity.builder()
                 .url(this.url)
-                .generatable(this.generatable)
                 .username(this.username)
                 .password(this.password)
                 .status(this.status)
@@ -26,7 +25,6 @@ public class ServerRequest {
     }
 
     public ServerEntity toEntity(ServerEntity entity) {
-        entity.setGeneratable(this.getGeneratable());
         entity.setPassword(this.getPassword());
         entity.setUsername(this.getUsername());
         entity.setUrl(this.getUrl());
