@@ -3,7 +3,7 @@ package online.gixmetir.xuipanelmanagerbackend.models;
 import lombok.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -12,13 +12,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class SubscriptionRequest {
     private Long totalFlow;
-    private LocalDate expireDate;
-    private LocalDate startDate;
+    private LocalDateTime expireDate;
+    private LocalDateTime startDate;
     private Boolean startAfterFirstUse;
     private Integer periodLength;
     private Boolean status;
     private String title;
-    private Integer numberSubscriptionsToGenerate;
+    private Integer numberSubscriptionsToGenerate = 0;
     private Long userId;
 
     public SubscriptionEntity toEntity() {
@@ -42,7 +42,7 @@ public class SubscriptionRequest {
         entity.setPeriodLength(this.periodLength);
         entity.setStatus(this.status);
         entity.setTitle(this.title);
-        entity.setUserId(this.userId);
+//        entity.setUserId(this.userId);
         return entity;
     }
 }

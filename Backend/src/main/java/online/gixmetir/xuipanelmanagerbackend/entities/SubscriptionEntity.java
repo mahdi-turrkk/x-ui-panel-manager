@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subscriptions")
@@ -29,9 +30,9 @@ public class SubscriptionEntity {
     @Column(name = "download")
     private Long download;
     @Column(name = "expire-date")
-    private LocalDate expireDate;
+    private LocalDateTime expireDate;
     @Column(name = "start-date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @Column(name = "start-after-first-use")
     private Boolean startAfterFirstUse;
     @Column(name = "period-length")

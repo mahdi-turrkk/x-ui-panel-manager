@@ -27,7 +27,7 @@ public class SubscriptionController {
     }
 
     @PutMapping("/update")
-    public SubscriptionDto update(@RequestParam Long id, @RequestBody SubscriptionRequest request, @RequestParam SubscriptionUpdateType updateType) {
+    public SubscriptionDto update(@RequestParam Long id, @RequestBody SubscriptionRequest request, @RequestParam SubscriptionUpdateType updateType) throws Exception {
         return subscriptionService.update(id, request, updateType);
     }
 
@@ -37,12 +37,17 @@ public class SubscriptionController {
     }
 
     @GetMapping("/get-all")
-    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable) {
-        return subscriptionService.getAll(filter, pageable);
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable, boolean selfSubs) {
+        return subscriptionService.getAll(filter, pageable, selfSubs);
+    }
+
+    @GetMapping("/{uuid}")
+    public String getConfig(@PathVariable String uuid) throws Exception {
+        return subscriptionService.getConfig(uuid);
     }
 
     @PutMapping("/change-status")
-    public SubscriptionDto changeStatus(@RequestBody Boolean newStatus, @RequestBody Long id) throws Exception {
+    public SubscriptionDto changeStatus(@RequestParam Boolean newStatus, @RequestParam Long id) throws Exception {
         return subscriptionService.changeStatus(newStatus, id);
     }
 

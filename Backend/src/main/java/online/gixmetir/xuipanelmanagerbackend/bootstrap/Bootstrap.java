@@ -17,7 +17,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class Bootstrap implements ApplicationRunner {
@@ -107,12 +107,12 @@ public class Bootstrap implements ApplicationRunner {
         subscriptionService.createSubscription(SubscriptionRequest.builder()
                 .status(true)
                 .periodLength(10)
-                .expireDate(LocalDate.now())
+                .expireDate(LocalDateTime.now())
                 .numberSubscriptionsToGenerate(1)
                 .userId(1L)
                 .title("test")
                 .totalFlow(20L)
-                .startDate(LocalDate.now())
+                .startDate(LocalDateTime.now())
                 .build());
     }
 }

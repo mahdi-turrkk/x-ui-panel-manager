@@ -35,16 +35,28 @@ public class ClientModel {
     @JsonProperty("totalGB")
     private long totalGb;
 
+    public ClientModel(ClientEntity entity) {
+        this.email = entity.getEmail();
+        this.enable = entity.getEnable();
+        this.expiryTime = 0L;
+        this.flow = entity.getFlow();
+        this.id = entity.getUuid();
+        this.limitIp = 0;
+        this.subId = "";
+        this.tgId = "entity.getTgId()";
+        this.totalGb = 0;
+    }
+
     /*
-    *       "email": "hossein-tls-tcp",
-          "enable": true,
-          "expiryTime": 0,
-          "flow": "",
-          "id": "f1e1321a-5765-456c-8657-007cbbe8d6a1",
-          "limitIp": 0,
-          "subId": "me",
-          "tgId": "",
-          "totalGB": 0*/
+        *       "email": "hossein-tls-tcp",
+              "enable": true,
+              "expiryTime": 0,
+              "flow": "",
+              "id": "f1e1321a-5765-456c-8657-007cbbe8d6a1",
+              "limitIp": 0,
+              "subId": "me",
+              "tgId": "",
+              "totalGB": 0*/
     public ClientEntity toEntity() {
         return ClientEntity.builder()
                 .uuid(this.id)

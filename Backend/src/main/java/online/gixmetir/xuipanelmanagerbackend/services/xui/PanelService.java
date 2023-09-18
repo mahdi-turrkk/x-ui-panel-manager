@@ -58,14 +58,14 @@ public class PanelService {
         }
     }
 
-    public void updateClient(List<ClientModel> clients, ServerDto serverDto, Long inboundId) throws Exception {
-        String sessionKey = login(LoginModel.builder()
-                .username(serverDto.getUsername())
-                .password(serverDto.getPassword())
-                .build());
-        for (ClientModel model : clients) {
-            JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(model), inboundId);
-            xuiClient.updateClient(sessionKey, model.getId(), jsonObject.toString());
+    public void updateClients(List<ClientEntity> clients) throws Exception {
+        for (ClientEntity entity : clients) {
+            String sessionKey = login(LoginModel.builder()
+                    .username(entity.getInbound().getServer().getUsername())
+                    .password(entity.getInbound().getServer().getPassword())
+                    .build());
+            JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(new ClientModel(entity)), entity.getInbound().getIdFromPanel());
+            xuiClient.updateClient(sessionKey, entity.getUuid(), jsonObject.toString());
         }
     }
 
