@@ -54,4 +54,5 @@ public class ClientEntity {
     @Column(name = "total-used")
     private long totalUsed;
 
+
 }

@@ -33,8 +33,7 @@ public class SubscriptionEntity {
     private LocalDateTime expireDate;
     @Column(name = "start-date")
     private LocalDateTime startDate;
-    @Column(name = "start-after-first-use")
-    private Boolean startAfterFirstUse;
+
     @Column(name = "period-length")
     private Integer periodLength;
     @Column(name = "status")

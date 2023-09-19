@@ -24,8 +24,8 @@ public class Helper {
         return generatedString;
     }
 
-    public long GBToByte(int i) {
-        return (long) i * 1024 * 1024 * 1024;
+    public long GBToByte(Long i) {
+        return i * 1024 * 1024 * 1024;
     }
 
     public String generateLink(String uuid) {

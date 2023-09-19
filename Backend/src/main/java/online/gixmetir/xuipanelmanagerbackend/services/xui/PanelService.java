@@ -11,7 +11,9 @@ import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PanelService {
@@ -21,22 +23,23 @@ public class PanelService {
         this.xuiClient = xuiClient;
     }
 
-    public String login(LoginModel loginModel) throws Exception {
-        ResponseEntity<ResponseModel> response = xuiClient.login(loginModel);
-        if (!response.getBody().getSuccess()) {
+    public String login(ServerDto serverDto) throws Exception {
+        LoginModel loginModel = LoginModel.builder()
+                .username(serverDto.getUsername())
+                .password(serverDto.getPassword())
+                .build();
+        ResponseEntity<ResponseModel> response = xuiClient.login(URI.create(serverDto.getUrl()), loginModel);
+        if (!Objects.requireNonNull(response.getBody()).getSuccess()) {
             throw new Exception("نام کاربری یا رمز عبور اشتباه هست ");
         }
-        String header = response.getHeaders().get("set-cookie").toString();
+        String header = Objects.requireNonNull(response.getHeaders().get("set-cookie")).toString();
         return Helper.getSessionKey(header);
     }
 
 
     public InboundModel[] loadAllInboundsFromXuiPanel(ServerDto serverDto) throws Exception {
-        String sessionKey = login(LoginModel.builder()
-                .username(serverDto.getUsername())
-                .password(serverDto.getPassword())
-                .build());
-        InboundsResponseModel model = xuiClient.getInbounds(sessionKey);
+        String sessionKey = login(serverDto);
+        InboundsResponseModel model = xuiClient.getInbounds(URI.create(serverDto.getUrl()), sessionKey);
         if (model.getSuccess()) {
             return model.getObj();
         } else {
@@ -44,28 +47,21 @@ public class PanelService {
         }
     }
 
-    public ResponseEntity<ResponseModel> addClient(List<ClientModel> clients, ServerDto serverDto, Long inboundIdFromPanel) throws Exception {
-        String sessionKey = login(LoginModel.builder()
-                .username(serverDto.getUsername())
-                .password(serverDto.getPassword())
-                .build());
+    public void addClient(List<ClientModel> clients, ServerDto serverDto, Long inboundIdFromPanel) throws Exception {
+        String sessionKey = login(serverDto);
         JSONObject jsonObject = convertListOfClientModelToJsonStructure(clients, inboundIdFromPanel);
-        ResponseEntity<ResponseModel> response = xuiClient.addClient(sessionKey, jsonObject.toString());
-        if (response.getBody().getSuccess()) {
-            return response;
-        } else {
+        ResponseEntity<ResponseModel> response = xuiClient.addClient(URI.create(serverDto.getUrl()), sessionKey, jsonObject.toString());
+        if (!Objects.requireNonNull(response.getBody()).getSuccess()) {
             throw new Exception(response.getBody().getMsg());
         }
     }
 
     public void updateClients(List<ClientEntity> clients) throws Exception {
         for (ClientEntity entity : clients) {
-            String sessionKey = login(LoginModel.builder()
-                    .username(entity.getInbound().getServer().getUsername())
-                    .password(entity.getInbound().getServer().getPassword())
-                    .build());
+            ServerDto serverDto = new ServerDto(entity.getInbound().getServer());
+            String sessionKey = login(serverDto);
             JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(new ClientModel(entity)), entity.getInbound().getIdFromPanel());
-            xuiClient.updateClient(sessionKey, entity.getUuid(), jsonObject.toString());
+            xuiClient.updateClient(URI.create(serverDto.getUrl()), sessionKey, entity.getUuid(), jsonObject.toString());
         }
     }
 
@@ -95,14 +91,19 @@ public class PanelService {
     public void deleteClients(List<ClientEntity> clientEntities) throws Exception {
         for (ClientEntity client : clientEntities) {
             ServerEntity serverEntity = client.getInbound().getServer();
-            String sessionKey = login(LoginModel.builder()
-                    .username(serverEntity.getUsername())
-                    .password(serverEntity.getPassword())
-                    .build());
-            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(sessionKey, client.getInboundId(), client.getUuid());
-            if (!response.getBody().getSuccess())
+            String sessionKey = login(new ServerDto(serverEntity));
+            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverEntity.getUrl()), sessionKey, client.getInboundId(), client.getUuid());
+            if (!Objects.requireNonNull(response.getBody()).getSuccess())
                 throw new Exception(response.getBody().getMsg());
         }
 
+    }
+
+    public ClientStatsModel clientLog(ClientEntity clientEntity, String sessionKey) throws Exception {
+        ResponseEntity<ClientLogResponseModel> response = xuiClient.getClientTraffic(URI.create(clientEntity.getInbound().getServer().getUrl()), sessionKey, clientEntity.getEmail());
+        if (response.getBody().getSuccess()) {
+            return response.getBody().getObj();
+        } else
+            throw new Exception(response.getBody().getMsg());
     }
 }

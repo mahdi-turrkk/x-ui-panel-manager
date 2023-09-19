@@ -105,14 +105,11 @@ public class Bootstrap implements ApplicationRunner {
 
     private void bootstrapSubscription() throws Exception {
         subscriptionService.createSubscription(SubscriptionRequest.builder()
-                .status(true)
                 .periodLength(10)
-                .expireDate(LocalDateTime.now())
                 .numberSubscriptionsToGenerate(1)
                 .userId(1L)
                 .title("test")
                 .totalFlow(20L)
-                .startDate(LocalDateTime.now())
                 .build());
     }
 }

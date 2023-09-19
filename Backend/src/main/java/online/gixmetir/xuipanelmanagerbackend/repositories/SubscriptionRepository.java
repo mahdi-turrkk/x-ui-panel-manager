@@ -12,4 +12,6 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     Optional<SubscriptionEntity> findByUuid(String uuid);
 
     List<SubscriptionEntity> findAllByExpireDateAfterAndStatus(LocalDateTime expireDate, Boolean status);
+
+    List<SubscriptionEntity> findAllByStatus(Boolean status);
 }

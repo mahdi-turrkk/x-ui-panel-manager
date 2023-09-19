@@ -55,4 +55,9 @@ public class SubscriptionController {
     public SubscriptionDto report(@RequestParam String subLink) throws Exception {
         return subscriptionService.report(subLink);
     }
+
+    @GetMapping("/sync")
+    public void sync() throws Exception {
+        subscriptionService.syncWithPanels();
+    }
 }
