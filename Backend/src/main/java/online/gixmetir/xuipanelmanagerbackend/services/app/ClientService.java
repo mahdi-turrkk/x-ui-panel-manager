@@ -134,7 +134,7 @@ public class ClientService {
         link += queryParams;
 
         if (!inbound.getRemark().isEmpty() || !client.getEmail().isEmpty()) {
-            link += "#" + URI.create(inbound.getRemark() + "-" + client.getEmail()).toASCIIString();
+            link += "#" + URI.create(inbound.getRemark() + "-" + client.getEmail().replace(" ","")).toASCIIString();
         }
 
         return link;

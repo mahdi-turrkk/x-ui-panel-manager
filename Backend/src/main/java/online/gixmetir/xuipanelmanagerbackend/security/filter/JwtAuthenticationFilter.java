@@ -70,8 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean getAccess(@Nonnull HttpServletRequest request, Role role) {
         String uri = request.getRequestURI();
-        if (uri.contains("databases")|| uri.contains("sync")) return true;
-        if (uri.contains("servers") || uri.contains("inbounds")) {
+        if (uri.contains("servers") || uri.contains("inbounds") || uri.contains("databases")) {
             return role == Role.Admin;
         }
 
@@ -85,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return role == Role.Admin;
         }
         if (uri.contains("subscriptions")) {
-            if (uri.contains("report"))
+            if (uri.contains("report") || uri.contains("client"))
                 return true;
             if (uri.contains("create") || uri.contains("update") || uri.contains("get-all") || uri.contains("change-status"))
                 return role == Role.Admin || role == Role.Customer;

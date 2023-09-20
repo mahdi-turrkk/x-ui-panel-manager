@@ -40,8 +40,8 @@ public class UserController {
     }
 
     @PutMapping("/change-status")
-    public UserDto changeStatus(@RequestParam Boolean newStatus) {
-        return service.changeStatus(newStatus);
+    public UserDto changeStatus(@RequestParam Boolean newStatus,@RequestParam Long id) throws Exception {
+        return service.changeStatus(newStatus, id);
     }
 
     @PutMapping("/change-password")

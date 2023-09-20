@@ -67,7 +67,7 @@ public class InboundModel {
     public InboundEntity toEntity(InboundEntity entity) {
 
 
-        entity.setGeneratable(false);
+
         entity.setIdFromPanel(this.id);
         entity.setTag(this.tag);
         entity.setPort(this.port);

@@ -16,4 +16,5 @@ public class TlsSettings {
     private String fp;
     private String[] alpn;
     private TlsSettingsInner settings;
+    private boolean rejectUnknownSni;
 }

@@ -2,13 +2,16 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.persistence.EntityNotFoundException;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModel;
+import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
 import online.gixmetir.xuipanelmanagerbackend.filters.InboundFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.InboundDto;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
+import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +24,18 @@ public class InboundService {
     private final PanelService panelService;
     private final ServerRepository serverRepository;
     private final InboundRepository inboundRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
-    public InboundService(PanelService service, ServerRepository serverRepository, InboundRepository inboundRepository) {
+    private final SubscriptionService subscriptionService;
+    private final ClientRepository clientRepository;
+
+    public InboundService(PanelService service, ServerRepository serverRepository, InboundRepository inboundRepository, SubscriptionRepository subscriptionRepository, SubscriptionService subscriptionService, ClientRepository clientRepository) {
         this.panelService = service;
         this.serverRepository = serverRepository;
         this.inboundRepository = inboundRepository;
+        this.subscriptionRepository = subscriptionRepository;
+        this.subscriptionService = subscriptionService;
+        this.clientRepository = clientRepository;
     }
 
     public void loadAllInboundsFromPanels() throws Exception {
@@ -48,10 +58,19 @@ public class InboundService {
         InboundEntity entity = inboundRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Inbound with id: " + id + "not found"));
         entity.setGeneratable(generatable);
         inboundRepository.save(entity);
+        if (generatable) {
+            subscriptionService.addOrUpdateClientsRelatedToSubscription(subscriptionRepository.findAll());
+        } else {
+            List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(entity.getId());
+            clientEntities.forEach(a -> a.setSendToUser(false));
+            clientRepository.saveAll(clientEntities);
+        }
     }
 
     private void createNewInbound(InboundModel model, Long serverId) {
-        inboundRepository.save(model.toEntity(serverId));
+        InboundEntity entity = model.toEntity(serverId);
+        entity.setGeneratable(false);
+        inboundRepository.save(entity);
     }
 
     private void updateInbound(InboundModel model, InboundEntity entity) {

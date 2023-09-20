@@ -5,6 +5,7 @@ import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
+import online.gixmetir.xuipanelmanagerbackend.services.app.SyncService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +17,11 @@ import java.util.List;
 
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
+    private final SyncService syncWithPanels;
 
-    public SubscriptionController(SubscriptionService subscriptionService) {
+    public SubscriptionController(SubscriptionService subscriptionService, SyncService syncWithPanels) {
         this.subscriptionService = subscriptionService;
+        this.syncWithPanels = syncWithPanels;
     }
 
     @PostMapping("/create")
@@ -37,13 +40,13 @@ public class SubscriptionController {
     }
 
     @GetMapping("/get-all")
-    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable, boolean selfSubs) {
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable, boolean selfSubs) throws Exception {
         return subscriptionService.getAll(filter, pageable, selfSubs);
     }
 
-    @GetMapping("/{uuid}")
-    public String getConfig(@PathVariable String uuid) throws Exception {
-        return subscriptionService.getConfig(uuid);
+    @GetMapping("/client/{uuid}")
+    public String getSubscriptionData(@PathVariable String uuid) throws Exception {
+        return subscriptionService.getSubscriptionData(uuid);
     }
 
     @PutMapping("/change-status")
@@ -58,6 +61,7 @@ public class SubscriptionController {
 
     @GetMapping("/sync")
     public void sync() throws Exception {
-        subscriptionService.syncWithPanels();
+        syncWithPanels.syncWithPanels();
+        syncWithPanels.expiration();
     }
 }

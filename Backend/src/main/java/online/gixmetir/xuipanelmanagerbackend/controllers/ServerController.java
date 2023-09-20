@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/servers")
-//
+
 public class ServerController {
     private final ServerService service;
+
 
     public ServerController(ServerService service) {
         this.service = service;
@@ -22,6 +23,12 @@ public class ServerController {
     @GetMapping("/get-all")
     public Page<ServerDto> getAll(Pageable pageable) {
         return service.getAll(pageable);
+    }
+
+    @GetMapping("/sync-subscriptions-with-servers")
+    public void syncSubscriptionsWithServers() throws Exception {
+
+        service.syncSubscriptionsWithServers();
     }
 
     @PostMapping("/create")

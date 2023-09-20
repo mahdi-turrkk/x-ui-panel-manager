@@ -11,4 +11,5 @@ public class TlsSettingsInner {
     private String serverName;
     private String fingerprint;
     private boolean allowInsecure;
+    private String[] domains;
 }

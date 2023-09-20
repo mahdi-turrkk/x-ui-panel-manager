@@ -3,7 +3,6 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientModel;
-import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientStatsModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
@@ -16,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -43,7 +41,7 @@ public class SubscriptionService {
     public List<SubscriptionDto> createSubscription(SubscriptionRequest request) throws Exception {
         List<SubscriptionEntity> subscriptionEntities = new ArrayList<>();
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserEntity userEntity = new Helper().getUserFromContext();
             request.setUserId(userEntity.getId());
         }
         for (int i = 0; i < request.getNumberSubscriptionsToGenerate(); i++) {
@@ -70,6 +68,7 @@ public class SubscriptionService {
                 if (clientEntityFromDb != null) {
                     clientEntityFromDb.setEnable(subscription.getStatus());
                     clientEntity = clientEntityFromDb;
+                    clientEntity.setSendToUser(true);
                     clientEntitiesUpdateInPanel.add(clientEntity);
                 } else {
                     ClientModel clientModel = ClientModel.builder()
@@ -86,6 +85,7 @@ public class SubscriptionService {
                     clientModelsAddToPanel.add(clientModel);
                     clientEntity = clientModel.toEntity();
                     clientEntity.setInboundId(inbound.getId());
+                    clientEntity.setSendToUser(true);
                     clientEntity.setSubscriptionId(subscription.getId());
                 }
                 clientEntitiesToSaveInDb.add(clientEntity);
@@ -142,8 +142,8 @@ public class SubscriptionService {
         subscriptionRepository.deleteById(id);
     }
 
-    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable, Boolean selfSubs) {
-        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable, Boolean selfSubs) throws Exception {
+        UserEntity entity = new Helper().getUserFromContext();
         if (entity.getRole() == Role.Customer) {
             SubscriptionFilter filter1 = new SubscriptionFilter(filter.id(), filter.Uuid(), filter.status(), filter.title(), entity.getId());
             return subscriptionRepository.findAll(filter1, pageable).map(SubscriptionDto::new);
@@ -166,7 +166,7 @@ public class SubscriptionService {
     public SubscriptionDto report(String subLink) throws Exception {
         String uuid = new Helper().extractUuidFromLink(subLink);
         SubscriptionEntity entity = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Subscription with uuid: " + subLink + " non found"));
-        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserEntity userEntity = new Helper().getUserFromContext();
         if (userEntity.getId() == entity.getUserId() || userEntity.getRole() == Role.Admin)
             return new SubscriptionDto(entity);
         if (userEntity.getId() != entity.getUserId())
@@ -174,55 +174,14 @@ public class SubscriptionService {
         throw new Exception("link is invalid.");
     }
 
-    public String getConfig(String uuid) throws Exception {
+    public String getSubscriptionData(String uuid) throws Exception {
         SubscriptionEntity subscription = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new Exception("subscription not found"));
-        List<ClientEntity> entities = clientRepository.findAllBySubscriptionId(subscription.getId());
+        List<ClientEntity> entities = clientRepository.findAllBySubscriptionIdAndSendToUser(subscription.getId(), true);
         StringBuilder configs = new StringBuilder();
         for (ClientEntity entity : entities) {
             configs.append(clientService.generateClientString(entity)).append("\n");
         }
         return configs.toString();
     }
-
-    @Transactional
-    public void expiration() throws Exception {
-        //todo
-        List<SubscriptionEntity> expiredSubs = subscriptionRepository.findAllByExpireDateAfterAndStatus(LocalDateTime.now(), true);
-        for (SubscriptionEntity entity : expiredSubs) {
-            entity.setStatus(false);
-            addOrUpdateClientsRelatedToSubscription(List.of(entity));
-        }
-        subscriptionRepository.saveAll(expiredSubs);
-    }
-
-    public void syncWithPanels() throws Exception {
-        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAll();
-        subscriptionEntities.forEach(a -> {
-            a.setUpload(0L);
-            a.setDownload(0L);
-            a.setTotalUsed(0L);
-        });
-        List<ServerEntity> serverEntities = serverRepository.findAll();
-        for (ServerEntity serverEntity : serverEntities) {
-            String sessionKey = panelService.login(new ServerDto(serverEntity));
-            List<InboundEntity> inbounds = inboundRepository.findByServerId(serverEntity.getId());
-            for (InboundEntity inboundEntity : inbounds) {
-                List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
-                for (ClientEntity clientEntity : clientEntities) {
-                    ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
-                    clientEntity.setUp(Long.parseLong(model.getUp()));
-                    clientEntity.setDown(Long.parseLong(model.getDown()));
-                    clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
-                    SubscriptionEntity subscriptionEntity = subscriptionEntities.stream().filter(a -> a.getId() == clientEntity.getSubscriptionId()).toList().get(0);
-                    subscriptionEntity.setUpload(subscriptionEntity.getUpload() + clientEntity.getUp());
-                    subscriptionEntity.setDownload(subscriptionEntity.getDownload() + clientEntity.getDown());
-                    subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
-                }
-                clientRepository.saveAll(clientEntities);
-            }
-        }
-        subscriptionRepository.saveAll(subscriptionEntities);
-    }
-
 }
 

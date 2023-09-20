@@ -69,6 +69,7 @@ public class Bootstrap implements ApplicationRunner {
         serverService.create(
                 ServerRequest.builder()
                         .generatable(true)
+                        .status(true)
                         .password("w~#4!x}kd_@Ng*}T3r,VBdyZ7J-VRiVZ#}")
                         .username("husyn.cf")
                         .url("https://test.gixmetir.online:9090/")

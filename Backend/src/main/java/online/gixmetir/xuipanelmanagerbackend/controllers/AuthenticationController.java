@@ -5,6 +5,7 @@ import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.models.AuthDto;
 import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
+import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,8 @@ public class AuthenticationController {
     }
 
     @GetMapping("/get-role")
-    public ResponseEntity<Role> getRole() {
-        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<Role> getRole() throws Exception {
+        UserEntity entity = new Helper().getUserFromContext();
         return ResponseEntity.ok(entity.getRole());
     }
 

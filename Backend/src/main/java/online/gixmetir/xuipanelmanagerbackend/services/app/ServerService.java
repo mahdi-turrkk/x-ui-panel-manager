@@ -7,6 +7,7 @@ import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerRequest;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,14 @@ import java.util.List;
 public class ServerService {
     private final ServerRepository serverRepository;
     private final InboundRepository inboundRepository;
+    private final SubscriptionService subscriptionService;
+    private final SubscriptionRepository subscriptionRepository;
 
-    public ServerService(ServerRepository serverRepository, InboundRepository inboundRepository) {
+    public ServerService(ServerRepository serverRepository, InboundRepository inboundRepository, SubscriptionService subscriptionService, SubscriptionRepository subscriptionRepository) {
         this.serverRepository = serverRepository;
         this.inboundRepository = inboundRepository;
+        this.subscriptionService = subscriptionService;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     public Page<ServerDto> getAll(Pageable pageable) {
@@ -58,5 +63,9 @@ public class ServerService {
             inboundRepository.saveAll(inbounds);
         }
         return new ServerDto(entity);
+    }
+
+    public void syncSubscriptionsWithServers() throws Exception {
+        subscriptionService.addOrUpdateClientsRelatedToSubscription(subscriptionRepository.findAll());
     }
 }

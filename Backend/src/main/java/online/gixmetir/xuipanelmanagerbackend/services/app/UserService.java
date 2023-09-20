@@ -13,6 +13,7 @@ import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
+import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -83,15 +84,15 @@ public class UserService {
     }
 
 
-    public UserDto changeStatus(Boolean newStatus) {
-        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public UserDto changeStatus(Boolean newStatus, Long id) throws Exception {
+        UserEntity entity = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("User with id: " + id + "not found"));
         entity.setEnabled(newStatus);
         repository.save(entity);
         return new UserDto(entity);
     }
 
     public void changePassword(Long userId, String oldPassword, String newPassword) throws Exception {
-        UserEntity entity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserEntity entity = new Helper().getUserFromContext();
         AuthenticationEntity authenticationEntity = null;
         if (entity.getRole() == Role.Admin) {
             authenticationEntity = authenticationRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("user not found"));

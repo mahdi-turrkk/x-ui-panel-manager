@@ -2,6 +2,9 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class SubscriptionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +37,6 @@ public class SubscriptionEntity {
     private LocalDateTime expireDate;
     @Column(name = "start-date")
     private LocalDateTime startDate;
-
     @Column(name = "period-length")
     private Integer periodLength;
     @Column(name = "status")
@@ -45,4 +48,11 @@ public class SubscriptionEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user-id", updatable = false, insertable = false)
     private UserEntity entity;
+    @CreatedDate
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+    @LastModifiedDate
+    @Column(name = "last_updated-date")
+    private LocalDateTime lastUpdatedDate;
+
 }
