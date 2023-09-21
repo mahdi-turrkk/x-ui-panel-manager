@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export const useDataStore = defineStore('dataStore',{
     state: () => {
         return {
-            serverAddress: 'http://localhost:8081/api/v1',
+            serverAddress: 'http://localhost:5001/api/v1',
             darkStatus : true,
             token : ''
         }
