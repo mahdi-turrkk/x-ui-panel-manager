@@ -2,24 +2,32 @@
   <div class="h-screen w-screen flex justify-center items-center bg-background-1 relative">
     <div class="absolute top-4 bg-error text-white z-50 flex rounded-xl px-3 py-1" v-if="showErrorMessage">
       <XCircleIcon class="w-7 h-7 mx-2"/>
-      {{ local.loginErrorMessage }}
+      {{ errorMessage }}
     </div>
     <div class="bg-background-3 px-6 py-6 rounded-xl flex justify-center items-center flex-col drop-shadow-xl">
       <div class="text-primary-1 text-3xl mb-10">
         <img src="/src/assets/logo-white.png" class="h-16 w-16" v-if="useDataStore().getDarkStatus">
         <img src="/src/assets/logo-black.png" class="h-16 w-16" v-else>
       </div>
+      <label class="text-info-3 z-0 px-2 pb-3 -mt-[35px] opacity-0 transition-all duration-200"
+             :class="{'-mt-3 opacity-100' : username ,'ml-auto' : isRtl , 'mr-auto' : !isRtl}">{{
+          local.username
+        }}</label>
       <input type="text" :placeholder="local.username" v-model="username"
-             class="w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+             class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+      <label class="text-info-3 z-0 px-2 pb-3 -mt-[35px] opacity-0 transition-all duration-200"
+             :class="{'mt-0 opacity-100' : password ,'ml-auto' : isRtl , 'mr-auto' : !isRtl}">{{
+          local.password
+        }}</label>
       <div class="flex relative">
         <input :type="showPass ? 'text' : 'password'" :placeholder="local.password" v-model="password"
-               class="w-72 md:w-96 shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
+               class="z-20 w-72 md:w-96 shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}"
         />
-        <eye-icon class="h-5 w-5 text-info-2 absolute top-3 cursor-pointer"
+        <eye-icon class="z-20 h-5 w-5 text-info-2 absolute top-3 cursor-pointer"
                   :class="{'left-2' : isRtl , 'right-2' : !isRtl}" v-if="!showPass"
                   @click="showPass = !showPass"/>
-        <eye-slash-icon class="h-5 w-5 text-info-2 absolute top-3 cursor-pointer"
+        <eye-slash-icon class="z-20 h-5 w-5 text-info-2 absolute top-3 cursor-pointer"
                         :class="{'left-2' : isRtl , 'right-2' : !isRtl}" v-else
                         @click="showPass = !showPass"/>
       </div>
@@ -62,9 +70,7 @@ let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  let cookie = JSON.parse(document.cookie)
-  cookie.language = payload
-  document.cookie = JSON.stringify(cookie)
+  document.cookie = `language=${JSON.stringify(payload)}`
 }
 
 let local = computed(() => {
@@ -76,6 +82,7 @@ let isRtl = computed(() => {
 })
 
 let showErrorMessage = ref(false)
+let errorMessage = ref('')
 
 let username = ref(undefined)
 let password = ref(undefined)
@@ -89,24 +96,22 @@ const signIn = () => {
         }
     ).then((response) => {
       useDataStore().setToken(response.data.token)
-      let cookieObj = {
-        token: response.data.token,
-        isDark: useDataStore().getDarkStatus,
-        language: [useLocalization().getFlag, useLocalization().getLanguage, useLocalization().getDirection]
-      }
-      document.cookie = JSON.stringify(cookieObj)
-      console.log(useDataStore().getToken)
+      document.cookie = `token=${response.data.token}`
+      document.cookie = `isDark=${useDataStore().getDarkStatus}`
+      document.cookie = `language=${JSON.stringify([useLocalization().getFlag , useLocalization().getLanguage , useLocalization().getDirection])}`
       if (response.data.role === 'Admin')
         router.push('/admin')
       else if (response.data.role === 'Customer')
         router.push('/customer')
     }).catch((error) => {
+      errorMessage.value = local.value.errorLoggingIn
       showErrorMessage.value = true;
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
     })
   } else {
+    errorMessage.value = local.value.errorFieldsOfLogin
     showErrorMessage.value = true
     setTimeout(() => {
       showErrorMessage.value = false
@@ -116,13 +121,23 @@ const signIn = () => {
 
 onMounted(() => {
   if (document.cookie) {
-    let cookie = JSON.parse(document.cookie)
-    useDataStore().setToken(cookie.token)
-    useDataStore().setDarkStatus(cookie.isDark)
-    useLocalization().changeLanguage(cookie.language)
+    let cookie = document.cookie.split('; ');
+    cookie.forEach((data) => {
+      let value = data.split('=')
+      if (value[0] === 'language'){
+        let language = JSON.parse(value[1])
+        useLocalization().changeLanguage(language)
+      }
+      else if(value[0] === 'isDark'){
+        useDataStore().setDarkStatus(value[1] === 'true')
+      }
+      else{
+        useDataStore().setToken(value[1])
+      }
+    })
     axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
         {
-          headers :{
+          headers: {
             Authorization: useDataStore().getToken
           }
         }
