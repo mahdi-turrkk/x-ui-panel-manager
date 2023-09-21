@@ -1,28 +1,35 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import login from '../views/login/index.vue'
+import adminDash from '../views/admin/dashboard/index.vue'
+import adminServersPage from '../views/admin/servers/index.vue'
+import adminSubscriptionsPage from '../views/admin/subscriptions/index.vue'
+import adminCustomersPage from '../views/admin/customers/index.vue'
+import customersPage from '../views/customer/index.vue'
+
 
 const routes = [
     {
         path: '/',
-        component: () => import('../views/login/index.vue')
+        component: login
     },
     {
         path: '/admin',
         children: [
             {
                 path: '',
-                component: () => import('../views/admin/dashboard/index.vue')
+                component: adminDash
             },
             {
                 path: 'servers',
-                component: () => import('../views/admin/servers/index.vue')
+                component: adminServersPage
             },
             {
                 path: 'subscriptions',
-                component: () => import('../views/admin/subscriptions/index.vue')
+                component: adminSubscriptionsPage
             },
             {
                 path: 'customers',
-                component: () => import('../views/admin/customers/index.vue')
+                component: adminCustomersPage
             },
         ]
     },
@@ -31,7 +38,7 @@ const routes = [
         children: [
             {
                 path: '',
-                component: () => import('../views/customer/index.vue')
+                component: customersPage
             },
         ]
     },
