@@ -149,18 +149,14 @@ let isDark = computed(() => {
 
 const changeThemeStatus = () => {
   useDataStore().changeDarkStatus()
-  let cookie = JSON.parse(document.cookie)
-  cookie.isDark = useDataStore().getDarkStatus
-  document.cookie = JSON.stringify(cookie)
+  document.cookie = `isDark=${useDataStore().getDarkStatus}`
 }
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  let cookie = JSON.parse(document.cookie)
-  cookie.language = payload
-  document.cookie = JSON.stringify(cookie)
+  document.cookie = `language=${JSON.stringify(payload)}`
 }
 
 let local = computed(() => {
@@ -172,35 +168,36 @@ let isRtl = computed(() => {
 })
 
 const logOut = () => {
-  let cookie = JSON.parse(document.cookie);
-  cookie.token = '';
-  console.log(cookie)
-  document.cookie = JSON.stringify(cookie);
+  document.cookie = `token=`
   router.push('/')
 }
 
 onMounted(() => {
   if (document.cookie) {
-    let cookie = JSON.parse(document.cookie)
-    if (cookie.token) {
-      useDataStore().setToken(cookie.token)
-      useDataStore().setDarkStatus(cookie.isDark)
-      useLocalization().changeLanguage(cookie.language)
-      axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
-          {
-            headers: {
-              Authorization: useDataStore().getToken
-            }
+    let cookie = document.cookie.split('; ');
+    cookie.forEach((data) => {
+      let value = data.split('=')
+      if (value[0] === 'language'){
+        let language = JSON.parse(value[1])
+        useLocalization().changeLanguage(language)
+      }
+      else if(value[0] === 'isDark'){
+        useDataStore().setDarkStatus(value[1] === 'true')
+      }
+      else{
+        useDataStore().setToken(value[1])
+      }
+    })
+    axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
+        {
+          headers: {
+            Authorization: useDataStore().getToken
           }
-      ).then((response) => {
-        console.log(response)
-        if (response.data !== 'Admin')
-          router.push('/')
-      }).catch((error) => {
-        console.log(error)
-      })
-    }
-    else router.push('/')
+        }
+    ).then((response) => {
+      if (response.data !== 'Admin')
+        router.push('/')
+    })
   }
   else router.push('/')
 })
