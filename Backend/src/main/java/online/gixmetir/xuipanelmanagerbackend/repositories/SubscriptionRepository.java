@@ -14,8 +14,21 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     Optional<SubscriptionEntity> findByUuid(String uuid);
 
     List<SubscriptionEntity> findAllByExpireDateAfterAndStatus(LocalDateTime expireDate, Boolean status);
+
     @Query("select s from SubscriptionEntity s where s.status = :status and s.expireDate <= :expireDate and s.totalFlow<=s.totalUsed")
     List<SubscriptionEntity> getAllExpiredSubscriptions(@Param("expireDate") LocalDateTime expireDate, @Param("status") Boolean status);
 
     List<SubscriptionEntity> findAllByStatus(Boolean status);
+
+    @Query("SELECT count (e) FROM SubscriptionEntity e WHERE MONTH(e.createdDate) = MONTH(CURRENT_DATE) AND YEAR(e.createdDate) = YEAR(CURRENT_DATE)")
+    long getNumberOfSubscriptionsCreatedLastMonth();
+
+    @Query("SELECT count (e) FROM SubscriptionEntity e ")
+    long getNumberOfAllSubscriptions();
+
+    @Query("select sum(s.upload) from SubscriptionEntity s")
+    Long getTotalUpload();
+
+    @Query("select sum(s.download) from SubscriptionEntity s")
+    Long getTotalDownload();
 }

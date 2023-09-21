@@ -4,6 +4,7 @@ import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
 import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
+import online.gixmetir.xuipanelmanagerbackend.models.SummaryModel;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SyncService;
 import org.springframework.data.domain.Page;
@@ -63,5 +64,10 @@ public class SubscriptionController {
     public void sync() throws Exception {
         syncWithPanels.syncWithPanels();
         syncWithPanels.expiration();
+    }
+
+    @GetMapping("/summary")
+    public SummaryModel summary() throws Exception {
+        return subscriptionService.getSummary();
     }
 }

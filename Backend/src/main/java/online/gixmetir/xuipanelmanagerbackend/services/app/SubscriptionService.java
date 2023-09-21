@@ -183,5 +183,14 @@ public class SubscriptionService {
         }
         return configs.toString();
     }
+
+    public SummaryModel getSummary() throws Exception {
+        SummaryModel model = new SummaryModel();
+        model.setTotalDownload(subscriptionRepository.getTotalDownload());
+        model.setTotalUpload(subscriptionRepository.getTotalUpload());
+        model.setTotalSold(subscriptionRepository.getNumberOfAllSubscriptions());
+        model.setTotalLastMonthSold(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth());
+        return model;
+    }
 }
 
