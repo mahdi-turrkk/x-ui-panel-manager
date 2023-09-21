@@ -1,9 +1,0 @@
-{
-  "appId": "online.gixmetir.panelManager",
-  "appName": "x-ui-panel-manager",
-  "webDir": "dist",
-  "icon": "/src/assets/logo-black.png",
-  "server": {
-    "androidScheme": "https"
-  }
-}
