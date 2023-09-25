@@ -4,7 +4,6 @@ import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import online.gixmetir.xuipanelmanagerbackend.security.filter.JwtAuthenticationFilter;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,13 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -37,37 +33,45 @@ public class SecurityConfiguration {
     private final AuthenticationService authenticationService;
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
+        configuration.addAllowedOrigin(CorsConfiguration.ALL); // Allow all origins (you can specify specific origins)
+        configuration.addAllowedMethod(CorsConfiguration.ALL); // Allow all HTTP methods
+//        configuration.addAllowedMethod("POST"); // Allow all HTTP methods
+        configuration.addAllowedHeader(CorsConfiguration.ALL); // Allow all headers
+        configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies)
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
+
     @Bean
     public WebMvcConfigurer configurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@Nonnull CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
+                registry.addMapping("/**").allowedOrigins(CorsConfiguration.ALL).allowedMethods(CorsConfiguration.ALL).allowedHeaders(CorsConfiguration.ALL);
             }
         };
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request
-//                                .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
-//                                .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
-//                                .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")
-//                                .requestMatchers("api/v1/servers/*").hasAnyAuthority("Admin")
-                                .requestMatchers("**").permitAll()
-//                                .requestMatchers("v3/api-docs**", "swagger-ui/*", "api/v1/authentication/*").permitAll()
-//                                .anyRequest().authenticated()
+                                request
+//                                        .requestMatchers("**").permitAll()
+                                        .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
+//                                        .requestMatchers("/api/v1/subscriptions/*").permitAll()
+                                        .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
+                                        .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")
+                                        .requestMatchers("api/v1/servers/*").hasAnyAuthority("Admin")
+                                        .requestMatchers("v3/api-docs/**", "swagger-ui/*", "api/v1/authentication/*").permitAll()
+                                        .anyRequest().authenticated()
 
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -80,19 +84,6 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-
-//    @Bean
-//    public CorsConfigurationSource corsConfiguration() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.addAllowedOrigin("*");
-//        configuration.addAllowedMethod("*");
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-
-
-//
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
