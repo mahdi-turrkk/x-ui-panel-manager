@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
-import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
@@ -35,10 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @Nonnull FilterChain filterChain) throws ServletException, IOException {
 
         response.setHeader("Access-Control-Allow-Origin", "*");
-//        response.setHeader("Access-Control-Allow-Methods", "*");
-//        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Methods", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "*");
-//        response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
+        response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
         if ("OPTIONS".equals(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
             return;
@@ -70,36 +69,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
-//    private boolean getAccess(@Nonnull HttpServletRequest request, Role role) {
-//        String uri = request.getRequestURI();
-//        if (uri.contains("servers") || uri.contains("inbounds") || uri.contains("databases")) {
-//            return role == Role.Admin;
-//        }
-//
-//        if (uri.contains("authentication")) {
-//            return true;
-//        }
-//
-//        if (uri.contains("users")) {
-//            if (uri.contains("change-password"))
-//                return role == Role.Admin || role == Role.Customer;
-//            return role == Role.Admin;
-//        }
-//        if (uri.contains("subscriptions")) {
-//            if (uri.contains("report") || uri.contains("client"))
-//                return true;
-//            if (uri.contains("create") || uri.contains("update") || uri.contains("get-all") || uri.contains("change-status"))
-//                return role == Role.Admin || role == Role.Customer;
-//            return role == Role.Admin;
-//        }
-//        return false;
-//    }
-
-//    private void denyAccess(@Nonnull HttpServletResponse response) throws IOException {
-//        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//        response.setContentType("application/json");
-//        response.getWriter().write("{\"error\": \"Access Forbidden\"}");
-//        response.getWriter().flush();
-//    }
 }
