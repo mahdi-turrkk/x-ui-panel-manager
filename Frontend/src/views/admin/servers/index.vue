@@ -1,6 +1,6 @@
 <template>
   <admin-layout>
-    <server-dialog :show-dialog="showServerDialog" @close-dialog="showServerDialog = false" :server="server"/>
+    <server-dialog :show-dialog="showServerDialog" @close-dialog="showServerDialog = false" :server="server" @server-submitted="loadServers"/>
     <div class="w-full absolute top-5">
       <div class="w-fit bg-error text-white flex rounded-xl px-2 py-2 mx-auto items-center" v-if="showErrorMessage">
         <x-circle-icon class="w-5 h-5"/>

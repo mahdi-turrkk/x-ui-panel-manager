@@ -65,7 +65,7 @@ watch(() => props.server, (newVal) => {
   serverPassword.value = props.server.password
 })
 
-const emits = defineEmits(['closeDialog'])
+const emits = defineEmits(['closeDialog' , 'serverSubmitted'])
 
 let backdrop = ref(null)
 const backdropClicked = (data) => {
@@ -99,6 +99,7 @@ const saveServer = () => {
           showSuccessMessage.value = false
         }, 1000)
         emits('closeDialog')
+        emits('serverSubmitted')
       }).catch((error) => {
         errorMessage.value = useLocalization().errorSavingServer
         showErrorMessage.value = true
@@ -125,6 +126,7 @@ const saveServer = () => {
           showSuccessMessage.value = false
         }, 1000)
         emits('closeDialog')
+        emits('serverSubmitted')
       }).catch((error) => {
         errorMessage.value = useLocalization().errorSavingServer
         showErrorMessage.value = true
