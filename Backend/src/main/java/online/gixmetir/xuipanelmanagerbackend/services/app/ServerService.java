@@ -36,6 +36,7 @@ public class ServerService {
         ServerEntity serverFromDb = serverRepository.findByUrl(request.getUrl()).orElse(null);
         if (serverFromDb != null) throw new Exception("Server with url: " + request.getUrl() + " already exists");
         ServerEntity entity = request.toEntity();
+        entity.setStatus(true);
         serverRepository.save(entity);
         return new ServerDto(entity);
     }
