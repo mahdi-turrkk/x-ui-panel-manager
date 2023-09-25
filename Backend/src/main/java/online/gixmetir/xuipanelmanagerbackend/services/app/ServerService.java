@@ -29,7 +29,8 @@ public class ServerService {
     }
 
     public Page<ServerDto> getAll(Pageable pageable) {
-        return serverRepository.findAll(pageable).map(ServerDto::new);
+        Page<ServerDto> map = serverRepository.findAll(pageable).map(ServerDto::new);
+        return map;
     }
 
     public ServerDto create(ServerRequest request) throws Exception {

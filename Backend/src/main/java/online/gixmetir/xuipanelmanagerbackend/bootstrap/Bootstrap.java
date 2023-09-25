@@ -51,7 +51,7 @@ public class Bootstrap implements ApplicationRunner {
     }
 
     private void bootstrapInbound() throws Exception {
-        inboundService.loadAllInboundsFromPanels();
+//        inboundService.loadAllInboundsFromPanels();
 //        InboundEntity entity = inboundRepository.findById(1L).orElse(null);
 //        if (entity != null)
 //            entity.setGeneratable(true);
@@ -64,17 +64,17 @@ public class Bootstrap implements ApplicationRunner {
     }
 
     private void bootstrapServer() throws Exception {
-        ServerEntity entity = serverRepository.findByUrl("https://test.gixmetir.online:9090/").orElse(null);
-        if (entity != null) return;
-        serverService.create(
-                ServerRequest.builder()
-                        .generatable(true)
-                        .status(true)
-                        .password("w~#4!x}kd_@Ng*}T3r,VBdyZ7J-VRiVZ#}")
-                        .username("husyn.cf")
-                        .url("https://test.gixmetir.online:9090/")
-                        .build()
-        );
+//        ServerEntity entity = serverRepository.findByUrl("https://test.gixmetir.online:9090/").orElse(null);
+//        if (entity != null) return;
+//        serverService.create(
+//                ServerRequest.builder()
+//                        .generatable(true)
+//                        .status(true)
+//                        .password("w~#4!x}kd_@Ng*}T3r,VBdyZ7J-VRiVZ#}")
+//                        .username("husyn.cf")
+//                        .url("https://account.gixmetir.online:9090/")
+//                        .build()
+//        );
     }
 
     private void bootstrapUser() throws Exception {

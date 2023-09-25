@@ -32,6 +32,7 @@ public class InboundController {
 
     @GetMapping("/get-all")
     public Page<InboundDto> getAll(InboundFilter filter, Pageable pageable) {
+
         return inboundService.getAll(filter, pageable);
     }
 
