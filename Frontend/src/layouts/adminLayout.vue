@@ -35,7 +35,8 @@
               <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
             </button>
           </div>
-          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-if="useDataStore().getDarkStatus">
+          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut"
+               v-if="useDataStore().getDarkStatus">
           <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
         </div>
       </div>
@@ -44,7 +45,8 @@
         class="pt-14 md:pt-0 px-4 col-span-12 md:col-span-3 lg:col-span-2 bg-background-3 h-screen absolute md:sticky top-0 right-0 left-0 bottom-0 z-10 flex flex-col space-y-4"
         v-if="isHamburgerOpen || isBigScreen">
       <div class="hidden md:flex items-center justify-between mt-4">
-        <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-if="useDataStore().getDarkStatus">
+        <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut"
+             v-if="useDataStore().getDarkStatus">
         <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
         <div class="flex space-x-2 items-center">
           <div class="relative">
@@ -177,14 +179,12 @@ onMounted(() => {
     let cookie = document.cookie.split('; ');
     cookie.forEach((data) => {
       let value = data.split('=')
-      if (value[0] === 'language'){
+      if (value[0] === 'language') {
         let language = JSON.parse(value[1])
         useLocalization().changeLanguage(language)
-      }
-      else if(value[0] === 'isDark'){
+      } else if (value[0] === 'isDark') {
         useDataStore().setDarkStatus(value[1] === 'true')
-      }
-      else{
+      } else {
         useDataStore().setToken(value[1])
       }
     })
@@ -197,8 +197,9 @@ onMounted(() => {
     ).then((response) => {
       if (response.data !== 'Admin')
         router.push('/')
+    }).catch((error) => {
+      router.push('/')
     })
-  }
-  else router.push('/')
+  } else router.push('/')
 })
 </script>
