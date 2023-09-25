@@ -92,7 +92,8 @@ export const useLocalization = defineStore('localize', {
                     noRecords: 'رکوردی برای نمایش وجود ندارد',
                     syncSubs : 'همگام‌سازی اشتراک ها',
                     subsSyncedSuccessfully : 'اشتراک‌ها با موفقیت همگام شدند.',
-                    syncSubsFailed : 'همگام‌سازی اشتراک‌ها با خطا مواجه شد.دوباره سعی کنید.'
+                    syncSubsFailed : 'همگام‌سازی اشتراک‌ها با خطا مواجه شد.دوباره سعی کنید.',
+                    days : 'روز'
                 },
                 en: {
                     username: 'Username',
@@ -179,7 +180,8 @@ export const useLocalization = defineStore('localize', {
                     noRecords : 'No records to show',
                     syncSubs : 'Sync subscriptions',
                     subsSyncedSuccessfully : 'Subscriptions synced successfully.',
-                    syncSubsFailed : 'Error occurred while syncing.Try again.'
+                    syncSubsFailed : 'Error occurred while syncing.Try again.',
+                    days : 'Days'
                 },
             }
         }
