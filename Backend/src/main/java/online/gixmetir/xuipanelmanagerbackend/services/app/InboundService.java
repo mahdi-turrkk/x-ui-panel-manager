@@ -14,7 +14,9 @@ import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -79,6 +81,11 @@ public class InboundService {
     }
 
     public Page<InboundDto> getAll(InboundFilter filter, Pageable pageable) {
-        return inboundRepository.findAll(filter, pageable).map(InboundDto::new);
+        int pageNumber = 0;
+        int pageSize = Integer.MAX_VALUE;
+        Sort sort = Sort.by(Sort.Direction.ASC,"id");
+        Pageable pageable1 = PageRequest.of(pageNumber, pageSize, sort);
+
+        return inboundRepository.findAll(filter, pageable1).map(InboundDto::new);
     }
 }
