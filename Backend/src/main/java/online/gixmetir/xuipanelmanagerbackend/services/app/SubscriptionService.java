@@ -179,7 +179,7 @@ public class SubscriptionService {
         List<ClientEntity> entities = clientRepository.findAllBySubscriptionIdAndSendToUser(subscription.getId(), true);
         StringBuilder configs = new StringBuilder();
         for (ClientEntity entity : entities) {
-            configs.append(clientService.generateClientString(entity)).append("<br>");
+            configs.append(clientService.generateClientString(entity)).append("\r\n");
         }
         return configs.toString();
     }
