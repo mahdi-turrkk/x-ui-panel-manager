@@ -4,7 +4,7 @@ import lombok.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -14,10 +14,10 @@ import java.time.LocalDate;
 public class SubscriptionDto {
     private Long id;
 
-    private Long totalFlow;
+    private Double totalFlow;
     private Long totalUsed;
-    private LocalDate expireDate;
-    private LocalDate startDate;
+    private LocalDateTime expireDate;
+    private LocalDateTime startDate;
     private Integer periodLength;
     private Boolean status;
     private String title;
@@ -25,7 +25,7 @@ public class SubscriptionDto {
 
     public SubscriptionDto(SubscriptionEntity subscriptionEntity) {
         this.id = subscriptionEntity.getId();
-        this.totalFlow = subscriptionEntity.getTotalFlow();
+        this.totalFlow = new Helper().byteToGB(subscriptionEntity.getTotalFlow());
         this.totalUsed = subscriptionEntity.getTotalUsed();
         this.expireDate = subscriptionEntity.getExpireDate();
         this.startDate = subscriptionEntity.getStartDate();

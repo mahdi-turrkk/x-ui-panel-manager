@@ -1,9 +1,14 @@
 package online.gixmetir.xuipanelmanagerbackend.entities;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
+import online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels.StreamSettings;
 
-import java.time.LocalDate;
+import java.io.IOException;
 
 @Entity
 @Table(name = "inbounds")
@@ -53,4 +58,12 @@ public class InboundEntity {
     @Column(name = "sniffing")
     private String sniffing;
 
+
+    public StreamSettings getStreamSettingsObj() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonFactory jsonFactory = objectMapper.getFactory();
+        JsonParser parser = jsonFactory.createParser(streamSettings);
+        JsonNode actualObj = objectMapper.readTree(parser);
+        return objectMapper.readValue(actualObj.toString(), StreamSettings.class);
+    }
 }

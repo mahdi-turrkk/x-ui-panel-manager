@@ -9,10 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController()
+@RestController
 @RequestMapping("/api/v1/servers")
+
 public class ServerController {
     private final ServerService service;
+
 
     public ServerController(ServerService service) {
         this.service = service;
@@ -23,8 +25,14 @@ public class ServerController {
         return service.getAll(pageable);
     }
 
+    @GetMapping("/sync-subscriptions-with-servers")
+    public void syncSubscriptionsWithServers() throws Exception {
+
+        service.syncSubscriptionsWithServers();
+    }
+
     @PostMapping("/create")
-    public ResponseEntity<ServerDto> create(@RequestBody ServerRequest request) {
+    public ResponseEntity<ServerDto> create(@RequestBody ServerRequest request) throws Exception {
         return ResponseEntity.ok(service.create(request));
     }
 
@@ -36,5 +44,10 @@ public class ServerController {
     @DeleteMapping("/delete")
     public void delete(@RequestParam Long id) {
         service.delete(id);
+    }
+
+    @PutMapping("/change-status")
+    public ServerDto changeStatus(@RequestParam Boolean newStatus, @RequestParam Long id) {
+        return service.changeStatus(newStatus, id);
     }
 }

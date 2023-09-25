@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
+
 public class UserController {
     private final UserService service;
 
@@ -36,5 +37,15 @@ public class UserController {
     @DeleteMapping("/delete")
     public void delete(@RequestParam Long id) {
         service.delete(id);
+    }
+
+    @PutMapping("/change-status")
+    public UserDto changeStatus(@RequestParam Boolean newStatus,@RequestParam Long id) throws Exception {
+        return service.changeStatus(newStatus, id);
+    }
+
+    @PutMapping("/change-password")
+    public void changePassword(@RequestBody Long userId, @RequestBody String oldPassword, @RequestBody String newPassword) throws Exception {
+        service.changePassword(userId, oldPassword, newPassword);
     }
 }

@@ -2,8 +2,12 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subscriptions")
@@ -12,12 +16,13 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class SubscriptionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "uuid")
-    private String Uuid;
+    private String uuid;
     @Column(name = "total_flow")
     private Long totalFlow;
     @Column(name = "remaining_flow")
@@ -29,11 +34,9 @@ public class SubscriptionEntity {
     @Column(name = "download")
     private Long download;
     @Column(name = "expire-date")
-    private LocalDate expireDate;
+    private LocalDateTime expireDate;
     @Column(name = "start-date")
-    private LocalDate startDate;
-    @Column(name = "start-after-first-use")
-    private Boolean startAfterFirstUse;
+    private LocalDateTime startDate;
     @Column(name = "period-length")
     private Integer periodLength;
     @Column(name = "status")
@@ -45,4 +48,11 @@ public class SubscriptionEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user-id", updatable = false, insertable = false)
     private UserEntity entity;
+    @CreatedDate
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+    @LastModifiedDate
+    @Column(name = "last_updated-date")
+    private LocalDateTime lastUpdatedDate;
+
 }

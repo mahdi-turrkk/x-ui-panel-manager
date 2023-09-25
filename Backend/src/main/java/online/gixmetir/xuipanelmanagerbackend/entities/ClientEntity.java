@@ -53,5 +53,8 @@ public class ClientEntity {
     private Long down;
     @Column(name = "total-used")
     private long totalUsed;
+    @Column(name = "send_to_user")
+    private Boolean sendToUser;
+
 
 }
