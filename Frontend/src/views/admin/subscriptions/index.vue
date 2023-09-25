@@ -2,7 +2,7 @@
   <admin-layout>
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
     <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
-                         :subscription="subscription" :type="subDialogType"/>
+                         :subscription="subscription" :type="subDialogType" @subs-added="addNewSubsToList"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
       <button
@@ -87,4 +87,8 @@ watch(() => onboarding.value , () => {
   subscriptions.value = []
   getSubscriptions()
 })
+
+const addNewSubsToList = () => {
+  getSubscriptions()
+}
 </script>

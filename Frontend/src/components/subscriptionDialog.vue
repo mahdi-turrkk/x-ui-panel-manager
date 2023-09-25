@@ -76,7 +76,7 @@ watch(() => props.subscription, () => {
   periodLength.value = ''
 })
 
-const emits = defineEmits(['closeDialog'])
+const emits = defineEmits(['closeDialog' , 'subsAdded'])
 
 let backdrop = ref(null)
 const backdropClicked = (data) => {
@@ -134,6 +134,7 @@ const saveSubscription = () => {
           showSuccessMessage.value = false
           emits('closeDialog')
         }, 1000)
+        emits('subsAdded')
       }).catch((error) => {
         errorMessage = local.value.errorSavingSubscription
         showErrorMessage.value = true
