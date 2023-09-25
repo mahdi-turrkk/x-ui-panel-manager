@@ -23,12 +23,28 @@
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
              :class="{'mt-0 opacity-100' : totalFlow}">{{ local.totalFlow }}</label>
-      <input type="number" :placeholder="local.totalFlow" v-model="totalFlow"
+      <input type="number" :placeholder="local.totalFlow" v-model="totalFlow" v-if="useRoute().path.substring(0,6) === '/admin'"
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+      <select type="number" v-model="totalFlow" v-else
+              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150">
+        <option value="" disabled selected>{{ local.totalFlow }}</option>
+        <option class="my-4" :value="30">30 GB</option>
+        <option class="my-4" :value="50">50 GB</option>
+        <option class="my-4" :value="90">90 GB</option>
+        <option class="my-4" :value="120">120 GB</option>
+      </select>
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
              :class="{'mt-0 opacity-100' : periodLength}">{{ local.periodLength }}</label>
-      <input type="number" :placeholder="local.periodLength" v-model="periodLength"
+      <input type="number" :placeholder="local.periodLength" v-model="periodLength" v-if="useRoute().path.substring(0,6) === '/admin'"
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+      <select type="number" v-model="periodLength" v-else
+              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150">
+        <option value="" disabled selected>{{ local.periodLength }}</option>
+        <option class="my-4" :value="30">30 {{ local.days}}</option>
+        <option class="my-4" :value="60">60 {{ local.days}}</option>
+        <option class="my-4" :value="90">90 {{ local.days}}</option>
+        <option class="my-4" :value="120">120 {{ local.days}}</option>
+      </select>
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
              :class="{'mt-0 opacity-100' : number}" v-if="type === 'new'">{{ local.number }}</label>
       <input type="number" :placeholder="local.number" v-model="number" v-if="type === 'new'"
@@ -54,6 +70,8 @@ import {useLocalization} from "../store/localizationStore.js";
 import {CheckCircleIcon, XCircleIcon, XMarkIcon} from "@heroicons/vue/24/solid/index.js";
 import axios from "axios";
 import {useDataStore} from "../store/dataStore.js";
+import router from "../router/index.js";
+import {useRoute} from "vue-router";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -76,7 +94,7 @@ watch(() => props.subscription, () => {
   periodLength.value = ''
 })
 
-const emits = defineEmits(['closeDialog'])
+const emits = defineEmits(['closeDialog' , 'subsAdded'])
 
 let backdrop = ref(null)
 const backdropClicked = (data) => {
@@ -134,6 +152,7 @@ const saveSubscription = () => {
           showSuccessMessage.value = false
           emits('closeDialog')
         }, 1000)
+        emits('subsAdded')
       }).catch((error) => {
         errorMessage = local.value.errorSavingSubscription
         showErrorMessage.value = true

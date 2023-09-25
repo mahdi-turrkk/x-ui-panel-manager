@@ -71,12 +71,12 @@
             </div>
             <div class="flex">{{ local.startDate }}&nbsp;:&nbsp;<div class="font-normal"
                                                                      :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-              {{ lookupSubscription.startDate ? lookupSubscription.startDate.substring(0,10) : '' }}
+              {{ lookupSubscription.startDate ? lookupSubscription.startDate.substring(0, 10) : '' }}
             </div>
             </div>
             <div class="flex">{{ local.expireDate }}&nbsp;:&nbsp;<div class="font-normal"
                                                                       :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-              {{ lookupSubscription.expireDate ? lookupSubscription.expireDate.substring(0,10) : '' }}
+              {{ lookupSubscription.expireDate ? lookupSubscription.expireDate.substring(0, 10) : '' }}
             </div>
             </div>
             <div class="flex">{{ local.totalUsed }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
@@ -105,7 +105,7 @@
       <div class="lg:col-span-4 -mt-2">
         <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
         <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
-                             :subscription="subscription" :type="subEditType"/>
+                             :subscription="subscription" :type="subEditType" @subs-added="addNewSubsToList"/>
         <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
           <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
           <button
@@ -120,7 +120,8 @@
         <div class="flex mt-6">
           <div
               class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-              v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i" v-if="loading">{{ i }}
+              v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i" v-if="loading">
+            {{ i }}
           </div>
         </div>
       </div>
@@ -180,12 +181,12 @@ let subscriptions = ref([])
 let subLink = ref('')
 let showSubDetail = ref(false)
 
-const searchSubscription = ()=>{
-  if(subLink.value){
-    axios.get(`${useDataStore().getServerAddress}/subscriptions/report?subLink=${subLink.value}` ,
+const searchSubscription = () => {
+  if (subLink.value) {
+    axios.get(`${useDataStore().getServerAddress}/subscriptions/report?subLink=${subLink.value}`,
         {
-          headers : {
-            Authorization : useDataStore().getToken
+          headers: {
+            Authorization: useDataStore().getToken
           }
         }
     ).then((response) => {
@@ -239,14 +240,12 @@ onMounted(() => {
     let cookie = document.cookie.split('; ');
     cookie.forEach((data) => {
       let value = data.split('=')
-      if (value[0] === 'language'){
+      if (value[0] === 'language') {
         let language = JSON.parse(value[1])
         useLocalization().changeLanguage(language)
-      }
-      else if(value[0] === 'isDark'){
+      } else if (value[0] === 'isDark') {
         useDataStore().setDarkStatus(value[1] === 'true')
-      }
-      else{
+      } else {
         useDataStore().setToken(value[1])
       }
     })
@@ -260,9 +259,10 @@ onMounted(() => {
       if (response.data !== 'Customer')
         router.push('/')
       else getSubscriptions()
+    }).catch((error) => {
+      router.push('/')
     })
-  }
-  else router.push('/')
+  } else router.push('/')
 })
 
 watch(() => onboarding.value, () => {
@@ -273,5 +273,9 @@ watch(() => onboarding.value, () => {
 const logOut = () => {
   document.cookie = `token=`
   router.push('/')
+}
+
+const addNewSubsToList = () => {
+  getSubscriptions()
 }
 </script>
