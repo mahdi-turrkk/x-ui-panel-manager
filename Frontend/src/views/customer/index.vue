@@ -36,7 +36,10 @@
               </div>
             </button>
           </div>
-          <img :src="logoSrc" class="mx-2 w-10 h-10 cursor-pointer" @click="router.push('/')">
+          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer"
+               @click="logOut"
+               v-if="useDataStore().getDarkStatus">
+          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
         </div>
       </div>
     </div>
@@ -46,7 +49,7 @@
             class="bg-background-3 text-info-3 rounded-xl px-4 py-4 text-xs md:text-lg flex flex-col space-y-4">
           <div class="font-bold text-sm md:text-lg text-center">{{ local.subLookUp }}</div>
           <div class="flex relative w-full">
-            <input type="text" :placeholder="local.subscriptionUrl"
+            <input type="text" :placeholder="local.subscriptionUrl" v-model="subLink"
                    class="w-full shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                    :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}" @keydown.enter="searchSubscription"
             />
@@ -55,7 +58,7 @@
                                    @click="searchSubscription"/>
           </div>
           <div class="font-bold text-center flex flex-col space-y-2 px-6"
-               v-if="lookupSubscription.id != undefined">
+               v-if="showSubDetail">
             <div class="flex">{{ local.id }}&nbsp;:&nbsp;<div class="font-normal"
                                                               :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
               {{ lookupSubscription.id }}
@@ -68,32 +71,32 @@
             </div>
             <div class="flex">{{ local.startDate }}&nbsp;:&nbsp;<div class="font-normal"
                                                                      :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-              {{ lookupSubscription.startDate }}
+              {{ lookupSubscription.startDate ? lookupSubscription.startDate.substring(0,10) : '' }}
             </div>
             </div>
             <div class="flex">{{ local.expireDate }}&nbsp;:&nbsp;<div class="font-normal"
                                                                       :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-              {{ lookupSubscription.expireDate }}
+              {{ lookupSubscription.expireDate ? lookupSubscription.expireDate.substring(0,10) : '' }}
             </div>
             </div>
             <div class="flex">{{ local.totalUsed }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
                                                                      :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-              {{ (Number(lookupSubscription.totalUsed) / Math.pow(1024, 3)).toFixed(1) }}&nbsp;&nbsp;&nbsp;GB
+              {{ lookupSubscription.totalUsed ? lookupSubscription.totalUsed : '0.00' }}&nbsp;&nbsp;&nbsp;GB
             </div>
             </div>
             <div class="flex">{{ local.totalFlow }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
                                                                      :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-              {{ (Number(lookupSubscription.totalFlow) / Math.pow(1024, 3)).toFixed(1) }}&nbsp;&nbsp;&nbsp;GB
+              {{ lookupSubscription.totalFlow ? lookupSubscription.totalFlow : '0.00' }}&nbsp;&nbsp;&nbsp;GB
             </div>
             </div>
             <div class="flex">{{ local.status }}&nbsp;:&nbsp;<div class="font-normal"
                                                                   :class="{'mr-auto' : isRtl , 'ml-auto': !isRtl}">
-              {{ lookupSubscription.status }}
+              {{ lookupSubscription.status ? local.active : local.inactive }}
             </div>
             </div>
           </div>
           <div class="text-info-2 px-6 pb-14 text-center"
-               v-if="lookupSubscription.id === undefined">
+               v-if="!showSubDetail">
             <document-magnifying-glass-icon class="max-w-56 max-h-56 mx-auto"/>
             <div class="text-xs md:text-sm lg:text-base">{{ local.enterSubToSearch }}</div>
           </div>
@@ -102,22 +105,22 @@
       <div class="lg:col-span-4 -mt-2">
         <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
         <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
-                             :subscription="subscription" :is-renew="isRenew"/>
+                             :subscription="subscription" :type="subEditType"/>
         <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
           <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
           <button
-              @click="()=>{subscription = {};isRenew = false ;showSubscriptionDialog = true}"
+              @click="()=>{subscription = {};subEditType = 'new' ;showSubscriptionDialog = true}"
               class="outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-6 py-2 flex space-x-1 items-center text-sm">
             <plus-icon class="w-4 h-4"/>
             {{ local.add }} {{ local.subscription }}
           </button>
         </div>
         <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
-                            @open-link-dialog="openLinkDialog"/>
+                            @open-link-dialog="openLinkDialog" :is-loading="loading"/>
         <div class="flex mt-6">
           <div
               class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-              v-for="i in pages" :class="{'bg-opacity-50' : onboarding == i}" @click="onboarding = i">{{ i }}
+              v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i" v-if="loading">{{ i }}
           </div>
         </div>
       </div>
@@ -134,12 +137,13 @@ import {
   PlusIcon,
   SunIcon
 } from "@heroicons/vue/24/outline/index.js";
-import {computed, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
 import SubscriptionsList from "../../components/subscriptionsList.vue";
 import SubscriptionDialog from "../../components/subscriptionDialog.vue";
 import SubscriptionLinkDialog from "../../components/subscriptionLinkDialog.vue";
 import SubLookupDialog from "../../components/subLookupDialog.vue";
+import axios from "axios";
 
 let isDark = computed(() => {
   return useDataStore().getDarkStatus
@@ -147,16 +151,14 @@ let isDark = computed(() => {
 
 const changeThemeStatus = () => {
   useDataStore().changeDarkStatus()
+  document.cookie = `isDark=${useDataStore().getDarkStatus}`
 }
-
-let logoSrc = computed(() => {
-  return useDataStore().getDarkStatus ? '../src/assets/logo-white.png' : '../src/assets/logo-black.png'
-})
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
+  document.cookie = `language=${JSON.stringify(payload)}`
 }
 
 let local = computed(() => useLocalization().getLocal)
@@ -165,151 +167,45 @@ let isRtl = computed(() => useLocalization().getDirection === 'rtl')
 
 let lookupSubscription = reactive({
   id: undefined,
-  title: 'shahr-mobile',
-  startDate: '2023/09/04',
-  expireDate: '2023/10/05',
-  totalUsed: '34534583905',
-  totalFlow: '57434658206',
-  status: true
+  title: undefined,
+  startDate: undefined,
+  expireDate: undefined,
+  totalUsed: undefined,
+  totalFlow: undefined,
+  status: undefined
 })
 
-let subscriptions = ref([
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 1'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 2'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 3'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 4'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 5'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 6'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 7'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 8'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 9'
-  },
-  {
-    id: '3242',
-    totalUse: '324532567890',
-    totalFlow: '456788034544',
-    status: true,
-    title: 'mobile-shahr',
-    startDate: '2023/09/03',
-    expireDate: '2023/10/05',
-    ipLimit: 2,
-    periodLength: 30,
-    link: 'this is test link for qr generating 10'
-  },
+let subscriptions = ref([])
 
-])
+let subLink = ref('')
+let showSubDetail = ref(false)
 
-const searchSubscription = () => {
+const searchSubscription = ()=>{
+  if(subLink.value){
+    axios.get(`${useDataStore().getServerAddress}/subscriptions/report?subLink=${subLink.value}` ,
+        {
+          headers : {
+            Authorization : useDataStore().getToken
+          }
+        }
+    ).then((response) => {
+      showSubDetail.value = false
+      lookupSubscription = response.data
+      showSubDetail.value = true
+    }).catch((error) => console.log(error))
+  }
 }
 
 let subscription = reactive(undefined)
 let link = ref('')
-let isRenew = ref(false)
-let pages = ref(10)
+let subEditType = ref(false)
+let pages = ref(1)
 let onboarding = ref(1)
 let showSubscriptionDialog = ref(false)
 let showLinkDialog = ref(false)
 const openRenewSubscriptionDialog = (payload) => {
   subscription = payload
-  isRenew.value = true
+  subEditType.value = 'ReNew'
   showSubscriptionDialog.value = true
 }
 
@@ -321,4 +217,61 @@ const openLinkDialog = (payload) => {
 let showLookupTag = ref(false)
 let showLookupDialog = ref(false)
 
+let loading = ref(true)
+
+const getSubscriptions = () => {
+  loading.value = true
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?size=10&page=${onboarding.value - 1}&selfSubs=true`,
+      {
+        headers: {
+          Authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    pages.value = response.data.totalPages
+    subscriptions.value = response.data.content
+    loading.value = false
+  })
+}
+
+onMounted(() => {
+  if (document.cookie) {
+    let cookie = document.cookie.split('; ');
+    cookie.forEach((data) => {
+      let value = data.split('=')
+      if (value[0] === 'language'){
+        let language = JSON.parse(value[1])
+        useLocalization().changeLanguage(language)
+      }
+      else if(value[0] === 'isDark'){
+        useDataStore().setDarkStatus(value[1] === 'true')
+      }
+      else{
+        useDataStore().setToken(value[1])
+      }
+    })
+    axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
+        {
+          headers: {
+            Authorization: useDataStore().getToken
+          }
+        }
+    ).then((response) => {
+      if (response.data !== 'Customer')
+        router.push('/')
+      else getSubscriptions()
+    })
+  }
+  else router.push('/')
+})
+
+watch(() => onboarding.value, () => {
+  subscriptions.value = []
+  getSubscriptions()
+})
+
+const logOut = () => {
+  document.cookie = `token=`
+  router.push('/')
+}
 </script>

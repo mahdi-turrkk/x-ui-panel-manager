@@ -1,12 +1,12 @@
 <template>
-  <div class="absolute h-full w-full bg-gray-900 bg-opacity-70 top-0 left-0  z-50 flex justify-center items-start pt-40"
+  <div class="absolute min-h-screen w-full bg-gray-900 bg-opacity-70 top-0 left-0  z-50 flex justify-center items-start pt-20 md:pt-40"
        v-if="showDialog" @click="backdropClicked" ref="backdrop">
     <div class="bg-background-3 text-info-3 px-6 w-80 rounded-xl flex flex-col py-6 relative">
-      <div class="rounded-md bg-success flex items-center text-white justify-center py-1 absolute left-6 right-6" v-if="linkCopiedAlert">
+      <div class="rounded-xl bg-success flex items-center text-white justify-center py-2 px-2 absolute left-6 right-6" v-if="linkCopiedAlert">
         <check-circle-icon class="h-4 w-4 mx-2"/>
         {{ local.copySuccessful }}
       </div>
-      <div class="rounded-md bg-error flex items-center text-white justify-center py-1 absolute left-6 right-6" v-if="linkNotCopiedAlert">
+      <div class="rounded-xl bg-error flex items-center text-white justify-center py-2 px-2 absolute left-6 right-6" v-if="linkNotCopiedAlert">
         <X-circle-icon class="h-5 w-5 mx-2"/>
         {{ local.copyUnsuccessful }}
       </div>
