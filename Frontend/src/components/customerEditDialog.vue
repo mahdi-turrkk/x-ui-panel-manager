@@ -86,7 +86,7 @@ watch(() => props.customer, (newVal) => {
   address.value = props.customer.address
 })
 
-const emits = defineEmits(['closeDialog'])
+const emits = defineEmits(['closeDialog' , 'customerEdited'])
 
 let backdrop = ref(null)
 const backdropClicked = (data) => {

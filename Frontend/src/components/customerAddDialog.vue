@@ -75,7 +75,7 @@ let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
 
-const emits = defineEmits(['closeDialog'])
+const emits = defineEmits(['closeDialog' , 'userAdded'])
 
 const emptyFields = () => {
   firstName.value = ''
@@ -121,6 +121,7 @@ const saveCustomer = () => {
         emptyFields()
         emits('closeDialog')
       }, 1000)
+      emits('userAdded')
     }).catch(() => {
       errorMessage.value = local.value.errorSavingCustomer
       showErrorMessage.value = true
