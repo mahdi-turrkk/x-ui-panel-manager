@@ -70,7 +70,7 @@ public class SecurityConfiguration {
                                         .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
                                         .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")
                                         .requestMatchers("api/v1/servers/*").hasAnyAuthority("Admin")
-                                        .requestMatchers("v3/api-docs/**", "swagger-ui/*", "api/v1/authentication/*").permitAll()
+                                        .requestMatchers("v3/api-docs/**", "swagger-ui/*", "api/v1/authentication/*","/api/v1/subscriptions/client/**").permitAll()
                                         .anyRequest().authenticated()
 
                 )
