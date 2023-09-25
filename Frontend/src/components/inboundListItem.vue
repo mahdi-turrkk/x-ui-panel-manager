@@ -53,6 +53,7 @@ let showDeactivateGeneratableTag = ref(false)
 
 const chanageGeneratable = (payload) => {
   axios.put(`${useDataStore().getServerAddress}/inbounds/change-inbound-generatable?inboundId=${props.inbound.id}&generatable=${payload}`,
+      {},
       {
         headers: {
           Authorization: useDataStore().getToken

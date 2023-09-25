@@ -161,6 +161,7 @@ onMounted(() => {
 
 const changeStatus = (payload) => {
   axios.put(`${useDataStore().getServerAddress}/servers/change-status?newStatus=${payload}&id=${props.server.id}`,
+      {},
       {
         headers: {
           Authorization: useDataStore().getToken
