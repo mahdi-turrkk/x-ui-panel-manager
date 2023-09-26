@@ -93,7 +93,12 @@ export const useLocalization = defineStore('localize', {
                     syncSubs : 'همگام‌سازی اشتراک ها',
                     subsSyncedSuccessfully : 'اشتراک‌ها با موفقیت همگام شدند.',
                     syncSubsFailed : 'همگام‌سازی اشتراک‌ها با خطا مواجه شد.دوباره سعی کنید.',
-                    days : 'روز'
+                    days : 'روز',
+                    admins : 'ادمین ها',
+                    admin : 'ادمین',
+                    errorSavingAdmin: 'مشکلی در ثبت ادمین به وجود آمده.دوباره تلاش کنید.',
+                    errorFieldsOfAdmin: 'فیلد هارا به صورت درست پر کنید',
+                    adminSavedSuccessfully : 'ادمین با موفقیت ثبت شد',
                 },
                 en: {
                     username: 'Username',
@@ -181,7 +186,12 @@ export const useLocalization = defineStore('localize', {
                     syncSubs : 'Sync subscriptions',
                     subsSyncedSuccessfully : 'Subscriptions synced successfully.',
                     syncSubsFailed : 'Error occurred while syncing.Try again.',
-                    days : 'Days'
+                    days : 'Days',
+                    admins : 'Admins',
+                    admin : 'Admin',
+                    errorSavingAdmin: 'Error occurred while saving admin.Try again.',
+                    errorFieldsOfAdmin: 'Fill the fields correctly.',
+                    adminSavedSuccessfully : 'Admin saved successfully',
                 },
             }
         }
