@@ -6,13 +6,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
 
     List<ClientEntity> findAllBySubscriptionId(Long subscriptionId);
+
     List<ClientEntity> findAllBySubscriptionIdAndSendToUser(Long subscriptionId, Boolean sendToUser);
 
     ClientEntity findByInboundIdAndSubscriptionId(Long id, Long id1);
 
     List<ClientEntity> findAllByInboundId(Long inboundId);
+
+    Optional<ClientEntity> findByUuid(String uuid);
 }
