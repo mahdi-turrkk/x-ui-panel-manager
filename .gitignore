@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 package-lock.json
-
+android
 # Editor directories and files
 .vscode
 !.vscode/extensions.json

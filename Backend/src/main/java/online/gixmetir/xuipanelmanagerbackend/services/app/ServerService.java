@@ -29,13 +29,15 @@ public class ServerService {
     }
 
     public Page<ServerDto> getAll(Pageable pageable) {
-        return serverRepository.findAll(pageable).map(ServerDto::new);
+        Page<ServerDto> map = serverRepository.findAll(pageable).map(ServerDto::new);
+        return map;
     }
 
     public ServerDto create(ServerRequest request) throws Exception {
         ServerEntity serverFromDb = serverRepository.findByUrl(request.getUrl()).orElse(null);
         if (serverFromDb != null) throw new Exception("Server with url: " + request.getUrl() + " already exists");
         ServerEntity entity = request.toEntity();
+        entity.setStatus(true);
         serverRepository.save(entity);
         return new ServerDto(entity);
     }

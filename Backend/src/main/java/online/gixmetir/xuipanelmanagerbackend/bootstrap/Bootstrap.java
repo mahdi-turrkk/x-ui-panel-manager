@@ -41,7 +41,7 @@ public class Bootstrap implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (authenticationRepository.findByUsername("ADMIN").orElse(null) != null) return;
+        if (authenticationRepository.findByUsername("HUSYN.CF").orElse(null) != null) return;
 
         bootstrapServer();
         bootstrapUser();
@@ -51,53 +51,53 @@ public class Bootstrap implements ApplicationRunner {
     }
 
     private void bootstrapInbound() throws Exception {
-        inboundService.loadAllInboundsFromPanels();
-        InboundEntity entity = inboundRepository.findById(1L).orElse(null);
-        if (entity != null)
-            entity.setGeneratable(true);
-        inboundRepository.save(entity);
-        InboundEntity entity1 = inboundRepository.findById(3L).orElse(null);
-        if (entity1 != null)
-            entity1.setGeneratable(true);
-        inboundRepository.save(entity1);
+//        inboundService.loadAllInboundsFromPanels();
+//        InboundEntity entity = inboundRepository.findById(1L).orElse(null);
+//        if (entity != null)
+//            entity.setGeneratable(true);
+//        inboundRepository.save(entity);
+//        InboundEntity entity1 = inboundRepository.findById(3L).orElse(null);
+//        if (entity1 != null)
+//            entity1.setGeneratable(true);
+//        inboundRepository.save(entity1);
 
     }
 
     private void bootstrapServer() throws Exception {
-        ServerEntity entity = serverRepository.findByUrl("https://test.gixmetir.online:9090/").orElse(null);
-        if (entity != null) return;
-        serverService.create(
-                ServerRequest.builder()
-                        .generatable(true)
-                        .status(true)
-                        .password("w~#4!x}kd_@Ng*}T3r,VBdyZ7J-VRiVZ#}")
-                        .username("husyn.cf")
-                        .url("https://test.gixmetir.online:9090/")
-                        .build()
-        );
+//        ServerEntity entity = serverRepository.findByUrl("https://test.gixmetir.online:9090/").orElse(null);
+//        if (entity != null) return;
+//        serverService.create(
+//                ServerRequest.builder()
+//                        .generatable(true)
+//                        .status(true)
+//                        .password("w~#4!x}kd_@Ng*}T3r,VBdyZ7J-VRiVZ#}")
+//                        .username("husyn.cf")
+//                        .url("https://account.gixmetir.online:9090/")
+//                        .build()
+//        );
     }
 
     private void bootstrapUser() throws Exception {
         UserRequest request = UserRequest.builder()
-                .firstName("Admin")
-                .lastName("Admin")
+                .firstName("Hossein")
+                .lastName("Shakeri")
                 .address("Tabriz")
                 .email("gixmetir@bk.ru")
                 .phoneNumber("09149570548")
-                .username("ADMIN")
-                .password("ADMIN")
+                .username("HUSYN.CF")
+                .password("6230064227HUSYN.CF")
                 .role(Role.Admin)
                 .enabled(true)
                 .build();
         UserRequest request1 = UserRequest.builder()
-                .firstName("Customer")
-                .lastName("Customer")
+                .firstName("Mahdi")
+                .lastName("Cahvoshi")
                 .address("Tabriz")
                 .email("gixmetir@bk.ru")
                 .phoneNumber("09149570548")
-                .username("CUSTOMER")
-                .password("CUSTOMER")
-                .role(Role.Customer)
+                .username("MAHDI")
+                .password("MAHDITURK")
+                .role(Role.Admin)
                 .enabled(true)
                 .build();
         userService.create(request);
@@ -105,12 +105,12 @@ public class Bootstrap implements ApplicationRunner {
     }
 
     private void bootstrapSubscription() throws Exception {
-        subscriptionService.createSubscription(SubscriptionRequest.builder()
-                .periodLength(10)
-                .numberSubscriptionsToGenerate(1)
-                .userId(1L)
-                .title("test")
-                .totalFlow(20L)
-                .build());
+//        subscriptionService.createSubscription(SubscriptionRequest.builder()
+//                .periodLength(10)
+//                .numberSubscriptionsToGenerate(1)
+//                .userId(1L)
+//                .title("test")
+//                .totalFlow(20L)
+//                .build());
     }
 }
