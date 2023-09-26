@@ -191,7 +191,30 @@ const searchSubscription = () => {
 }
 
 const downloadDatabase = () => {
-  window.open(`${useDataStore().getServerAddress}/databases/download`, '_blank')
+  const serverAddress = useDataStore().getServerAddress;
+  const downloadUrl = `${serverAddress}/databases/download`;
+  // Make an Axios GET request to download the file
+  axios.get(downloadUrl, {
+    headers: {
+      Authorization: useDataStore().getToken
+    },
+    responseType: 'blob', // Important: set the response type to 'blob' to handle binary data
+  })
+      .then((response) => {
+        // Create a blob object from the response data
+        const blob = new Blob([response.data], {type: response.headers['content-type']});
+
+        // Create a link element to trigger the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = window.URL.createObjectURL(blob);
+        downloadLink.download = 'LocalDB.db'; // Set the desired file name
+
+        // Trigger the download by clicking the link
+        downloadLink.click();
+      })
+      .catch((error) => {
+        console.error('Error downloading the file:', error);
+      });
 }
 
 let input = ref(null)
