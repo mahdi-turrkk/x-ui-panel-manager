@@ -81,6 +81,13 @@
       </button>
       <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/admins' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/admins' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
+          @click="router.push('/admin/admins')">
+        <users-icon class="w-6 h-6"/>
+        <div class="px-3">{{ local.admins }}</div>
+      </button>
+      <button
+          class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/servers' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/servers' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/servers')">
         <server-stack-icon class="w-6 h-6"/>
@@ -124,7 +131,8 @@ import {
   Squares2X2Icon,
   UserGroupIcon,
   ClipboardDocumentListIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+    UsersIcon
 } from "@heroicons/vue/24/outline/index.js";
 import {useDataStore} from "../store/dataStore.js";
 import router from "../router/index.js";
