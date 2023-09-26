@@ -164,8 +164,17 @@ public class SubscriptionService {
     }
 
     public SubscriptionDto report(String subLink) throws Exception {
-        String uuid = new Helper().extractUuidFromLink(subLink);
-        SubscriptionEntity entity = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Subscription with uuid: " + subLink + " non found"));
+        String uuid = "";
+        Helper helper = new Helper();
+        SubscriptionEntity entity = null;
+        if (subLink.contains("vless") || subLink.contains("vmess")) {
+            uuid = helper.extractUuidFromConfig(subLink);
+            ClientEntity clientEntity = clientRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Client not found"));
+            entity = clientEntity.getSubscription();
+        } else {
+            uuid = helper.extractUuidFromSubscriptionLink(subLink);
+            entity = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Subscription with uuid: " + subLink + " non found"));
+        }
         UserEntity userEntity = new Helper().getUserFromContext();
         if (userEntity.getId() == entity.getUserId() || userEntity.getRole() == Role.Admin)
             return new SubscriptionDto(entity);

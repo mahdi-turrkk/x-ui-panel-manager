@@ -29,7 +29,7 @@ public class Helper {
         return SUBSCRIPTION_URL + "/api/v1/subscriptions/client/" + uuid;
     }
 
-    public String extractUuidFromLink(String link) throws Exception {
+    public String extractUuidFromSubscriptionLink(String link) throws Exception {
 
         // Define a regular expression pattern to match UUID
         Pattern pattern = Pattern.compile("/([0-9a-fA-F\\-]+)$");
@@ -45,6 +45,26 @@ public class Helper {
         } else {
             throw new Exception("link is invalid");
         }
+    }
+
+    public String extractUuidFromConfig(String config) throws Exception {
+
+        // Define a regular expression pattern to match UUID
+        // Define the regular expression pattern to match the UUID
+        Pattern pattern = Pattern.compile("vless://([a-f0-9-]+)@");
+
+        // Create a Matcher to find the pattern in the URI
+        Matcher matcher = pattern.matcher(config);
+
+        // Check if the pattern is found
+        if (matcher.find()) {
+            // Extract and print the UUID
+            String uuid = matcher.group(1);
+            return uuid;
+        } else {
+            System.out.println("UUID not found in the VLESS URI.");
+        }
+        throw new Exception("config is invalid");
     }
 
     public UserEntity getUserFromContext() throws Exception {
