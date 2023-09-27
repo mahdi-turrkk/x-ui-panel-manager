@@ -16,7 +16,7 @@
       </div>
     </div>
     <admins-list-item @open-edit-admin-dialog="openEditAdminDialog" @open-link-dialog="openLinkDialog"
-                         v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding"
+                         v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog"
                          :admin="admin" @change-admin-status="(payload) => {admin.enabled = payload}" v-if="!isLoading && admins.length > 0"/>
   </div>
 </template>
@@ -30,7 +30,7 @@ import Loader from "./loader.vue";
 import AdminsListItem from "./adminsListItem.vue";
 
 const props = defineProps(['admins', 'isLoading'])
-const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog'])
+const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
@@ -50,6 +50,10 @@ let local = computed(() => {
 })
 const openLinkDialog = (payload) => {
   emits('openLinkDialog', payload)
+}
+
+const openChangePasswordDialog = (payload) => {
+  emits('openChangePasswordDialog' , payload)
 }
 </script>
 

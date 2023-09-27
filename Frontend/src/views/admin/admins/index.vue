@@ -3,6 +3,7 @@
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
     <admin-add-dialog :show-dialog="showAdminAddDialog" @close-dialog="showAdminAddDialog = false" @user-added="getAdmins"/>
     <admin-edit-dialog :show-dialog="showAdminEditDialog" @close-dialog="showAdminEditDialog = false" :admin="admin" @admin-edited="getAdmins"/>
+    <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false" :isSelf="false" :user-id="passwordEditUserId"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.admins }}</div>
       <button
@@ -12,7 +13,7 @@
         {{ local.add }} {{ local.admin }}
       </button>
     </div>
-    <admins-list @open-edit-admin-dialog="openEditAdminDialog" :admins="admins" @open-link-dialog="openLinkDialog" :is-loading="loading"/>
+    <admins-list @open-edit-admin-dialog="openEditAdminDialog" :admins="admins" @open-link-dialog="openLinkDialog" :is-loading="loading" @open-change-password-dialog="openChangePasswordDialog"/>
     <div class="flex mt-6" v-if="!loading">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
@@ -35,6 +36,7 @@ import {useDataStore} from "../../../store/dataStore.js";
 import AdminAddDialog from "../../../components/adminAddDialog.vue";
 import AdminEditDialog from "../../../components/adminEditDialog.vue";
 import AdminsList from "../../../components/adminsList.vue";
+import ChangePasswordDialog from "../../../components/changePasswordDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -87,4 +89,12 @@ watch(() => onboarding.value , () => {
   admins.value = []
   getAdmins()
 })
+
+let passwordEditUserId = ref('')
+const showChangePasswordDialog = ref(false)
+
+const openChangePasswordDialog = (payload) => {
+  passwordEditUserId.value = payload
+  showChangePasswordDialog.value = true
+}
 </script>

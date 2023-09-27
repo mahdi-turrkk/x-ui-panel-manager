@@ -1,5 +1,7 @@
 <template>
   <div class="grid grid-cols-12">
+    <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
+                            :isSelf="true"/>
     <div class="col-span-12 relative z-20 md:hidden">
       <div class="px-4 py-4">
         <div class="md:hidden flex items-center justify-between">
@@ -12,14 +14,13 @@
               <div class="border-t-2 border-t-info-3 w-8 my-2 duration-300 transition-all"
                    :class="{'-rotate-45 -translate-y-2' : isHamburgerOpen}"/>
             </button>
-            <div class="relative px-2">
+            <div class="relative">
               <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
                    @click="showLangMenu = !showLangMenu">{{ useLocalization().getFlag }}
                 {{ useLocalization().getLanguage.toUpperCase() }}
               </div>
-              <div class="absolute left-0 rounded-xl w-max bg-background-3"
-                   v-if="showLangMenu">
-                <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
+              <div class="absolute left-0 rounded-xl bg-background-3" v-if="showLangMenu">
+                <div class="flex flex-col w-max rounded-xl bg-primary-1 bg-opacity-20">
                   <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl"
                        @click="changeLanguage(['🇮🇷','fa' , 'rtl'])">🇮🇷 FA
                   </div>
@@ -29,11 +30,31 @@
                 </div>
               </div>
             </div>
-            <button @click="changeThemeStatus"
-                    class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200">
-              <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
-              <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
-            </button>
+            <div class="relative text-lg">
+              <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
+                   @click="showSettingMenu = !showSettingMenu">
+                <cog8-tooth-icon class="w-6 h-6"/>
+              </div>
+              <div class="absolute left-0 rounded-xl w-max bg-background-3"
+                   :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
+                   v-if="showSettingMenu">
+                <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
+                  <div
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      @click="showSettingMenu = false;showChangePasswordDialog = true">
+                    <LockClosedIcon class="h-5 w-5 mx-2"/>
+                    {{ local.changePassword }}
+                  </div>
+                  <div
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      @click="changeThemeStatus">
+                    <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
+                    <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
+                    {{ local.changeTheme }}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut"
                v-if="useDataStore().getDarkStatus">
@@ -48,7 +69,7 @@
         <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer" @click="logOut"
              v-if="useDataStore().getDarkStatus">
         <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
-        <div class="flex space-x-2 items-center">
+        <div class="flex items-center justify-end">
           <div class="relative">
             <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
                  @click="showLangMenu = !showLangMenu">{{ useLocalization().getFlag }}
@@ -65,11 +86,31 @@
               </div>
             </div>
           </div>
-          <button @click="changeThemeStatus"
-                  class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200">
-            <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
-            <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
-          </button>
+          <div class="relative text-lg">
+            <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
+                 @click="showSettingMenu = !showSettingMenu">
+              <cog8-tooth-icon class="w-6 h-6"/>
+            </div>
+            <div class="absolute left-0 rounded-xl w-max bg-background-3"
+                 :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
+                 v-if="showSettingMenu">
+              <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
+                <div
+                    class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                    @click="showSettingMenu = false;showChangePasswordDialog = true">
+                  <LockClosedIcon class="h-5 w-5 mx-2"/>
+                  {{ local.changePassword }}
+                </div>
+                <div
+                    class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                    @click="changeThemeStatus">
+                  <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
+                  <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
+                  {{ local.changeTheme }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <button
@@ -132,12 +173,13 @@ import {
   UserGroupIcon,
   ClipboardDocumentListIcon,
   ArrowLeftOnRectangleIcon,
-    UsersIcon
+  UsersIcon, Cog8ToothIcon, LockClosedIcon
 } from "@heroicons/vue/24/outline/index.js";
 import {useDataStore} from "../store/dataStore.js";
 import router from "../router/index.js";
 import {useLocalization} from "../store/localizationStore.js";
 import axios from "axios";
+import ChangePasswordDialog from "../components/changePasswordDialog.vue";
 
 let windowWidth = ref(0)
 
@@ -210,4 +252,7 @@ onMounted(() => {
     })
   } else router.push('/')
 })
+
+const showSettingMenu = ref(false)
+const showChangePasswordDialog = ref(false)
 </script>

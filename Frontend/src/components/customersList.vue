@@ -16,7 +16,7 @@
       </div>
     </div>
     <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog"
-                         v-for="customer in customers" :onboarding="onboarding" @set-onboarding="setOnboarding"
+                         v-for="customer in customers" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog"
                          :customer="customer" @change-customer-status="(payload) => {customer.enabled = payload}" v-if="!isLoading && customers.length > 0"/>
   </div>
 </template>
@@ -30,7 +30,7 @@ import {PencilSquareIcon} from "@heroicons/vue/24/outline/index.js";
 import Loader from "./loader.vue";
 
 const props = defineProps(['customers', 'isLoading'])
-const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog'])
+const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
@@ -50,6 +50,10 @@ let local = computed(() => {
 })
 const openLinkDialog = (payload) => {
   emits('openLinkDialog', payload)
+}
+
+const openChangePasswordDialog = (payload) => {
+  emits('openChangePasswordDialog' , payload)
 }
 </script>
 

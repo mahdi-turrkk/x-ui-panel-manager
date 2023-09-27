@@ -3,6 +3,7 @@
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
     <customer-add-dialog :show-dialog="showCustomerAddDialog" @close-dialog="showCustomerAddDialog = false" @user-added="getCustomers"/>
     <customer-edit-dialog :show-dialog="showCustomerEditDialog" @close-dialog="showCustomerEditDialog = false" :customer="customer" @customer-edited="getCustomers"/>
+    <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false" :isSelf="false" :user-id="passwordEditUserId"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.customers }}</div>
       <button
@@ -12,7 +13,7 @@
         {{ local.add }} {{ local.customer }}
       </button>
     </div>
-    <customers-list @open-edit-Customer-dialog="openEditCustomerDialog" :customers="customers" @open-link-dialog="openLinkDialog" :is-loading="loading"/>
+    <customers-list @open-edit-Customer-dialog="openEditCustomerDialog" :customers="customers" @open-link-dialog="openLinkDialog" :is-loading="loading" @open-change-password-dialog="openChangePasswordDialog"/>
     <div class="flex mt-6" v-if="!loading">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
@@ -32,6 +33,7 @@ import SubscriptionLinkDialog from "../../../components/subscriptionLinkDialog.v
 import CustomerEditDialog from "../../../components/customerEditDialog.vue";
 import axios from "axios";
 import {useDataStore} from "../../../store/dataStore.js";
+import ChangePasswordDialog from "../../../components/changePasswordDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -83,4 +85,12 @@ watch(() => onboarding.value , () => {
   customers.value = []
   getCustomers()
 })
+
+let passwordEditUserId = ref('')
+const showChangePasswordDialog = ref(false)
+
+const openChangePasswordDialog = (payload) => {
+  passwordEditUserId.value = payload
+  showChangePasswordDialog.value = true
+}
 </script>
