@@ -157,21 +157,21 @@ let subLink = ref('')
 
 let subscription = reactive({
   id: undefined,
-  title: 'shahr-mobile',
-  startDate: '2023/09/04',
-  expireDate: '2023/10/05',
-  totalUsed: '34534583905',
-  totalFlow: '57434658206',
+  title: undefined,
+  startDate: undefined,
+  expireDate: undefined,
+  totalUsed: undefined,
+  totalFlow: undefined,
   status: true
 })
 
 let showSubDetail = ref(false)
 
 let data = reactive({
-  lastMonthSells: 154,
-  totalSells: 1273,
-  totalUpload: 1587542336733,
-  totalDownload: 5148756925692
+  lastMonthSells: 0,
+  totalSells: 0,
+  totalUpload: 0,
+  totalDownload: 0
 })
 
 const searchSubscription = () => {
