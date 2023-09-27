@@ -5,7 +5,7 @@
       <div class="w-[40%] no-scrollbar text-center text-sm md:text-base">{{ local.username }}</div>
       <div class="w-[20%] no-scrollbar text-center text-sm md:text-base">{{ local.status }}</div>
       <div class="w-[20%] text-center text-sm md:text-base">{{ local.actions }}</div>
-      <chevron-down-icon class="h-5 w-5 text-background-3"/>
+      <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 text-background-3"/>
     </div>
     <div class="h-full w-full flex justify-center items-center pt-16" v-if="isLoading">
       <loader/>

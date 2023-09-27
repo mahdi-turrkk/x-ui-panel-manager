@@ -31,7 +31,7 @@
           </div>
           <div class="w-[20%] flex justify-center no-scrollbar">
             <div class="relative">
-              <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+              <pencil-square-icon class="w-4 h-4 md:w-6 md:h-6 text-warning mx-1" @mouseenter="showEditTag = true"
                                   @mouseleave="showEditTag = false"
                                   @click="emits('openEditAdminDialog' , admin)"/>
               <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -40,7 +40,7 @@
               </div>
             </div>
             <div class="relative">
-              <lock-closed-icon class="w-6 h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+              <lock-closed-icon class="w-4 h-4 md:w-6 md:h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
                                 @mouseleave="showChangePasswordTag = false"
                                 @click="emits('openChangePasswordDialog' , admin.id)"/>
               <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -49,7 +49,7 @@
             </div>
           </div>
         </div>
-        <chevron-down-icon class="h-5 w-5 transition-all duration-300" @click="emits('setOnboarding' , admin.id)"
+        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300" @click="emits('setOnboarding' , admin.id)"
                            :class="{'rotate-180' : onboarding === admin.id}"/>
       </div>
       <div class="bg-background-2 px-8 md:px-12 py-4 transition-all duration-700 z-10 relative rounded-b-xl text-info-3"

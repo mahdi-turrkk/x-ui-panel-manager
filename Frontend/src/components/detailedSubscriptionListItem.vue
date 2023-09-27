@@ -32,7 +32,7 @@
     </div>
     <div class="w-[20%] md:w-[15%] flex justify-center">
       <div class="relative cursor-pointer">
-        <qr-code-icon class="w-6 h-6 text-success mx-1" @mouseenter="showUrlTag = true"
+        <qr-code-icon class="w-5 h-5 md:w-6 md:h-6 text-success mx-1" @mouseenter="showUrlTag = true"
                       @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
         <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
              :class="{'-left-8' : !isRtl , '-right-14' : isRtl}" v-if="showUrlTag">{{ local.show }}
@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="relative cursor-pointer">
-        <arrow-path-rounded-square-icon class="w-6 h-6 text-success mx-1" @mouseenter="showRenewTag = true"
+        <arrow-path-rounded-square-icon class="w-5 h-5 md:w-6 md:h-6 text-success mx-1" @mouseenter="showRenewTag = true"
                                         @mouseleave="showRenewTag = false"
                                         @click="emits('openRenewSubscriptionDialog' , subscription)"/>
         <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
