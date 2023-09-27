@@ -67,7 +67,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/summary")
-    public SummaryModel summary() throws Exception {
+    public SummaryModel summary() {
         return subscriptionService.getSummary();
     }
 }

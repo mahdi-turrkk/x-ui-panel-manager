@@ -15,7 +15,7 @@ public class SubscriptionDto {
     private Long id;
 
     private Double totalFlow;
-    private Long totalUsed;
+    private Double totalUsed;
     private LocalDateTime expireDate;
     private LocalDateTime startDate;
     private Integer periodLength;
@@ -25,8 +25,9 @@ public class SubscriptionDto {
 
     public SubscriptionDto(SubscriptionEntity subscriptionEntity) {
         this.id = subscriptionEntity.getId();
-        this.totalFlow = new Helper().byteToGB(subscriptionEntity.getTotalFlow());
-        this.totalUsed = subscriptionEntity.getTotalUsed();
+        Helper helper = new Helper();
+        this.totalFlow = helper.byteToGB(subscriptionEntity.getTotalFlow());
+        this.totalUsed = helper.byteToGB(subscriptionEntity.getTotalUsed());
         this.expireDate = subscriptionEntity.getExpireDate();
         this.startDate = subscriptionEntity.getStartDate();
         this.periodLength = subscriptionEntity.getPeriodLength();
