@@ -10,7 +10,7 @@
     </parent>
     <groupId>online.gixmetir</groupId>
     <artifactId>Backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>x-ui-panel-manager-back-end</name>
     <description>x-ui-panel-manager-back-end</description>
     <properties>
