@@ -20,8 +20,8 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
 
     List<SubscriptionEntity> findAllByStatus(Boolean status);
 
-    @Query("SELECT count (e) FROM SubscriptionEntity e WHERE MONTH(e.createdDate) = MONTH(CURRENT_DATE) AND YEAR(e.createdDate) = YEAR(CURRENT_DATE)")
-    long getNumberOfSubscriptionsCreatedLastMonth();
+    @Query("SELECT count (e) FROM SubscriptionEntity e WHERE e.createdDate >= :startOfMonth")
+    long getNumberOfSubscriptionsCreatedLastMonth(@Param("startOfMonth") LocalDateTime startOfMonth);
 
     @Query("SELECT count (e) FROM SubscriptionEntity e ")
     long getNumberOfAllSubscriptions();

@@ -1,6 +1,7 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
+import online.gixmetir.xuipanelmanagerbackend.models.ChangePasswordModel;
 import online.gixmetir.xuipanelmanagerbackend.models.UserDto;
 import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @PutMapping("/change-password")
-    public void changePassword(@RequestBody Long userId, @RequestBody String oldPassword, @RequestBody String newPassword) throws Exception {
-        service.changePassword(userId, oldPassword, newPassword);
+    public void changePassword(@RequestBody ChangePasswordModel changePasswordModel) throws Exception {
+        service.changePassword(changePasswordModel);
     }
 }

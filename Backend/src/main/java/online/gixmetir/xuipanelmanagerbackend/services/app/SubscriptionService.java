@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 @Service
@@ -196,10 +198,15 @@ public class SubscriptionService {
     public SummaryModel getSummary() {
         SummaryModel model = new SummaryModel();
         Helper helper = new Helper();
+
+        LocalDateTime currentDateTime = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime startOfMonth = currentDateTime.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+
         model.setTotalDownload(helper.byteToGB(subscriptionRepository.getTotalDownload()));
         model.setTotalUpload(helper.byteToGB(subscriptionRepository.getTotalUpload()));
-        model.setTotalSold(helper.byteToGB(subscriptionRepository.getNumberOfAllSubscriptions()));
-        model.setTotalLastMonthSold(helper.byteToGB(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth()));
+        model.setTotalSold(subscriptionRepository.getNumberOfAllSubscriptions());
+        model.setTotalLastMonthSold(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth(startOfMonth));
         return model;
     }
 }

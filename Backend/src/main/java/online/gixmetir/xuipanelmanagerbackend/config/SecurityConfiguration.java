@@ -64,6 +64,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                                 request
+                                        .requestMatchers("/api/v1/users/change-password").hasAnyAuthority("Admin", "Customer")
                                         .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
                                         .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
                                         .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")

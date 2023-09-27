@@ -55,7 +55,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.isNotEmpty(userEmail)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserEntity userDetails = authenticationService.loadUserByUsername(userEmail);
-
+            if (!hasAccess(userDetails, request)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             boolean tokenValid = jwtService.isTokenValid(jwt, userDetails);
             if (tokenValid) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -68,5 +71,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    public boolean hasAccess(UserEntity entity, HttpServletRequest request) {
+        if (request.getRequestURL().toString().contains("subscriptions")) {
+            if (request.getMethod().equals("POST") || request.getMethod().equals("PUT"))
+                return entity.getEnabled();
+        }
+        return true;
     }
 }
