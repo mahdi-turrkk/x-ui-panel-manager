@@ -99,6 +99,13 @@ export const useLocalization = defineStore('localize', {
                     errorSavingAdmin: 'مشکلی در ثبت ادمین به وجود آمده.دوباره تلاش کنید.',
                     errorFieldsOfAdmin: 'فیلد هارا به صورت درست پر کنید',
                     adminSavedSuccessfully : 'ادمین با موفقیت ثبت شد',
+                    changePassword : 'تغییر رمزعبور',
+                    changeTheme : 'تغییر پوسته',
+                    oldPassword : 'رمز قبلی',
+                    newPassword : 'رمز جدید',
+                    passwordChangedSuccessfully : 'رمزعبور با موفقیت تغییر یافت.',
+                    errorChangingPassword: 'مشکلی در تغییر رمزعبور به وجود آمده.دوباره تلاش کنید.',
+                    errorFieldsOfPassword: 'فیلد هارا به صورت درست پر کنید.',
                 },
                 en: {
                     username: 'Username',
@@ -192,6 +199,13 @@ export const useLocalization = defineStore('localize', {
                     errorSavingAdmin: 'Error occurred while saving admin.Try again.',
                     errorFieldsOfAdmin: 'Fill the fields correctly.',
                     adminSavedSuccessfully : 'Admin saved successfully',
+                    changePassword : 'Change Password',
+                    changeTheme : 'Change Theme',
+                    newPassword : 'New password',
+                    oldPassword : 'Old password',
+                    passwordChangedSuccessfully : 'Password Changed Successfully.',
+                    errorChangingPassword: 'Error occurred while changing password.Try again.',
+                    errorFieldsOfPassword: 'Fill the fields correctly.',
                 },
             }
         }

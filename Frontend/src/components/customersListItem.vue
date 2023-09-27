@@ -39,6 +39,14 @@
                 {{ local.customer }}
               </div>
             </div>
+            <div class="relative">
+              <lock-closed-icon class="w-6 h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+                                  @mouseleave="showChangePasswordTag = false"
+                                  @click="emits('openChangePasswordDialog' , customer.id)"/>
+              <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">{{ local.changePassword }}
+              </div>
+            </div>
           </div>
         </div>
         <chevron-down-icon class="h-5 w-5 transition-all duration-300" @click="emits('setOnboarding' , customer.id)"
@@ -71,7 +79,7 @@
 </template>
 
 <script setup>
-import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
+import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon , LockClosedIcon} from "@heroicons/vue/24/outline";
 import {computed, onMounted, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
@@ -80,7 +88,7 @@ import {QrCodeIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 
 let props = defineProps(['onboarding', 'customer'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus' , 'openChangePasswordDialog'])
 
 const expansionText = ref(null)
 
@@ -138,6 +146,8 @@ const changeStatus = (payload) => {
     emits('changeCustomerStatus' , payload)
   }).catch((error) => {console.log(error)})
 }
+
+let showChangePasswordTag = ref(false)
 </script>
 
 

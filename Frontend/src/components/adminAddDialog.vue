@@ -117,7 +117,7 @@ const saveAdmin = () => {
     ).then(() => {
       showSuccessMessage.value = true
       setTimeout(() => {
-        showSuccessMessage = false
+        showSuccessMessage.value = false
         emptyFields()
         emits('closeDialog')
       }, 1000)

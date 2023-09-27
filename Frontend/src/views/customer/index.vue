@@ -1,6 +1,7 @@
 <template>
   <div class="min-h-screen min-w-screen text-info-3">
     <sub-lookup-dialog :show-dialog="showLookupDialog" @close-dialog="showLookupDialog = false"/>
+    <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false" :isSelf="true"/>
     <div class="col-span-12 relative z-20 bg-background-3">
       <div class="px-4 py-4">
         <div class="flex items-center justify-between">
@@ -22,11 +23,6 @@
                 </div>
               </div>
             </div>
-            <button @click="changeThemeStatus"
-                    class="p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200">
-              <sun-icon class="w-6 h-6 text-info-3" v-if="isDark"/>
-              <moon-icon class="w-6 h-6 text-info-3" v-if="!isDark"/>
-            </button>
             <button @click="showLookupDialog = true"
                     @mouseenter="showLookupTag = true" @mouseleave="showLookupTag = false"
                     class="relative p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 lg:hidden">
@@ -36,10 +32,32 @@
               </div>
             </button>
           </div>
-          <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer"
-               @click="logOut"
-               v-if="useDataStore().getDarkStatus">
-          <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
+          <div class="flex justify-end">
+            <div class="relative px-2 text-lg">
+              <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
+                   @click="showSettingMenu = !showSettingMenu">
+                <cog8-tooth-icon class="w-6 h-6"/>
+              </div>
+              <div class="absolute left-0 rounded-xl w-max bg-background-3" :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
+                   v-if="showSettingMenu">
+                <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
+                  <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                       @click="showSettingMenu = false;showChangePasswordDialog = true"><LockClosedIcon class="h-5 w-5 mx-2"/> {{ local.changePassword }}
+                  </div>
+                  <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                       @click="changeThemeStatus">
+                    <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
+                    <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
+                    {{ local.changeTheme }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <img src="/src/assets/logo-white.webp" class="h-10 w-10 cursor-pointer"
+                 @click="logOut"
+                 v-if="useDataStore().getDarkStatus">
+            <img src="/src/assets/logo-black.webp" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
+          </div>
         </div>
       </div>
     </div>
@@ -136,7 +154,9 @@ import {
   MagnifyingGlassIcon,
   MoonIcon,
   PlusIcon,
-  SunIcon
+  SunIcon,
+    Cog8ToothIcon,
+    LockClosedIcon
 } from "@heroicons/vue/24/outline/index.js";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
@@ -145,6 +165,7 @@ import SubscriptionDialog from "../../components/subscriptionDialog.vue";
 import SubscriptionLinkDialog from "../../components/subscriptionLinkDialog.vue";
 import SubLookupDialog from "../../components/subLookupDialog.vue";
 import axios from "axios";
+import ChangePasswordDialog from "../../components/changePasswordDialog.vue";
 
 let isDark = computed(() => {
   return useDataStore().getDarkStatus
@@ -278,4 +299,7 @@ const logOut = () => {
 const addNewSubsToList = () => {
   getSubscriptions()
 }
+
+const showSettingMenu = ref(false)
+const showChangePasswordDialog = ref(false)
 </script>
