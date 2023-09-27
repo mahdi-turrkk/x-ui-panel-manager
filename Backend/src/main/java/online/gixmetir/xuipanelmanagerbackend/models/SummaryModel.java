@@ -8,8 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SummaryModel {
-    private Long totalUpload;
-    private Long totalDownload;
-    private Long totalSold;
-    private Long totalLastMonthSold;
+    private double totalUpload;
+    private double totalDownload;
+    private double totalSold;
+    private double totalLastMonthSold;
 }

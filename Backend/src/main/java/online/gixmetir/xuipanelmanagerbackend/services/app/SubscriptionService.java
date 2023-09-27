@@ -193,12 +193,13 @@ public class SubscriptionService {
         return configs.toString();
     }
 
-    public SummaryModel getSummary() throws Exception {
+    public SummaryModel getSummary() {
         SummaryModel model = new SummaryModel();
-        model.setTotalDownload(subscriptionRepository.getTotalDownload());
-        model.setTotalUpload(subscriptionRepository.getTotalUpload());
-        model.setTotalSold(subscriptionRepository.getNumberOfAllSubscriptions());
-        model.setTotalLastMonthSold(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth());
+        Helper helper = new Helper();
+        model.setTotalDownload(helper.byteToGB(subscriptionRepository.getTotalDownload()));
+        model.setTotalUpload(helper.byteToGB(subscriptionRepository.getTotalUpload()));
+        model.setTotalSold(helper.byteToGB(subscriptionRepository.getNumberOfAllSubscriptions()));
+        model.setTotalLastMonthSold(helper.byteToGB(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth()));
         return model;
     }
 }
