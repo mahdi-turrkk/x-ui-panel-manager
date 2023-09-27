@@ -63,7 +63,7 @@
             </div>
           </div>
         </div>
-        <chevron-down-icon class="h-5 w-5 transition-all duration-300" @click="emits('setOnboarding' , server.id)"
+        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300" @click="emits('setOnboarding' , server.id)"
                            :class="{'rotate-180' : onboarding === server.id}"/>
       </div>
       <div class="bg-background-2 px-8 md:px-12 py-4 transition-all duration-700 z-10 relative rounded-b-xl text-info-3"
