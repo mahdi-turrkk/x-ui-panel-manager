@@ -53,10 +53,10 @@
                 </div>
               </div>
             </div>
-            <img src="/src/assets/logo-white.png" class="h-10 w-10 cursor-pointer"
+            <img src="/src/assets/logo-white.webp" class="h-10 w-10 cursor-pointer"
                  @click="logOut"
                  v-if="useDataStore().getDarkStatus">
-            <img src="/src/assets/logo-black.png" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
+            <img src="/src/assets/logo-black.webp" class="h-10 w-10 cursor-pointer" @click="logOut" v-else>
           </div>
         </div>
       </div>

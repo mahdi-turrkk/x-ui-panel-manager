@@ -6,8 +6,8 @@
     </div>
     <div class="bg-background-3 px-6 py-6 rounded-xl flex justify-center items-center flex-col drop-shadow-xl">
       <div class="text-primary-1 text-3xl mb-10">
-        <img src="/src/assets/logo-white.png" class="h-16 w-16" v-if="useDataStore().getDarkStatus">
-        <img src="/src/assets/logo-black.png" class="h-16 w-16" v-else>
+        <img src="/src/assets/logo-white.webp" class="h-16 w-16" v-if="useDataStore().getDarkStatus">
+        <img src="/src/assets/logo-black.webp" class="h-16 w-16" v-else>
       </div>
       <label class="text-info-3 z-0 px-2 pb-3 -mt-[35px] opacity-0 transition-all duration-200"
              :class="{'-mt-3 opacity-100' : username ,'ml-auto' : isRtl , 'mr-auto' : !isRtl}">{{
