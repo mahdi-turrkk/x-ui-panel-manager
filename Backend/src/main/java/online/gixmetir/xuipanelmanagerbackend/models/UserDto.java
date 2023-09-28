@@ -5,6 +5,8 @@ import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.hibernate.Hibernate;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -22,6 +24,8 @@ public class UserDto {
     private Boolean enabled;
     private double totalUsed;
     private double totalFlow;
+    private LocalDateTime expirationDateTime;
+    private LocalDateTime startDateTime;
 
 
     public UserDto(UserEntity entity) {
@@ -37,5 +41,7 @@ public class UserDto {
         this.enabled = entity.isEnabled();
         this.totalUsed = helper.byteToGB(entity.getTotalUsed());
         this.totalFlow = helper.byteToGB(entity.getTotalFlow());
+        this.expirationDateTime = entity.getExpirationDateTime();
+        this.startDateTime = entity.getStartDateTime();
     }
 }

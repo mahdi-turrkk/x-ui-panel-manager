@@ -37,7 +37,7 @@ public class SyncService {
         // disable all expired subscriptions
         expiredSubs.forEach(a -> a.setStatus(false));
         // get all expired users
-        List<UserEntity> expiredUsers = userRepository.getAllExpiredUsers();
+        List<UserEntity> expiredUsers = userRepository.getAllExpiredUsers(LocalDateTime.now());
         // disable all expired users
         expiredUsers.forEach(a -> a.setEnabled(false));
         userRepository.saveAll(expiredUsers);

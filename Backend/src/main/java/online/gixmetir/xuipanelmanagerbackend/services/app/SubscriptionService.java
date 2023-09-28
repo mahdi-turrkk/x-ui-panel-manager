@@ -24,11 +24,11 @@ public class SubscriptionService {
     private final InboundRepository inboundRepository;
     private final PanelService panelService;
     private final ClientRepository clientRepository;
-    private final SubscriptionReNewLogRepository subscriptionReNewLogRepository;
+    private final SubscriptionRenewLogRepository subscriptionReNewLogRepository;
     private final ClientService clientService;
     private final UserRepository userRepository;
 
-    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionReNewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository) {
+    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository) {
         this.subscriptionRepository = repository;
         this.inboundRepository = inboundRepository;
         this.panelService = panelService;
@@ -106,12 +106,13 @@ public class SubscriptionService {
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
 
-            SubscriptionReNewLogEntity logEntity = SubscriptionReNewLogEntity.builder()
+            SubscriptionRenewLogEntity logEntity = SubscriptionRenewLogEntity.builder()
                     .subscriptionId(subscriptionEntityFromDb.getId())
                     .date(LocalDate.now())
                     .periodLength(subscriptionEntityFromDb.getPeriodLength())
                     .totalFlow(subscriptionEntityFromDb.getTotalFlow())
                     .build();
+
             subscriptionReNewLogRepository.save(logEntity);
 
         }
@@ -119,14 +120,24 @@ public class SubscriptionService {
         return new SubscriptionDto(subscriptionEntityFromDb);
     }
 
+    /*
+    this method do renew action for subscription
+    at first it will increase expire date of subscription
+    then it will increase total used of user
+    then it will enable the clients if that are disabled
+     */
     private void reNewSubscription(SubscriptionEntity subscription, SubscriptionRequest request) throws Exception {
         subscription.setPeriodLength(request.getPeriodLength());
+        // increase user total user when renew subscription
+        UserEntity userEntity = userRepository.findById(subscription.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        userEntity.setTotalUsed(userEntity.getTotalUsed() + request.getTotalFlow());
         subscription.setTotalFlow(subscription.getTotalFlow() + new Helper().GBToByte(request.getTotalFlow()));
         if (subscription.getExpireDate() != null)
             subscription.setExpireDate(subscription.getExpireDate().plusDays(subscription.getPeriodLength()));
         subscription.setStatus(true);
         List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionId(subscription.getId());
         List<ClientEntity> clientEntitiesMustToUpdateInPanel = new ArrayList<>();
+
         clientEntities.forEach(client -> {
             if (!client.getEnable()) {
                 client.setEnable(true);
@@ -135,6 +146,7 @@ public class SubscriptionService {
         });
         panelService.updateClients(clientEntitiesMustToUpdateInPanel);
         clientRepository.saveAll(clientEntities);
+
     }
 
 

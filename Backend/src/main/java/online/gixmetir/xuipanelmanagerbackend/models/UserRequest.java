@@ -20,6 +20,10 @@ public class UserRequest {
     private String username;
     private Boolean enabled;
     private Long totalFlow;
+    private Boolean isIndefiniteFlow;
+    private Boolean isIndefiniteExpirationTime;
+    private Integer periodLength;
+
 
     public UserEntity toEntity() {
 
@@ -32,6 +36,9 @@ public class UserRequest {
                 .phoneNumber(this.phoneNumber)
                 .enabled(this.enabled)
                 .totalFlow(new Helper().GBToByte(this.totalFlow))
+                .isIndefiniteFlow(this.isIndefiniteFlow)
+                .isIndefiniteExpirationTime(this.isIndefiniteExpirationTime)
+                .periodLength(this.periodLength)
                 .build();
     }
 
@@ -44,6 +51,9 @@ public class UserRequest {
         entity.setPhoneNumber(this.phoneNumber);
         entity.setEnabled(this.enabled);
         entity.setTotalFlow(new Helper().GBToByte(this.totalFlow));
+        entity.setIsIndefiniteFlow(this.isIndefiniteFlow);
+        entity.setIsIndefiniteExpirationTime(this.isIndefiniteExpirationTime);
+        entity.setPeriodLength(this.periodLength);
         return entity;
     }
 }

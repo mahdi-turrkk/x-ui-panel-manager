@@ -5,17 +5,21 @@ import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.LoginModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.AuthenticationEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.UserRenewLogEntity;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.UserRenewLogRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 public class UserService {
@@ -24,13 +28,15 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final JwtService jwtService;
     private final AuthenticationRepository authenticationRepository;
+    private final UserRenewLogRepository userRenewLogRepository;
 
-    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository) {
+    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository) {
         this.repository = repository;
         this.authenticationService = authenticationService;
         this.encoder = encoder;
         this.jwtService = jwtService;
         this.authenticationRepository = authenticationRepository;
+        this.userRenewLogRepository = userRenewLogRepository;
     }
 
     public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
@@ -42,6 +48,8 @@ public class UserService {
             throw new Exception("User with username: " + request.getUsername() + " already exists");
         }
         UserEntity userEntity = request.toEntity();
+        userEntity.setStartDateTime(LocalDateTime.now());
+        userEntity.setExpirationDateTime(LocalDateTime.now().plusDays(userEntity.getPeriodLength()));
         repository.save(userEntity);
         AuthenticationEntity authenticationEntity = AuthenticationEntity.builder()
                 .password(encoder.encode(request.getPassword()))
@@ -104,5 +112,37 @@ public class UserService {
         }
         authenticationEntity.setPassword(encoder.encode(changePasswordModel.getNewPassword()));
         authenticationRepository.save(authenticationEntity);
+    }
+
+    public UserDto renew(Long id, UserRequest request) {
+        Helper helper = new Helper();
+        UserEntity entity = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("User with id: " + id + "not found"));
+        long differenceBetweenTotalUsedAndTotalFlow = entity.getTotalFlow() - entity.getTotalUsed();
+        // if all of total flow used this section add renew amount to total flow
+        // else  all total flow not complete used this section add renew amount to total used
+        if (differenceBetweenTotalUsedAndTotalFlow <= 0)
+            entity.setTotalFlow(entity.getTotalFlow() + helper.GBToByte(request.getTotalFlow()));
+        else
+            entity.setTotalUsed(entity.getTotalUsed() + helper.GBToByte(request.getTotalFlow()));
+
+        // Calculate the duration between the two LocalDateTime instances
+        Duration duration = Duration.between(entity.getStartDateTime(), LocalDateTime.now());
+        int days = (int) duration.toDays();
+
+        if (entity.getPeriodLength() <= days)
+            entity.setPeriodLength(entity.getPeriodLength() + request.getPeriodLength());
+        else
+            entity.setPeriodLength(days + request.getPeriodLength());
+
+        entity.setExpirationDateTime(entity.getStartDateTime().plusDays(entity.getPeriodLength()));
+        repository.save(entity);
+
+        UserRenewLogEntity userRenewLogEntity = UserRenewLogEntity.builder()
+                .userId(entity.getId())
+                .periodLength(request.getPeriodLength())
+                .totalFlow(request.getTotalFlow())
+                .build();
+        userRenewLogRepository.save(userRenewLogEntity);
+        return new UserDto(entity);
     }
 }
