@@ -1,16 +1,9 @@
 package online.gixmetir.xuipanelmanagerbackend.services.app;
 
-import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientStatsModel;
-import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
-import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +18,9 @@ public class SyncService {
     private final ClientRepository clientRepository;
     private final InboundRepository inboundRepository;
     private final SubscriptionService subscriptionService;
+    private final UserRepository userRepository;
 
-    public SyncService(SubscriptionRepository subscriptionRepository, ServerRepository serverRepository, PanelService panelService, ClientRepository clientRepository, InboundRepository inboundRepository, SubscriptionService subscriptionService) {
+    public SyncService(SubscriptionRepository subscriptionRepository, ServerRepository serverRepository, PanelService panelService, ClientRepository clientRepository, InboundRepository inboundRepository, SubscriptionService subscriptionService, UserRepository userRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.serverRepository = serverRepository;
 
@@ -34,15 +28,33 @@ public class SyncService {
         this.clientRepository = clientRepository;
         this.inboundRepository = inboundRepository;
         this.subscriptionService = subscriptionService;
+        this.userRepository = userRepository;
     }
 
     public void expiration() throws Exception {
+        // get all expired subscriptions
         List<SubscriptionEntity> expiredSubs = subscriptionRepository.getAllExpiredSubscriptions(LocalDateTime.now(), true);
+        // disable all expired subscriptions
         expiredSubs.forEach(a -> a.setStatus(false));
+        // get all expired users
+        List<UserEntity> expiredUsers = userRepository.getAllExpiredUsers();
+        // disable all expired users
+        expiredUsers.forEach(a -> a.setEnabled(false));
+        userRepository.saveAll(expiredUsers);
+        // disable all subscriptions in panels
         subscriptionService.addOrUpdateClientsRelatedToSubscription(expiredSubs);
         subscriptionRepository.saveAll(expiredSubs);
     }
 
+    /*
+    this method will sync all subscriptions with panels
+    at first it will get all subscriptions from database
+    then it will get all servers from database
+    then it will get all inbound from database
+    then it will get all clients from database
+    then it will get client logs (total used) from panel
+    finally update clients and subscription (total used , upload, download)
+    */
     public void syncWithPanels() throws Exception {
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAll();
         subscriptionEntities.forEach(a -> {
@@ -73,6 +85,11 @@ public class SyncService {
         subscriptionRepository.saveAll(subscriptionEntities);
     }
 
+    /*
+    this method set expiration date to subscription
+    if total used is greater than specific number
+    this method will set expire date
+    */
     private void setExpirationDateToSubscription(SubscriptionEntity entity) {
         if (entity.getTotalUsed() > 1024 && entity.getExpireDate() == null && entity.getStartDate() == null) {
             entity.setStartDate(LocalDateTime.now());

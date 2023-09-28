@@ -39,6 +39,10 @@ public class UserEntity implements UserDetails {
     private Boolean enabled;
     @Column(name = "authentication_id")
     private Long authenticationId;
+    @Column(name = "total_flow")
+    private Long totalFlow;
+    @Column(name = "total_used")
+    private Long totalUsed;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authentication_id", insertable = false, updatable = false)
     private AuthenticationEntity authentication;

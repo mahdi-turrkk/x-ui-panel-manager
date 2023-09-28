@@ -11,7 +11,6 @@ import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,32 +26,35 @@ public class SubscriptionService {
     private final ClientRepository clientRepository;
     private final SubscriptionReNewLogRepository subscriptionReNewLogRepository;
     private final ClientService clientService;
-    private final ServerRepository serverRepository;
+    private final UserRepository userRepository;
 
-    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionReNewLogRepository subscriptionReNewLogRepository, ClientService clientService, ServerRepository serverRepository) {
+    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionReNewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository) {
         this.subscriptionRepository = repository;
         this.inboundRepository = inboundRepository;
         this.panelService = panelService;
         this.clientRepository = clientRepository;
         this.subscriptionReNewLogRepository = subscriptionReNewLogRepository;
         this.clientService = clientService;
-        this.serverRepository = serverRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public List<SubscriptionDto> createSubscription(SubscriptionRequest request) throws Exception {
         List<SubscriptionEntity> subscriptionEntities = new ArrayList<>();
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserEntity userEntity = new Helper().getUserFromContext();
-            request.setUserId(userEntity.getId());
-        }
+        UserEntity userEntity = new Helper().getUserFromContext();
+        request.setUserId(userEntity.getId());
         for (int i = 0; i < request.getNumberSubscriptionsToGenerate(); i++) {
             SubscriptionEntity entity = request.toEntity();
             entity.setUuid(UUID.randomUUID().toString());
             entity.setStatus(true);
             subscriptionEntities.add(entity);
+            // increase user total used
+            long totalUsed = (userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed()) + entity.getTotalFlow();
+            userEntity.setTotalUsed(totalUsed);
         }
+
         subscriptionRepository.saveAll(subscriptionEntities);
+        userRepository.save(userEntity);
         addOrUpdateClientsRelatedToSubscription(subscriptionEntities);
         return subscriptionEntities.stream().map(SubscriptionDto::new).toList();
     }
