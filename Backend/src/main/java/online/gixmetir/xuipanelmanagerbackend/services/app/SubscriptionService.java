@@ -108,7 +108,6 @@ public class SubscriptionService {
 
             SubscriptionRenewLogEntity logEntity = SubscriptionRenewLogEntity.builder()
                     .subscriptionId(subscriptionEntityFromDb.getId())
-                    .date(LocalDate.now())
                     .periodLength(subscriptionEntityFromDb.getPeriodLength())
                     .totalFlow(subscriptionEntityFromDb.getTotalFlow())
                     .build();
