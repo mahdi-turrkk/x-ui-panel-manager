@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.net.URL;
 
 
 @FeignClient(name = "panel", url = "http://127.0.0.1:8080")

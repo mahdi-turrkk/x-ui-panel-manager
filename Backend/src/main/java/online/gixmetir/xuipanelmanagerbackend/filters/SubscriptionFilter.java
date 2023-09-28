@@ -1,22 +1,14 @@
 package online.gixmetir.xuipanelmanagerbackend.filters;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Builder;
-import lombok.Setter;
 import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
-import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 

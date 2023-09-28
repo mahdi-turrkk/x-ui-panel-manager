@@ -2,7 +2,6 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import online.gixmetir.xuipanelmanagerbackend.models.Role;
 
 @Entity
 @Table(name = "athentications")

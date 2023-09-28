@@ -21,8 +21,6 @@ public record InboundFilter(
         String tag,
         String port,
         String protocol,
-
-
         String remark,
         Boolean enable,
         String expireDate

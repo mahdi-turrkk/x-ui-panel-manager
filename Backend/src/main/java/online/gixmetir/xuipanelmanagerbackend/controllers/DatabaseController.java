@@ -1,7 +1,6 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
 import online.gixmetir.xuipanelmanagerbackend.XUiPanelManagerBackEndApplication;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.InputStreamResource;

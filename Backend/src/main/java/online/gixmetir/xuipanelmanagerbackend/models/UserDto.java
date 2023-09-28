@@ -3,7 +3,6 @@ package online.gixmetir.xuipanelmanagerbackend.models;
 import lombok.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
-import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 
