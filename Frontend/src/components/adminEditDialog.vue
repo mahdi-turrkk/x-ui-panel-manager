@@ -107,7 +107,11 @@ const saveAdmin = () => {
           address: address.value,
           role: 'Admin',
           username: username.value,
-          enabled: props.admin.enabled
+          enabled: props.admin.enabled,
+          totalFlow: 0,
+          periodLength : 0,
+          isIndefiniteExpirationTime: true,
+          isIndefiniteFlow: true
         },
         {
           headers: {

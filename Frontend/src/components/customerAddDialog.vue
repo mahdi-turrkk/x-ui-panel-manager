@@ -25,6 +25,12 @@
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : username}">{{local.username}}</label>
       <input type="text" :placeholder="local.username" v-model="username"
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+      <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : totalFlow}">{{local.totalFlow}}</label>
+      <input type="number" :placeholder="local.totalFlow + '(' + 'GB' + ')'" v-model="totalFlow"
+             class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+      <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : periodLength}">{{local.periodLength}}</label>
+      <input type="number" :placeholder="local.periodLength" v-model="periodLength"
+             class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : password}">{{local.password}}</label>
       <input type="text" :placeholder="local.password" v-model="password"
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
@@ -70,6 +76,10 @@ let password = ref('')
 let phoneNumber = ref('')
 let email = ref('')
 let address = ref('')
+let totalFlow = ref('')
+let periodLength = ref('')
+let isIndefiniteFlow = ref(false)
+let isIndefiniteExpirationTime = ref(false)
 const props = defineProps(['showDialog'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
@@ -85,6 +95,10 @@ const emptyFields = () => {
   phoneNumber.value = ''
   email.value = ''
   address.value = ''
+  totalFlow.value = ''
+  periodLength.value = ''
+  isIndefiniteExpirationTime.value = false
+  isIndefiniteFlow.value = false
 }
 
 let backdrop = ref(null)
@@ -97,6 +111,14 @@ const backdropClicked = (data) => {
 
 const saveCustomer = () => {
   if (firstName.value && lastName.value && username.value && phoneNumber.value && address.value && password.value) {
+    if(!periodLength.value || Number(periodLength.value) == 0){
+      periodLength.value = 0
+      isIndefiniteExpirationTime.value = true
+    }
+    if(!totalFlow.value || Number(totalFlow.value) == 0) {
+      totalFlow.value = 0
+      isIndefiniteFlow.value = true
+    }
     axios.post(`${useDataStore().getServerAddress}/users/create`,
         {
           firstName: firstName.value,
@@ -107,7 +129,11 @@ const saveCustomer = () => {
           role: 'Customer',
           password: password.value,
           username: username.value,
-          enabled: true
+          enabled: true,
+          totalFlow: totalFlow.value,
+          periodLength: periodLength.value,
+          isIndefiniteFlow: isIndefiniteFlow.value,
+          isIndefiniteExpirationTime: isIndefiniteExpirationTime.value
         },
         {
           headers: {
@@ -117,7 +143,7 @@ const saveCustomer = () => {
     ).then(() => {
       showSuccessMessage.value = true
       setTimeout(() => {
-        showSuccessMessage = false
+        showSuccessMessage.value = false
         emptyFields()
         emits('closeDialog')
       }, 1000)

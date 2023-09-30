@@ -106,6 +106,7 @@ export const useLocalization = defineStore('localize', {
                     passwordChangedSuccessfully : 'رمزعبور با موفقیت تغییر یافت.',
                     errorChangingPassword: 'مشکلی در تغییر رمزعبور به وجود آمده.دوباره تلاش کنید.',
                     errorFieldsOfPassword: 'فیلد هارا به صورت درست پر کنید.',
+                    remaining : 'باقی‌مانده'
                 },
                 en: {
                     username: 'Username',
@@ -206,6 +207,7 @@ export const useLocalization = defineStore('localize', {
                     passwordChangedSuccessfully : 'Password Changed Successfully.',
                     errorChangingPassword: 'Error occurred while changing password.Try again.',
                     errorFieldsOfPassword: 'Fill the fields correctly.',
+                    remaining: 'Remaining'
                 },
             }
         }

@@ -5,8 +5,9 @@
           class="bg-background-3 flex rounded-t-xl justify-between items-center px-4 py-4 z-20 relative cursor-pointer text-info-3"
           :class="{'rounded-b-xl' : customer.id != onboarding}">
         <div class="flex w-full items-center space-x-2">
-          <div class="w-[20%] no-scrollbar" @click="emits('setOnboarding' , customer.id)">{{ customer.id }}</div>
-          <div class="w-[40%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">
+          <div class="w-0 hidden md:w-[10%] md:inline-block no-scrollbar" @click="emits('setOnboarding' , customer.id)">{{ customer.id }}</div>
+          <div class="w-[30%] md:w-[20%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">{{ customer.totalFlow == 0 ? "∞" : customer.totalFlow - customer.totalUsed + 'GB' }} - {{ customer.expirationDateTime ?  customer.expirationDateTime.substring(0,10) : "∞" }}</div>
+          <div class="w-[30%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">
             {{ customer.username }}
           </div>
           <div class="w-[20%] no-scrollbar flex justify-center">

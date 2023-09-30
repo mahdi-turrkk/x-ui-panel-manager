@@ -107,7 +107,11 @@ const saveAdmin = () => {
           role: 'Admin',
           password: password.value,
           username: username.value,
-          enabled: true
+          enabled: true,
+          totalFlow: 0,
+          periodLength : 0,
+          isIndefiniteExpirationTime: true,
+          isIndefiniteFlow: true
         },
         {
           headers: {
