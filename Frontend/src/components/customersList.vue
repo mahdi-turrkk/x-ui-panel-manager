@@ -1,8 +1,9 @@
 <template>
   <div>
     <div class="flex w-full items-center space-x-2 my-2 bg-background-3 rounded-xl text-info-3 font-bold px-4 py-4">
-      <div class="w-[20%] no-scrollbar text-sm md:text-base">{{ local.id }}</div>
-      <div class="w-[40%] no-scrollbar text-center text-sm md:text-base">{{ local.username }}</div>
+      <div class="w-0 hidden md:w-[10%] md:inline-block no-scrollbar text-sm md:text-base">{{ local.id }}</div>
+      <div class="w-[30%] md:w-[20%] no-scrollbar text-center text-sm md:text-base">{{ local.remaining }}</div>
+      <div class="w-[30%] no-scrollbar text-center text-sm md:text-base">{{ local.username }}</div>
       <div class="w-[20%] no-scrollbar text-center text-sm md:text-base">{{ local.status }}</div>
       <div class="w-[20%] text-center text-sm md:text-base">{{ local.actions }}</div>
       <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 text-background-3"/>
