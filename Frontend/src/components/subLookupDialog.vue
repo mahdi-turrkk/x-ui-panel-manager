@@ -41,7 +41,7 @@
         </div>
         <div class="flex">{{ local.totalUsed }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
                                                                  :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-          {{ lookupSubscription.totalUsed ? lookupSubscription.totalUsed : '0.00'}}&nbsp;&nbsp;&nbsp;GB
+          {{ lookupSubscription.totalUsed ? Number(lookupSubscription.totalUsed).toFixed(2) : '0.00'}}&nbsp;&nbsp;&nbsp;GB
         </div>
         </div>
         <div class="flex">{{ local.totalFlow }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
