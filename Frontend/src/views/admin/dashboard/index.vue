@@ -56,7 +56,7 @@
           </div>
           <div class="flex">{{ local.totalUsed }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
                                                                    :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-            {{ subscription.totalUsed ? subscription.totalUsed : '0.00' }}&nbsp;GB
+            {{ subscription.totalUsed ? Number(subscription.totalUsed).toFixed(2) : '0.00' }}&nbsp;GB
           </div>
           </div>
           <div class="flex">{{ local.totalFlow }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
@@ -113,13 +113,13 @@
               <div class="flex">{{ local.totalUpload }}&nbsp;&nbsp;:&nbsp;<div class="font-normal"
                                                                                style="direction: ltr"
                                                                                :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-                {{ data.totalUpload ? data.totalUpload : '0.00' }}&nbsp;&nbsp;&nbsp;GB
+                {{ data.totalUpload ? data.totalUpload.toFixed(2) : '0.00' }}&nbsp;&nbsp;&nbsp;GB
               </div>
               </div>
               <div class="flex">{{ local.totalDownload }}&nbsp;&nbsp;:&nbsp;<div class="font-normal"
                                                                                  style="direction: ltr"
                                                                                  :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
-                {{ data.totalDownload ? data.totalDownload : '0.00' }}&nbsp;&nbsp;&nbsp;GB
+                {{ data.totalDownload ? data.totalDownload.toFixed(2) : '0.00' }}&nbsp;&nbsp;&nbsp;GB
               </div>
               </div>
             </div>

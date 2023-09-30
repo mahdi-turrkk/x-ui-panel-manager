@@ -6,7 +6,7 @@
         subscription.expireDate ? subscription.expireDate.substring(0,10) : ''
       }}
     </div>
-    <div class="hidden md:inline-block md:w-[23%] text-center" style="direction: ltr">{{ subscription.totalUsed ? subscription.totalUsed : '0.00' }}&nbsp;/&nbsp;{{ subscription.totalFlow }} GB
+    <div class="hidden md:inline-block md:w-[23%] text-center" style="direction: ltr">{{ subscription.totalUsed ? subscription.totalUsed.toFixed(2) : '0.00' }}&nbsp;/&nbsp;{{ subscription.totalFlow }} GB
     </div>
     <div class="w-[30%] md:w-[15%]">
       <div
