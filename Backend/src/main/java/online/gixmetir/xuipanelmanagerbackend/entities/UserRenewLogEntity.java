@@ -8,7 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "subscriptions-renew-log")
+@Table(name = "users-renew-log")
 @Getter
 @Setter
 @Builder
@@ -19,7 +19,7 @@ public class UserRenewLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Long userId;
     @ManyToOne
     @JoinColumn(name = "user_id", insertable = false, updatable = false)

@@ -15,11 +15,13 @@ public class Helper {
     }
 
     public double byteToGB(Long byteNumber) {
+        if (byteNumber == null) return 0;
         return (double) byteNumber / 1024 / 1024 / 1024;
     }
 
 
     public long GBToByte(Long i) {
+        if (i == null) return 0;
         return i * 1024 * 1024 * 1024;
     }
 

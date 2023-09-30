@@ -19,7 +19,7 @@ public class SubscriptionRenewLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "subscription_id", nullable = false)
+    @Column(name = "subscription_id")
     private Long subscriptionId;
     @ManyToOne
     @JoinColumn(name = "subscription_id", insertable = false, updatable = false)

@@ -49,7 +49,8 @@ public class UserService {
         }
         UserEntity userEntity = request.toEntity();
         userEntity.setStartDateTime(LocalDateTime.now());
-        userEntity.setExpirationDateTime(LocalDateTime.now().plusDays(userEntity.getPeriodLength()));
+        if (!userEntity.getIsIndefiniteExpirationTime())
+            userEntity.setExpirationDateTime(LocalDateTime.now().plusDays(userEntity.getPeriodLength()));
         repository.save(userEntity);
         AuthenticationEntity authenticationEntity = AuthenticationEntity.builder()
                 .password(encoder.encode(request.getPassword()))
