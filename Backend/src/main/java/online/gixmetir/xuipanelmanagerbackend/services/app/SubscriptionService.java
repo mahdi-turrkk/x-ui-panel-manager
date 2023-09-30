@@ -11,10 +11,8 @@ import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -25,34 +23,37 @@ public class SubscriptionService {
     private final InboundRepository inboundRepository;
     private final PanelService panelService;
     private final ClientRepository clientRepository;
-    private final SubscriptionReNewLogRepository subscriptionReNewLogRepository;
+    private final SubscriptionRenewLogRepository subscriptionReNewLogRepository;
     private final ClientService clientService;
-    private final ServerRepository serverRepository;
+    private final UserRepository userRepository;
 
-    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionReNewLogRepository subscriptionReNewLogRepository, ClientService clientService, ServerRepository serverRepository) {
+    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository) {
         this.subscriptionRepository = repository;
         this.inboundRepository = inboundRepository;
         this.panelService = panelService;
         this.clientRepository = clientRepository;
         this.subscriptionReNewLogRepository = subscriptionReNewLogRepository;
         this.clientService = clientService;
-        this.serverRepository = serverRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public List<SubscriptionDto> createSubscription(SubscriptionRequest request) throws Exception {
         List<SubscriptionEntity> subscriptionEntities = new ArrayList<>();
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserEntity userEntity = new Helper().getUserFromContext();
-            request.setUserId(userEntity.getId());
-        }
+        UserEntity userEntity = new Helper().getUserFromContext();
+        request.setUserId(userEntity.getId());
         for (int i = 0; i < request.getNumberSubscriptionsToGenerate(); i++) {
             SubscriptionEntity entity = request.toEntity();
             entity.setUuid(UUID.randomUUID().toString());
             entity.setStatus(true);
             subscriptionEntities.add(entity);
+            // increase user total used
+            long totalUsed = (userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed()) + entity.getTotalFlow();
+            userEntity.setTotalUsed(totalUsed);
         }
+
         subscriptionRepository.saveAll(subscriptionEntities);
+        userRepository.save(userEntity);
         addOrUpdateClientsRelatedToSubscription(subscriptionEntities);
         return subscriptionEntities.stream().map(SubscriptionDto::new).toList();
     }
@@ -104,12 +105,12 @@ public class SubscriptionService {
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
 
-            SubscriptionReNewLogEntity logEntity = SubscriptionReNewLogEntity.builder()
+            SubscriptionRenewLogEntity logEntity = SubscriptionRenewLogEntity.builder()
                     .subscriptionId(subscriptionEntityFromDb.getId())
-                    .date(LocalDate.now())
                     .periodLength(subscriptionEntityFromDb.getPeriodLength())
                     .totalFlow(subscriptionEntityFromDb.getTotalFlow())
                     .build();
+
             subscriptionReNewLogRepository.save(logEntity);
 
         }
@@ -117,14 +118,24 @@ public class SubscriptionService {
         return new SubscriptionDto(subscriptionEntityFromDb);
     }
 
+    /*
+    this method do renew action for subscription
+    at first it will increase expire date of subscription
+    then it will increase total used of user
+    then it will enable the clients if that are disabled
+     */
     private void reNewSubscription(SubscriptionEntity subscription, SubscriptionRequest request) throws Exception {
         subscription.setPeriodLength(request.getPeriodLength());
+        // increase user total user when renew subscription
+        UserEntity userEntity = userRepository.findById(subscription.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        userEntity.setTotalUsed(userEntity.getTotalUsed() + request.getTotalFlow());
         subscription.setTotalFlow(subscription.getTotalFlow() + new Helper().GBToByte(request.getTotalFlow()));
         if (subscription.getExpireDate() != null)
             subscription.setExpireDate(subscription.getExpireDate().plusDays(subscription.getPeriodLength()));
         subscription.setStatus(true);
         List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionId(subscription.getId());
         List<ClientEntity> clientEntitiesMustToUpdateInPanel = new ArrayList<>();
+
         clientEntities.forEach(client -> {
             if (!client.getEnable()) {
                 client.setEnable(true);
@@ -133,6 +144,7 @@ public class SubscriptionService {
         });
         panelService.updateClients(clientEntitiesMustToUpdateInPanel);
         clientRepository.saveAll(clientEntities);
+
     }
 
 

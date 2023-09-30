@@ -2,8 +2,10 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subscriptions-renew-log")
@@ -12,19 +14,21 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubscriptionReNewLogEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class SubscriptionRenewLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "subscription-id", nullable = false)
+    @Column(name = "subscription_id")
     private Long subscriptionId;
     @ManyToOne
-    @JoinColumn(name = "subscription-id", insertable = false, updatable = false)
+    @JoinColumn(name = "subscription_id", insertable = false, updatable = false)
     private SubscriptionEntity subscription;
     @Column(name = "date")
-    private LocalDate date;
-    @Column(name = "total-flow")
+    @CreatedDate
+    private LocalDateTime date;
+    @Column(name = "total_flow")
     private Long totalFlow;
-    @Column(name = "period-length")
+    @Column(name = "period_length")
     private Integer periodLength;
 }

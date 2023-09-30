@@ -34,6 +34,10 @@ public class UserController {
     public ResponseEntity<UserDto> update(@RequestParam Long id, @RequestBody UserRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
+    @PutMapping("/renew")
+    public ResponseEntity<UserDto> renew(@RequestParam Long id, @RequestBody UserRequest request) {
+        return ResponseEntity.ok(service.renew(id, request));
+    }
 
     @DeleteMapping("/delete")
     public void delete(@RequestParam Long id) {

@@ -7,7 +7,6 @@ import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
