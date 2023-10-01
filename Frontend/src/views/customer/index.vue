@@ -274,7 +274,12 @@ onMounted(() => {
       if (value[0] === 'flag') {
         lang[0] = value[1]
       } else if (value[0] === 'language') {
-        lang[1] = value[1]
+        if(value[1].indexOf('[') !== -1){
+          lang = ['🇮🇷','fa' , 'rtl']
+        }
+        else {
+          lang[1] = value[1]
+        }
       } else if (value[0] === 'direction') {
         lang[2] = value[1]
       } else if (value[0] === 'isDark') {
