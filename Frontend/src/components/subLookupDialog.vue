@@ -109,6 +109,12 @@ const searchSubscription = ()=>{
 const props = defineProps(['showDialog'])
 const emits = defineEmits(['closeDialog'])
 
+watch(()=>props.showDialog , ()=>{
+  lookupSubscription = {}
+  subLink.value = ''
+  showSubDetail.value = false
+})
+
 let backdrop = ref(null)
 const backdropClicked = (data)=>{
   if(data.target === backdrop.value){

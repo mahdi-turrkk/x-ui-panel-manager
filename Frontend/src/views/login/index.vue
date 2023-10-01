@@ -70,7 +70,9 @@ let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  document.cookie = `language=${JSON.stringify(payload)}`
+  document.cookie = `flag=${payload[0]}`
+  document.cookie = `language=${payload[1]}`
+  document.cookie = `direction=${payload[2]}`
 }
 
 let local = computed(() => {
@@ -98,7 +100,9 @@ const signIn = () => {
       useDataStore().setToken(response.data.token)
       document.cookie = `token=${response.data.token}`
       document.cookie = `isDark=${useDataStore().getDarkStatus}`
-      document.cookie = `language=${JSON.stringify([useLocalization().getFlag , useLocalization().getLanguage , useLocalization().getDirection])}`
+      document.cookie = `flag=${useLocalization().getFlag}`
+      document.cookie = `language=${useLocalization().getLanguage}`
+      document.cookie = `direction=${useLocalization().getDirection}`
       if (response.data.role === 'Admin')
         router.push('/admin')
       else if (response.data.role === 'Customer')
@@ -122,19 +126,30 @@ const signIn = () => {
 onMounted(() => {
   if (document.cookie) {
     let cookie = document.cookie.split('; ');
+    let lang = new Array(3)
     cookie.forEach((data) => {
       let value = data.split('=')
-      if (value[0] === 'language'){
-        let language = JSON.parse(value[1])
-        useLocalization().changeLanguage(language)
-      }
-      else if(value[0] === 'isDark'){
+      if (value[0] === 'flag') {
+        lang[0] = value[1]
+      } else if (value[0] === 'language') {
+        if(value[1].indexOf('[') !== -1){
+          lang = ['🇮🇷','fa' , 'rtl']
+          document.cookie = `flag=${lang[0]}`
+          document.cookie = `language=${lang[1]}`
+          document.cookie = `direction=${lang[2]}`
+        }
+        else {
+          lang[1] = value[1]
+        }
+      } else if (value[0] === 'direction') {
+        lang[2] = value[1]
+      } else if (value[0] === 'isDark') {
         useDataStore().setDarkStatus(value[1] === 'true')
-      }
-      else{
+      } else if (value[0] === 'token') {
         useDataStore().setToken(value[1])
       }
     })
+    useLocalization().changeLanguage(lang)
     axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
         {
           headers: {
