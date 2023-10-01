@@ -276,6 +276,9 @@ onMounted(() => {
       } else if (value[0] === 'language') {
         if(value[1].indexOf('[') !== -1){
           lang = ['🇮🇷','fa' , 'rtl']
+          document.cookie = `flag=${lang[0]}`
+          document.cookie = `language=${lang[1]}`
+          document.cookie = `direction=${lang[2]}`
         }
         else {
           lang[1] = value[1]
