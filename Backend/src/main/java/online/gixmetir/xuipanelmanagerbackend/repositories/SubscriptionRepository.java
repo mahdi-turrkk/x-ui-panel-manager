@@ -15,7 +15,7 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
 
     List<SubscriptionEntity> findAllByExpireDateAfterAndStatus(LocalDateTime expireDate, Boolean status);
 
-    @Query("select s from SubscriptionEntity s where s.status = :status and s.expireDate <= :expireDate and s.totalFlow<=s.totalUsed")
+    @Query("select s from SubscriptionEntity s where s.status = :status and (s.expireDate <= :expireDate or s.totalFlow<=s.totalUsed)")
     List<SubscriptionEntity> getAllExpiredSubscriptions(@Param("expireDate") LocalDateTime expireDate, @Param("status") Boolean status);
 
     List<SubscriptionEntity> findAllByStatus(Boolean status);
