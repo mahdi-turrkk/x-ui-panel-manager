@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen min-w-screen text-info-3">
     <sub-lookup-dialog :show-dialog="showLookupDialog" @close-dialog="showLookupDialog = false"/>
-    <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false" :isSelf="true"/>
+    <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
+                            :isSelf="true"/>
     <div class="col-span-12 relative z-20 bg-background-3">
       <div class="px-4 py-4">
         <div class="flex items-center justify-between">
@@ -31,10 +32,6 @@
                    v-if="showLookupTag">{{ local.subLookUp }}
               </div>
             </button>
-            <button @click="getSubscriptions"
-                    class="relative p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 lg:hidden">
-              <arrow-path-icon class="w-6 h-6 text-info-3"/>
-            </button>
           </div>
           <div class="flex justify-end">
             <div class="relative px-2 text-lg">
@@ -42,14 +39,19 @@
                    @click="showSettingMenu = !showSettingMenu">
                 <cog8-tooth-icon class="w-6 h-6"/>
               </div>
-              <div class="absolute left-0 rounded-xl w-max bg-background-3" :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
+              <div class="absolute left-0 rounded-xl w-max bg-background-3"
+                   :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
                    v-if="showSettingMenu">
                 <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
-                  <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
-                       @click="showSettingMenu = false;showChangePasswordDialog = true"><LockClosedIcon class="h-5 w-5 mx-2"/> {{ local.changePassword }}
+                  <div
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      @click="showSettingMenu = false;showChangePasswordDialog = true">
+                    <LockClosedIcon class="h-5 w-5 mx-2"/>
+                    {{ local.changePassword }}
                   </div>
-                  <div class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
-                       @click="changeThemeStatus">
+                  <div
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      @click="changeThemeStatus">
                     <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
                     <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
                     {{ local.changeTheme }}
@@ -159,9 +161,9 @@ import {
   MoonIcon,
   PlusIcon,
   SunIcon,
-    Cog8ToothIcon,
-    LockClosedIcon,
-    ArrowPathIcon
+  Cog8ToothIcon,
+  LockClosedIcon,
+  ArrowPathIcon
 } from "@heroicons/vue/24/outline/index.js";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
@@ -185,7 +187,9 @@ let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  document.cookie = `language=${JSON.stringify(payload)}`
+  document.cookie = `flag=${payload[0]}`
+  document.cookie = `language=${payload[1]}`
+  document.cookie = `direction=${payload[2]}`
 }
 
 let local = computed(() => useLocalization().getLocal)
@@ -264,17 +268,22 @@ const getSubscriptions = () => {
 onMounted(() => {
   if (document.cookie) {
     let cookie = document.cookie.split('; ');
+    let lang = ['', '', '']
     cookie.forEach((data) => {
       let value = data.split('=')
-      if (value[0] === 'language') {
-        let language = JSON.parse(value[1])
-        useLocalization().changeLanguage(language)
+      if (value[0] === 'flag') {
+        lang[0] = value[1]
+      } else if (value[0] === 'language') {
+        lang[1] = value[1]
+      } else if (value[0] === 'direction') {
+        lang[2] = value[1]
       } else if (value[0] === 'isDark') {
         useDataStore().setDarkStatus(value[1] === 'true')
-      } else {
+      } else if (value[0] === 'token') {
         useDataStore().setToken(value[1])
       }
     })
+    useLocalization().changeLanguage(lang)
     axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
         {
           headers: {

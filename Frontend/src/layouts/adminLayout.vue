@@ -188,7 +188,44 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     windowWidth.value = window.innerWidth
   })
+  if (document.cookie) {
+    let cookie = document.cookie.split('; ');
+    let lang = ['' ,'' ,'']
+    cookie.forEach((data) => {
+      let value = data.split('=')
+      if (value[0] === 'flag'){
+        lang[0] = value[1]
+      }
+      else if (value[0] === 'language'){
+        lang[1] = value[1]
+      }
+      else if (value[0] === 'direction'){
+        lang[2] = value[1]
+      }
+      else if(value[0] === 'isDark'){
+        useDataStore().setDarkStatus(value[1] === 'true')
+      }
+      else if (value[0] === 'token'){
+        useDataStore().setToken(value[1])
+      }
+    })
+    useLocalization().changeLanguage(lang)
+    axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
+        {
+          headers: {
+            Authorization: useDataStore().getToken
+          }
+        }
+    ).then((response) => {
+      if (response.data !== 'Admin')
+        router.push('/')
+    }).catch((error) => {
+      router.push('/')
+    })
+  } else router.push('/')
 })
+
+
 
 const isBigScreen = computed(() => {
   return displayHelper(windowWidth.value).mdAndUp
@@ -208,7 +245,9 @@ let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  document.cookie = `language=${JSON.stringify(payload)}`
+  document.cookie = `flag=${payload[0]}`
+  document.cookie = `language=${payload[1]}`
+  document.cookie = `direction=${payload[2]}`
 }
 
 let local = computed(() => {
@@ -224,34 +263,6 @@ const logOut = () => {
   router.push('/')
 }
 
-onMounted(() => {
-  if (document.cookie) {
-    let cookie = document.cookie.split('; ');
-    cookie.forEach((data) => {
-      let value = data.split('=')
-      if (value[0] === 'language') {
-        let language = JSON.parse(value[1])
-        useLocalization().changeLanguage(language)
-      } else if (value[0] === 'isDark') {
-        useDataStore().setDarkStatus(value[1] === 'true')
-      } else {
-        useDataStore().setToken(value[1])
-      }
-    })
-    axios.get(`${useDataStore().getServerAddress}/authentication/get-role`,
-        {
-          headers: {
-            Authorization: useDataStore().getToken
-          }
-        }
-    ).then((response) => {
-      if (response.data !== 'Admin')
-        router.push('/')
-    }).catch((error) => {
-      router.push('/')
-    })
-  } else router.push('/')
-})
 
 const showSettingMenu = ref(false)
 const showChangePasswordDialog = ref(false)
