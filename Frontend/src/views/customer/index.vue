@@ -140,7 +140,7 @@
           </button>
         </div>
         <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
-                            @open-link-dialog="openLinkDialog" :is-loading="false"/>
+                            @open-link-dialog="openLinkDialog" :is-loading="loading"/>
         <div class="flex mt-6">
           <div
               class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
