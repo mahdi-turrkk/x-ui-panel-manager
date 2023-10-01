@@ -138,11 +138,11 @@
           </button>
         </div>
         <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
-                            @open-link-dialog="openLinkDialog" :is-loading="loading"/>
+                            @open-link-dialog="openLinkDialog" :is-loading="false"/>
         <div class="flex mt-6">
           <div
               class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-              v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i" v-if="loading">
+              v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i" v-if="!loading">
             {{ i }}
           </div>
         </div>
