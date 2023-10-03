@@ -47,6 +47,8 @@ public class SubscriptionEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user-id", updatable = false, insertable = false)
     private UserEntity entity;
+    @Column(name = "price")
+    private Double price;
     @CreatedDate
     @Column(name = "created_date")
     private LocalDateTime createdDate;

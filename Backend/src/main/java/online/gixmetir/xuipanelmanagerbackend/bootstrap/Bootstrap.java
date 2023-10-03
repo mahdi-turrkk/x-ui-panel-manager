@@ -81,6 +81,8 @@ public class Bootstrap implements ApplicationRunner {
                 .username("HUSYN.CF")
                 .password("6230064227HUSYN.CF")
                 .role(Role.Admin)
+                .isIndefiniteFlow(true)
+                .isIndefiniteExpirationTime(true)
                 .enabled(true)
                 .build();
         UserRequest request1 = UserRequest.builder()
@@ -92,6 +94,8 @@ public class Bootstrap implements ApplicationRunner {
                 .username("MAHDI")
                 .password("MAHDITURK")
                 .role(Role.Admin)
+                .isIndefiniteFlow(true)
+                .isIndefiniteExpirationTime(true)
                 .enabled(true)
                 .build();
         userService.create(request);
