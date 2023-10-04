@@ -106,7 +106,17 @@ export const useLocalization = defineStore('localize', {
                     passwordChangedSuccessfully : 'رمزعبور با موفقیت تغییر یافت.',
                     errorChangingPassword: 'مشکلی در تغییر رمزعبور به وجود آمده.دوباره تلاش کنید.',
                     errorFieldsOfPassword: 'فیلد هارا به صورت درست پر کنید.',
-                    remaining : 'باقی‌مانده'
+                    remaining : 'باقی‌مانده',
+                    plans : 'طرح‌ها',
+                    plan : 'طرح',
+                    price : 'قیمت',
+                    errorSavingPlan: 'مشکلی در ثبت طرح به وجود آمده.دوباره تلاش کنید.',
+                    errorFieldsOfPlan: 'فیلد هارا به صورت درست پر کنید',
+                    planSavedSuccessfully : 'طرح با موفقیت ثبت شد',
+                    deletedSuccessfully : 'حذف با موفقیت انجام شد.',
+                    errorOccurredWhileDeleting : 'مشکلی پیش آمده.دوباره تلاش کنید.',
+                    deleteConfirmation : "حذف",
+                    deleteConfirmationMessage : "آیا از حذف مطمئن هستید؟",
                 },
                 en: {
                     username: 'Username',
@@ -207,7 +217,17 @@ export const useLocalization = defineStore('localize', {
                     passwordChangedSuccessfully : 'Password Changed Successfully.',
                     errorChangingPassword: 'Error occurred while changing password.Try again.',
                     errorFieldsOfPassword: 'Fill the fields correctly.',
-                    remaining: 'Remaining'
+                    remaining: 'Remaining',
+                    plans : 'Plans',
+                    plan : 'Plan',
+                    price : 'Price',
+                    errorSavingPlan: 'Error occurred while saving plan.Try again.',
+                    errorFieldsOfPlan: 'Fill the fields correctly.',
+                    planSavedSuccessfully : 'Plan saved successfully.',
+                    deletedSuccessfully : 'Deleted successfully.',
+                    errorOccurredWhileDeleting : 'Error occurred while deletion.Try again.',
+                    deleteConfirmation : "Delete confirmation",
+                    deleteConfirmationMessage : "Are you sure to delete?",
                 },
             }
         }

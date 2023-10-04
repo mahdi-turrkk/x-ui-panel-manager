@@ -149,6 +149,13 @@
         <div class="px-3">{{ local.subscriptions }}</div>
       </button>
       <button
+          class="text-info-3 text-lg rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
+          :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/plans' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/plans' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
+          @click="router.push('/admin/plans')">
+        <queue-list-icon class="w-6 h-6"/>
+        <div class="px-3">{{ local.plans }}</div>
+      </button>
+      <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="logOut">
@@ -173,7 +180,10 @@ import {
   UserGroupIcon,
   ClipboardDocumentListIcon,
   ArrowLeftOnRectangleIcon,
-  UsersIcon, Cog8ToothIcon, LockClosedIcon
+  UsersIcon,
+  Cog8ToothIcon,
+  LockClosedIcon,
+    QueueListIcon
 } from "@heroicons/vue/24/outline/index.js";
 import {useDataStore} from "../store/dataStore.js";
 import router from "../router/index.js";
