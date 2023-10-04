@@ -2,23 +2,20 @@ package online.gixmetir.xuipanelmanagerbackend.controllers;
 
 import online.gixmetir.xuipanelmanagerbackend.models.PricingDto;
 import online.gixmetir.xuipanelmanagerbackend.models.PricingRequest;
-import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
-import online.gixmetir.xuipanelmanagerbackend.models.ServerRequest;
 import online.gixmetir.xuipanelmanagerbackend.services.app.PricingService;
-import online.gixmetir.xuipanelmanagerbackend.services.app.ServerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/pricing")
+@RequestMapping("/api/v1/plans")
 
-public class PricingController {
+public class PlanController {
     private final PricingService service;
 
 
-    public PricingController(PricingService service) {
+    public PlanController(PricingService service) {
         this.service = service;
     }
 

@@ -1,7 +1,7 @@
 package online.gixmetir.xuipanelmanagerbackend.models;
 
 import lombok.*;
-import online.gixmetir.xuipanelmanagerbackend.entities.PricingEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.PlanEntity;
 
 @Getter
 @Setter
@@ -14,7 +14,7 @@ public class PricingDto {
     private Long totalFlow;
     private Integer periodLength;
 
-    public PricingDto(PricingEntity entity) {
+    public PricingDto(PlanEntity entity) {
         this.id = entity.getId();
         this.price = entity.getPrice();
         this.totalFlow = entity.getTotalFlow();
