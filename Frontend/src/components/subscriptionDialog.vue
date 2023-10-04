@@ -43,6 +43,10 @@
              :class="{'mt-0 opacity-100' : number}" v-if="type === 'new'">{{ local.number }}</label>
       <input type="number" :placeholder="local.number" v-model="number" v-if="type === 'new'"
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+      <div class="flex justify-between z-0 px-2 pb-5 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : periodLength && totalFlow && number}" v-if="periodLength && totalFlow && useRoute().path.substring(0,9) == '/customer'">
+        <div>{{ local.price }}&nbsp :</div>
+        <div>{{ plans.find((plan) => plan.totalFlow == totalFlow && plan.periodLength == periodLength).price * number }}</div>
+      </div>
       <div class="flex justify-end">
         <button
             @click="emits('closeDialog')"
@@ -65,7 +69,7 @@ import {CheckCircleIcon, XCircleIcon, XMarkIcon} from "@heroicons/vue/24/solid/i
 import axios from "axios";
 import {useDataStore} from "../store/dataStore.js";
 import router from "../router/index.js";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -102,6 +106,7 @@ let showSuccessMessage = ref(false)
 let errorMessage = ref('')
 let totalFlows = ref([])
 let periodLengths = ref([])
+let plans = ref([])
 
 const saveSubscription = () => {
   if (totalFlow.value && periodLength.value && (number.value || props.type === 'ReNew')) {
@@ -175,6 +180,7 @@ const getPlans = () => {
         }
       })
       .then((response) => {
+        plans.value = response.data.content
         const groupedByTotalFlows = Object.groupBy(response.data.content, plan => {
           return plan.totalFlow;
         });

@@ -15,13 +15,18 @@
     <div class="flex justify-center mt-6" v-if="loading">
       <loader/>
     </div>
-    <div class="rounded-xl w-full py-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" v-else>
+    <div class="rounded-xl w-full py-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" v-if="!loading && plans.length > 0">
       <plan-card v-for="plan in plans" :plan="plan" @edit-plan="openEditPlanDialog" @delete-plan="openDeleteConfirmationDialog"/>
+    </div>
+    <div class="w-full flex justify-center items-center pt-12" v-if="!loading && plans.length === 0">
+      <div class="border-t-primary-3 w-full border-t-2 flex justify-center mx-2 md:mx-6">
+        <div class="w-fit -mt-4 text-info-3 text-base md:text-xl bg-background-1 px-2">{{ local.noRecords }}</div>
+      </div>
     </div>
     <div class="flex" v-if="!loading">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-          v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i">{{ i }}
+          v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i;getPlans">{{ i }}
       </div>
     </div>
   </admin-layout>
@@ -30,13 +35,12 @@
 <script setup>
 import AdminLayout from "../../../layouts/adminLayout.vue";
 import {PlusIcon} from "@heroicons/vue/24/solid/index.js";
-import {computed, onMounted, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
 import PlanCard from "../../../components/planCard.vue";
 import axios from "axios";
 import {useDataStore} from "../../../store/dataStore.js";
 import Loader from "../../../components/loader.vue";
-import AdminAddDialog from "../../../components/adminAddDialog.vue";
 import PlanDialog from "../../../components/planDialog.vue";
 import DeleteConfirmationDialog from "../../../components/deleteConfirmationDialog.vue";
 
@@ -53,19 +57,12 @@ let editPlan = reactive({})
 let deletePlan = reactive({})
 let showDeleteConfirmationDialog = ref(false)
 
-let plans = ref([
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-  {totalFlow: 30, periodLength: 30, price: 50000},
-])
+let plans = ref([])
+
+
 
 const getPlans = () => {
-  loading.value = false
+  loading.value = true
   axios.get(`${useDataStore().getServerAddress}/plans/get-all?size=12&page=${onboarding.value - 1}`,
       {
         headers: {
@@ -78,6 +75,11 @@ const getPlans = () => {
         loading.value = false
       })
 }
+
+watch(() => onboarding.value , () => {
+  plans.value = []
+  getPlans()
+})
 
 onMounted(() => {
   getPlans()
