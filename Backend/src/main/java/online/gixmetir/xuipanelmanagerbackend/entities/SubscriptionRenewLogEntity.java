@@ -3,6 +3,7 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -31,4 +32,12 @@ public class SubscriptionRenewLogEntity {
     private Long totalFlow;
     @Column(name = "period_length")
     private Integer periodLength;
+    @Column(name = "price")
+    private Double price;
+    @CreatedDate
+    @Column(name = "create_date")
+    private LocalDateTime createDate;
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private LocalDateTime lastModifiedDate;
 }

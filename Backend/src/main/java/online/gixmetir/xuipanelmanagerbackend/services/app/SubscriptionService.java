@@ -26,8 +26,9 @@ public class SubscriptionService {
     private final SubscriptionRenewLogRepository subscriptionReNewLogRepository;
     private final ClientService clientService;
     private final UserRepository userRepository;
+    private PlanRepository planRepository;
 
-    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository) {
+    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository, PlanRepository planRepository) {
         this.subscriptionRepository = repository;
         this.inboundRepository = inboundRepository;
         this.panelService = panelService;
@@ -35,6 +36,7 @@ public class SubscriptionService {
         this.subscriptionReNewLogRepository = subscriptionReNewLogRepository;
         this.clientService = clientService;
         this.userRepository = userRepository;
+        this.planRepository = planRepository;
     }
 
     @Transactional
@@ -47,6 +49,8 @@ public class SubscriptionService {
             entity.setUuid(UUID.randomUUID().toString());
             entity.setStatus(true);
             subscriptionEntities.add(entity);
+            PlanEntity planEntity = getPriceOfSubscription(entity.getTotalFlow(), entity.getPeriodLength());
+            entity.setPrice(planEntity.getPrice());
             // increase user total used
             long totalUsed = (userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed()) + entity.getTotalFlow();
             userEntity.setTotalUsed(totalUsed);
@@ -56,6 +60,11 @@ public class SubscriptionService {
         userRepository.save(userEntity);
         addOrUpdateClientsRelatedToSubscription(subscriptionEntities);
         return subscriptionEntities.stream().map(SubscriptionDto::new).toList();
+    }
+
+    private PlanEntity getPriceOfSubscription(Long totalFlow, Integer periodLength) throws Exception {
+        double flow = new Helper().byteToGB(totalFlow);
+        return planRepository.findByTotalFlowAndPeriodLength((long) flow, periodLength).orElseThrow(() -> new EntityNotFoundException("Plan not found"));
     }
 
     @Transactional
@@ -102,6 +111,8 @@ public class SubscriptionService {
 
     public SubscriptionDto update(Long id, SubscriptionRequest request, SubscriptionUpdateType updateType) throws Exception {
         SubscriptionEntity subscriptionEntityFromDb = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
+        PlanEntity palnEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
+
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
 
@@ -109,11 +120,16 @@ public class SubscriptionService {
                     .subscriptionId(subscriptionEntityFromDb.getId())
                     .periodLength(subscriptionEntityFromDb.getPeriodLength())
                     .totalFlow(subscriptionEntityFromDb.getTotalFlow())
+                    .price(palnEntity.getPrice())
                     .build();
 
             subscriptionReNewLogRepository.save(logEntity);
 
+        } else {
+            request.toEntity(subscriptionEntityFromDb);
+            subscriptionEntityFromDb.setPrice(palnEntity.getPrice());
         }
+
         subscriptionRepository.save(subscriptionEntityFromDb);
         return new SubscriptionDto(subscriptionEntityFromDb);
     }
