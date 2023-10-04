@@ -255,6 +255,7 @@ let isDark = computed(() => {
 })
 
 const changeThemeStatus = () => {
+  showSettingMenu.value = false
   useDataStore().changeDarkStatus()
   document.cookie = `isDark=${useDataStore().getDarkStatus}`
 }
