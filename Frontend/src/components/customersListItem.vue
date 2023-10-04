@@ -30,22 +30,37 @@
               </div>
             </div>
           </div>
-          <div class="w-[20%] flex justify-center no-scrollbar">
-            <div class="relative">
-              <pencil-square-icon class="w-4 h-4 md:w-6 md:h-6 text-warning mx-1" @mouseenter="showEditTag = true"
-                                  @mouseleave="showEditTag = false"
-                                  @click="emits('openEditCustomerDialog' , customer)"/>
-              <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showEditTag">{{ local.edit }}
-                {{ local.customer }}
-              </div>
+          <div class="w-[20%] flex justify-center no-scrollbar relative" @mouseenter="showMenu = true" @mouseleave="showMenu = false" @click="showMenu = !showMenu">
+            <div>
+              <button class="flex justify-center items-center p-2">
+                <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+              </button>
             </div>
-            <div class="relative">
-              <lock-closed-icon class="w-4 h-4 md:w-6 md:h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+            <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
+              <div class="relative">
+                <pencil-square-icon class="w-4 h-4 md:w-6 md:h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+                                    @mouseleave="showEditTag = false"
+                                    @click="emits('openEditCustomerDialog' , customer)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showEditTag">{{ local.edit }}
+                  {{ local.customer }}
+                </div>
+              </div>
+              <div class="relative">
+                <lock-closed-icon class="w-4 h-4 md:w-6 md:h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
                                   @mouseleave="showChangePasswordTag = false"
                                   @click="emits('openChangePasswordDialog' , customer.id)"/>
-              <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">{{ local.changePassword }}
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">{{ local.changePassword }}
+                </div>
+              </div>
+              <div class="relative">
+                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                            @mouseleave="showDeleteTag = false"
+                            @click="emits('openDeleteConfirmationDialog' , customer)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }} {{local.customer}}
+                </div>
               </div>
             </div>
           </div>
@@ -85,11 +100,11 @@ import {computed, onMounted, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
-import {QrCodeIcon} from "@heroicons/vue/24/outline/index.js";
+import {Cog8ToothIcon, QrCodeIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 
 let props = defineProps(['onboarding', 'customer'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus' , 'openChangePasswordDialog'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog'])
 
 const expansionText = ref(null)
 
@@ -149,6 +164,9 @@ const changeStatus = (payload) => {
 }
 
 let showChangePasswordTag = ref(false)
+
+let showMenu = ref(false)
+let showDeleteTag = ref(false)
 </script>
 
 
