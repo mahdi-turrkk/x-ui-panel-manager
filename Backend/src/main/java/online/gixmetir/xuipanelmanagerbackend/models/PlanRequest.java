@@ -8,7 +8,7 @@ import online.gixmetir.xuipanelmanagerbackend.entities.PlanEntity;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PricingRequest {
+public class PlanRequest {
     private Double price;
     private Long totalFlow;
     private Integer periodLength;

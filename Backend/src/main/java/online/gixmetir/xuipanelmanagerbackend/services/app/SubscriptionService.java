@@ -63,7 +63,8 @@ public class SubscriptionService {
     }
 
     private PlanEntity getPriceOfSubscription(Long totalFlow, Integer periodLength) throws Exception {
-        return planRepository.findByTotalFlowAndPeriodLength(totalFlow, periodLength).orElseThrow(() -> new EntityNotFoundException("Pricing not found"));
+        double flow = new Helper().byteToGB(totalFlow);
+        return planRepository.findByTotalFlowAndPeriodLength((long) flow, periodLength).orElseThrow(() -> new EntityNotFoundException("Plan not found"));
     }
 
     @Transactional

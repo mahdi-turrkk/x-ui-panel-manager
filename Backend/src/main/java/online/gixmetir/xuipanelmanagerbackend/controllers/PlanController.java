@@ -1,8 +1,8 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
-import online.gixmetir.xuipanelmanagerbackend.models.PricingDto;
-import online.gixmetir.xuipanelmanagerbackend.models.PricingRequest;
-import online.gixmetir.xuipanelmanagerbackend.services.app.PricingService;
+import online.gixmetir.xuipanelmanagerbackend.models.PlanDto;
+import online.gixmetir.xuipanelmanagerbackend.models.PlanRequest;
+import online.gixmetir.xuipanelmanagerbackend.services.app.PlanService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -12,25 +12,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/plans")
 
 public class PlanController {
-    private final PricingService service;
+    private final PlanService service;
 
 
-    public PlanController(PricingService service) {
+    public PlanController(PlanService service) {
         this.service = service;
     }
 
     @GetMapping("/get-all")
-    public Page<PricingDto> getAll(Pageable pageable) {
+    public Page<PlanDto> getAll(Pageable pageable) {
         return service.getAll(pageable);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PricingDto> create(@RequestBody PricingRequest request) throws Exception {
+    public ResponseEntity<PlanDto> create(@RequestBody PlanRequest request) throws Exception {
         return ResponseEntity.ok(service.create(request));
     }
 
     @PutMapping("/update")
-    public ResponseEntity<PricingDto> update(@RequestParam Long id, @RequestBody PricingRequest request) {
+    public ResponseEntity<PlanDto> update(@RequestParam Long id, @RequestBody PlanRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 

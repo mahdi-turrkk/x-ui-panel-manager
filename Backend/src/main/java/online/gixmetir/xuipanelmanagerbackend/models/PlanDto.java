@@ -8,13 +8,13 @@ import online.gixmetir.xuipanelmanagerbackend.entities.PlanEntity;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PricingDto {
+public class PlanDto {
     private Long id;
     private Double price;
     private Long totalFlow;
     private Integer periodLength;
 
-    public PricingDto(PlanEntity entity) {
+    public PlanDto(PlanEntity entity) {
         this.id = entity.getId();
         this.price = entity.getPrice();
         this.totalFlow = entity.getTotalFlow();

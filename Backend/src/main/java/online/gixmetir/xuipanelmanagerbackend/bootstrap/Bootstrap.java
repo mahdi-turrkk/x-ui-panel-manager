@@ -1,14 +1,12 @@
 package online.gixmetir.xuipanelmanagerbackend.bootstrap;
 
+import online.gixmetir.xuipanelmanagerbackend.models.PlanRequest;
 import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
-import online.gixmetir.xuipanelmanagerbackend.services.app.InboundService;
-import online.gixmetir.xuipanelmanagerbackend.services.app.ServerService;
-import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
-import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
+import online.gixmetir.xuipanelmanagerbackend.services.app.*;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -22,8 +20,9 @@ public class Bootstrap implements ApplicationRunner {
     private final InboundService inboundService;
     private final SubscriptionService subscriptionService;
     private final InboundRepository inboundRepository;
+    private final PlanService planService;
 
-    public Bootstrap(UserService userService, AuthenticationRepository authenticationRepository, ServerService serverService, ServerRepository serverRepository, InboundService inboundService, SubscriptionService subscriptionService, InboundRepository inboundRepository) {
+    public Bootstrap(UserService userService, AuthenticationRepository authenticationRepository, ServerService serverService, ServerRepository serverRepository, InboundService inboundService, SubscriptionService subscriptionService, InboundRepository inboundRepository, PlanService planService) {
         this.userService = userService;
         this.authenticationRepository = authenticationRepository;
         this.serverService = serverService;
@@ -31,6 +30,7 @@ public class Bootstrap implements ApplicationRunner {
         this.inboundService = inboundService;
         this.subscriptionService = subscriptionService;
         this.inboundRepository = inboundRepository;
+        this.planService = planService;
     }
 
     @Override
@@ -41,6 +41,7 @@ public class Bootstrap implements ApplicationRunner {
         bootstrapUser();
         bootstrapInbound();
         bootstrapSubscription();
+        bootstrapPlans();
 
     }
 
@@ -55,6 +56,15 @@ public class Bootstrap implements ApplicationRunner {
 //            entity1.setGeneratable(true);
 //        inboundRepository.save(entity1);
 
+    }
+
+    private void bootstrapPlans() throws Exception {
+        PlanRequest planRequest = PlanRequest.builder()
+                .periodLength(30)
+                .totalFlow(30L)
+                .price(90000000D)
+                .build();
+        planService.create(planRequest);
     }
 
     private void bootstrapServer() throws Exception {

@@ -65,10 +65,10 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request ->
                         request
                                 .requestMatchers("/api/v1/users/change-password").hasAnyAuthority("Admin", "Customer")
-                                .requestMatchers("/api/v1/pricing/get-all").hasAnyAuthority("Admin", "Customer")
+                                .requestMatchers("/api/v1/plans/get-all").hasAnyAuthority("Admin", "Customer")
                                 .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
                                 .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
-                                .requestMatchers("/api/v1/pricing/*").hasAnyAuthority("Admin")
+                                .requestMatchers("/api/v1/plans/*").hasAnyAuthority("Admin")
                                 .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")
                                 .requestMatchers("api/v1/servers/*").hasAnyAuthority("Admin")
                                 .requestMatchers("v3/api-docs/**", "swagger-ui/*", "api/v1/authentication/*", "/api/v1/subscriptions/client/**").permitAll()
