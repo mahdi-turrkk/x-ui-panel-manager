@@ -54,11 +54,11 @@
                 </div>
               </div>
               <div class="relative">
-                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showdDeleteTag = true"
-                                  @mouseleave="showdDeleteTag = false"
+                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                                  @mouseleave="showDeleteTag = false"
                                   @click="emits('openDeleteConfirmationDialog' , admin)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showdDeleteTag">{{ local.delete }} {{local.admin}}
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }} {{local.admin}}
                 </div>
               </div>
             </div>
@@ -124,7 +124,7 @@ let showEditTag = ref(false)
 let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
 let showMenu = ref(false)
-let showdDeleteTag = ref(false)
+let showDeleteTag = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'

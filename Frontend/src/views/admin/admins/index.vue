@@ -7,7 +7,8 @@
                        @admin-edited="getAdmins"/>
     <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
                             :isSelf="false" :user-id="passwordEditUserId"/>
-    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="users" :data="deleteAdmin" @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getAdmins"/>
+    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="users" :data="deleteAdmin"
+                                @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getAdmins"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.admins }}</div>
       <button
@@ -18,7 +19,8 @@
       </button>
     </div>
     <admins-list @open-edit-admin-dialog="openEditAdminDialog" :admins="admins" @open-link-dialog="openLinkDialog"
-                 :is-loading="loading" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"/>
+                 :is-loading="loading" @open-change-password-dialog="openChangePasswordDialog"
+                 @open-delete-confirmation-dialog="openDeleteConfirmationDialog"/>
     <div class="flex mt-6" v-if="!loading">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
