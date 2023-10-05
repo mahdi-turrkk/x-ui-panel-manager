@@ -92,7 +92,7 @@ public class PanelService {
         for (ClientEntity client : clientEntities) {
             ServerEntity serverEntity = client.getInbound().getServer();
             String sessionKey = login(new ServerDto(serverEntity));
-            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverEntity.getUrl()), sessionKey, client.getInboundId(), client.getUuid());
+            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverEntity.getUrl()), sessionKey, client.getInbound().getIdFromPanel(), client.getUuid());
             if (!Objects.requireNonNull(response.getBody()).getSuccess())
                 throw new Exception(response.getBody().getMsg());
         }
