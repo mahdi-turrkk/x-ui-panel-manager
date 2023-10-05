@@ -70,8 +70,8 @@ public class SyncService {
                 List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
                 for (ClientEntity clientEntity : clientEntities) {
                     ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
-                    clientEntity.setUp(Long.parseLong(model.getUp()));
-                    clientEntity.setDown(Long.parseLong(model.getDown()));
+                    clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
+                    clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
                     clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
                     SubscriptionEntity subscriptionEntity = subscriptionEntities.stream().filter(a -> a.getId() == clientEntity.getSubscriptionId()).toList().get(0);
                     subscriptionEntity.setUpload(subscriptionEntity.getUpload() + clientEntity.getUp());
