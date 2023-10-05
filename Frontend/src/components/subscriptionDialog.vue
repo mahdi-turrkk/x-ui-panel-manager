@@ -177,14 +177,18 @@ const getPlans = () => {
       })
       .then((response) => {
         plans.value = response.data.content
-        const groupedByTotalFlows = Object.groupBy(response.data.content, plan => {
-          return plan.totalFlow;
-        });
-        const groupedByPeriodLengths = Object.groupBy(response.data.content, plan => {
-          return plan.periodLength;
-        });
-        totalFlows.value = Object.keys(groupedByTotalFlows)
-        periodLengths.value = Object.keys(groupedByPeriodLengths)
+        totalFlows.value = []
+        periodLengths.value = []
+        for (let i = 0 ; i < plans.value.length ; i++) {
+          if (totalFlows.value.indexOf(plans.value[i].totalFlow) == -1) {
+            totalFlows.value.push(plans.value[i].totalFlow)
+          }
+          if (periodLengths.value.indexOf(plans.value[i].periodLength) == -1) {
+            periodLengths.value.push(plans.value[i].periodLength)
+          }
+        }
+        totalFlows.value.sort((a,b) => a-b)
+        periodLengths.value.sort((a,b) => a-b)
       })
 }
 
