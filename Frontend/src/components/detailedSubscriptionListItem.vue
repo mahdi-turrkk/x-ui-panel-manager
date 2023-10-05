@@ -55,19 +55,19 @@
       </div>
       <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu && useRoute().path.substring(0,9) != '/customer'">
         <div class="relative cursor-pointer">
-          <qr-code-icon class="w-5 h-5 md:w-6 md:h-6 text-success mx-1" @mouseenter="showUrlTag = true"
+          <qr-code-icon class="w-6 h-6 text-success mx-1" @mouseenter="showUrlTag = true"
                         @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
-          <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-               :class="{'-left-8' : !isRtl , '-right-14' : isRtl}" v-if="showUrlTag">{{ local.show }}
+          <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+               :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showUrlTag">{{ local.show }}
             {{ local.url }}
           </div>
         </div>
         <div class="relative cursor-pointer">
-          <arrow-path-rounded-square-icon class="w-5 h-5 md:w-6 md:h-6 text-success mx-1" @mouseenter="showRenewTag = true"
+          <arrow-path-rounded-square-icon class="w-6 h-6 text-success mx-1" @mouseenter="showRenewTag = true"
                                           @mouseleave="showRenewTag = false"
                                           @click="emits('openRenewSubscriptionDialog' , subscription)"/>
-          <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-               :class="{'-left-8' : !isRtl , '-right-14' : isRtl}" v-if="showRenewTag">{{ local.renew }}
+          <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+               :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showRenewTag">{{ local.renew }}
             {{ local.subscription }}
           </div>
         </div>
