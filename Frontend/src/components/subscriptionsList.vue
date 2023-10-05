@@ -20,6 +20,7 @@
     </div>
     <detailed-subscription-list-item @open-link-dialog="openLinkDialog"
                                      @open-renew-subscription-dialog="openRenewSubscriptionDialog"
+                                     @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                                      v-for="subscription in subscriptions" :subscription="subscription"
                                      @change-subscription-status="(payload) => {subscription.status = payload}" v-if="!isLoading && subscriptions.length > 0"/>
   </div>
@@ -33,7 +34,7 @@ import DetailedSubscriptionListItem from "./detailedSubscriptionListItem.vue";
 import Loader from "./loader.vue";
 
 const props = defineProps(['subscriptions', 'isLoading'])
-const emits = defineEmits(['openRenewSubscriptionDialog', 'openLinkDialog'])
+const emits = defineEmits(['openRenewSubscriptionDialog', 'openLinkDialog' , 'openDeleteConfirmationDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
@@ -54,6 +55,10 @@ let local = computed(() => {
 
 const openLinkDialog = (payload) => {
   emits('openLinkDialog', payload)
+}
+
+const openDeleteConfirmationDialog = (payload) => {
+  emits('openDeleteConfirmationDialog'  ,payload)
 }
 </script>
 

@@ -18,7 +18,7 @@
       </div>
     </div>
     <servers-list-item @open-edit-server-dialog="openEditServerDialog" v-for="server in servers"
-                       :onboarding="onboarding" @set-onboarding="setOnboarding" :server="server"
+                       :onboarding="onboarding" @set-onboarding="setOnboarding" :server="server" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                        @change-server-status="(payload) => {server.status = payload}" v-if="!isLoading && servers.length > 0"/>
   </div>
 </template>
@@ -31,7 +31,7 @@ import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
 import Loader from "./loader.vue";
 
 const props = defineProps(['servers', 'isLoading'])
-const emits = defineEmits(['openEditServerDialog'])
+const emits = defineEmits(['openEditServerDialog' , 'openDeleteConfirmationDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
@@ -49,6 +49,10 @@ const openEditServerDialog = (payload) => {
 let local = computed(() => {
   return useLocalization().getLocal
 })
+
+const openDeleteConfirmationDialog = (payload) => {
+  emits('openDeleteConfirmationDialog' , payload)
+}
 </script>
 
 <style>

@@ -92,7 +92,7 @@ const openEditPlanDialog = (payload) => {
 }
 
 const openDeleteConfirmationDialog = (payload) =>{
-  deletePlan.value = payload
+  deletePlan = payload
   showDeleteConfirmationDialog.value = true
 }
 </script>

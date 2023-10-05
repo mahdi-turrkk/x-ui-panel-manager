@@ -30,8 +30,8 @@
         </div>
       </div>
     </div>
-    <div class="w-[20%] md:w-[15%] flex justify-center">
-      <div class="relative cursor-pointer">
+    <div class="w-[20%] md:w-[15%] flex justify-center relative" @mouseenter="showMenu = true" @mouseleave="showMenu = false" @click="showMenu = !showMenu">
+      <div class="relative cursor-pointer" v-if="useRoute().path.substring(0,9) == '/customer'">
         <qr-code-icon class="w-5 h-5 md:w-6 md:h-6 text-success mx-1" @mouseenter="showUrlTag = true"
                       @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
         <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -39,7 +39,7 @@
           {{ local.url }}
         </div>
       </div>
-      <div class="relative cursor-pointer">
+      <div class="relative cursor-pointer" v-if="useRoute().path.substring(0,9) == '/customer'">
         <arrow-path-rounded-square-icon class="w-5 h-5 md:w-6 md:h-6 text-success mx-1" @mouseenter="showRenewTag = true"
                                         @mouseleave="showRenewTag = false"
                                         @click="emits('openRenewSubscriptionDialog' , subscription)"/>
@@ -48,20 +48,53 @@
           {{ local.subscription }}
         </div>
       </div>
-    </div>
+      <div v-else>
+        <button class="flex justify-center items-center p-2">
+          <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+        </button>
+      </div>
+      <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu && useRoute().path.substring(0,9) != '/customer'">
+        <div class="relative cursor-pointer">
+          <qr-code-icon class="w-6 h-6 text-success mx-1" @mouseenter="showUrlTag = true"
+                        @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
+          <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+               :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showUrlTag">{{ local.show }}
+            {{ local.url }}
+          </div>
+        </div>
+        <div class="relative cursor-pointer">
+          <arrow-path-rounded-square-icon class="w-6 h-6 text-success mx-1" @mouseenter="showRenewTag = true"
+                                          @mouseleave="showRenewTag = false"
+                                          @click="emits('openRenewSubscriptionDialog' , subscription)"/>
+          <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+               :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showRenewTag">{{ local.renew }}
+            {{ local.subscription }}
+          </div>
+        </div>
+        <div class="relative cursor-pointer">
+          <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                      @mouseleave="showDeleteTag = false"
+                      @click="emits('openDeleteConfirmationDialog' , subscription)"/>
+          <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+               :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }} {{local.subscription}}
+          </div>
+        </div>
+      </div>
+      </div>
   </div>
 </template>
 
 <script setup>
 import {useLocalization} from "../store/localizationStore.js";
 import {computed, ref} from "vue";
-import {QrCodeIcon, ArrowPathRoundedSquareIcon} from "@heroicons/vue/24/outline/index.js";
+import {QrCodeIcon, ArrowPathRoundedSquareIcon, Cog8ToothIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 import {useDataStore} from "../store/dataStore.js";
+import {useRoute} from "vue-router";
 
 
 const props = defineProps(['subscription'])
-const emits = defineEmits(['openRenewSubscriptionDialog', 'openLinkDialog' , 'changeSubscriptionStatus'])
+const emits = defineEmits(['openRenewSubscriptionDialog', 'openLinkDialog' , 'changeSubscriptionStatus' , 'openDeleteConfirmationDialog'])
 
 
 let isRtl = computed(() => {
@@ -91,6 +124,9 @@ const changeStatus = (payload) => {
     console.log(error)
   })
 }
+
+let showMenu = ref(false)
+let showDeleteTag = ref(false)
 </script>
 
 <style>

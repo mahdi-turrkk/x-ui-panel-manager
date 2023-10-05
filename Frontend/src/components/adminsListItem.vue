@@ -29,22 +29,37 @@
               </div>
             </div>
           </div>
-          <div class="w-[20%] flex justify-center no-scrollbar">
-            <div class="relative">
-              <pencil-square-icon class="w-4 h-4 md:w-6 md:h-6 text-warning mx-1" @mouseenter="showEditTag = true"
-                                  @mouseleave="showEditTag = false"
-                                  @click="emits('openEditAdminDialog' , admin)"/>
-              <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showEditTag">{{ local.edit }}
-                {{ local.admin }}
-              </div>
+          <div class="w-[20%] flex justify-center no-scrollbar relative" @mouseenter="showMenu = true" @mouseleave="showMenu = false" @click="showMenu = !showMenu">
+            <div>
+              <button class="flex justify-center items-center p-2">
+                <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+              </button>
             </div>
-            <div class="relative">
-              <lock-closed-icon class="w-4 h-4 md:w-6 md:h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
-                                @mouseleave="showChangePasswordTag = false"
-                                @click="emits('openChangePasswordDialog' , admin.id)"/>
-              <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">{{ local.changePassword }}
+            <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
+              <div class="relative">
+                <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+                                    @mouseleave="showEditTag = false"
+                                    @click="emits('openEditAdminDialog' , admin)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showEditTag">{{ local.edit }}
+                  {{ local.admin }}
+                </div>
+              </div>
+              <div class="relative">
+                <lock-closed-icon class="w-6 h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+                                  @mouseleave="showChangePasswordTag = false"
+                                  @click="emits('openChangePasswordDialog' , admin.id)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">{{ local.changePassword }}
+                </div>
+              </div>
+              <div class="relative">
+                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                                  @mouseleave="showDeleteTag = false"
+                                  @click="emits('openDeleteConfirmationDialog' , admin)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }} {{local.admin}}
+                </div>
               </div>
             </div>
           </div>
@@ -84,11 +99,12 @@ import {computed, onMounted, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
-import {LockClosedIcon, QrCodeIcon} from "@heroicons/vue/24/outline/index.js";
+import {LockClosedIcon, QrCodeIcon , Cog8ToothIcon , TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
+import {displayHelper} from "../helpers/displayHelper.js";
 
 let props = defineProps(['onboarding', 'admin'])
-const emits = defineEmits(['setOnboarding', 'openEditAdminDialog', 'openLinkDialog', 'changeAdminStatus' , 'openChangePasswordDialog'])
+const emits = defineEmits(['setOnboarding', 'openEditAdminDialog', 'openLinkDialog', 'changeAdminStatus' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog'])
 
 const expansionText = ref(null)
 
@@ -107,6 +123,8 @@ let local = computed(() => {
 let showEditTag = ref(false)
 let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
+let showMenu = ref(false)
+let showDeleteTag = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
@@ -117,6 +135,7 @@ const openLinkDialog = (payload) => {
 }
 
 let subscriptions = ref([])
+
 
 onMounted(() => {
   axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.admin.id}`,
@@ -148,6 +167,7 @@ const changeStatus = (payload) => {
 }
 
 let showChangePasswordTag = ref(false)
+
 </script>
 
 

@@ -25,15 +25,30 @@
         </div>
       </div>
     </div>
-    <div class="w-[10%] flex justify-center">
-      <div class="relative cursor-pointer">
-        <qr-code-icon class="w-6 h-6 text-success mx-1" @mouseenter="showUrlTag = true"
-                      @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
-        <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-             :class="{'-left-8' : !isRtl , '-right-14' : isRtl}" v-if="showUrlTag">{{ local.show }}
-          {{ local.url }}
+    <div class="w-[10%] flex justify-center relative" @mouseenter="showMenu = true" @mouseleave="showMenu = false" @click="showMenu = !showMenu">
+        <div>
+          <button class="flex justify-center items-center p-2">
+            <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+          </button>
         </div>
-      </div>
+        <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
+          <div class="relative cursor-pointer">
+            <qr-code-icon class="w-6 h-6 text-success mx-1" @mouseenter="showUrlTag = true"
+                          @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
+            <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                 :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showUrlTag">{{ local.show }}
+              {{ local.url }}
+            </div>
+          </div>
+          <div class="relative cursor-pointer">
+            <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                        @mouseleave="showDeleteTag = false"
+                        @click="emits('openDeleteConfirmationDialog' , subscription)"/>
+            <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                 :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }} {{local.subscription}}
+            </div>
+          </div>
+        </div>
     </div>
   </div>
 </template>
@@ -43,12 +58,12 @@
 import {useDataStore} from "../store/dataStore.js";
 import {useLocalization} from "../store/localizationStore.js";
 import {computed, ref} from "vue";
-import {QrCodeIcon} from "@heroicons/vue/24/outline/index.js";
+import {Cog8ToothIcon, QrCodeIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 
 
 const props = defineProps(['subscription'])
-const emits = defineEmits(['openLinkDialog' , 'changeSubscriptionStatus'])
+const emits = defineEmits(['openLinkDialog' , 'changeSubscriptionStatus' , 'openDeleteConfirmationDialog'])
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
@@ -73,5 +88,8 @@ const changeStatus = (payload) => {
     emits('changeSubscriptionStatus' , payload)
   }).catch((error) => {console.log(error)})
 }
+
+let showMenu = ref(false)
+let showDeleteTag = ref(false)
 
 </script>

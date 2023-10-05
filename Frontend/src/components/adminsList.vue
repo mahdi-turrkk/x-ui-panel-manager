@@ -16,7 +16,7 @@
       </div>
     </div>
     <admins-list-item @open-edit-admin-dialog="openEditAdminDialog" @open-link-dialog="openLinkDialog"
-                         v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog"
+                         v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                          :admin="admin" @change-admin-status="(payload) => {admin.enabled = payload}" v-if="!isLoading && admins.length > 0"/>
   </div>
 </template>
@@ -30,7 +30,7 @@ import Loader from "./loader.vue";
 import AdminsListItem from "./adminsListItem.vue";
 
 const props = defineProps(['admins', 'isLoading'])
-const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog'])
+const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog' , 'openDeleteConfirmationDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
@@ -54,6 +54,10 @@ const openLinkDialog = (payload) => {
 
 const openChangePasswordDialog = (payload) => {
   emits('openChangePasswordDialog' , payload)
+}
+
+const openDeleteConfirmationDialog = (payload) => {
+  emits('openDeleteConfirmationDialog' , payload)
 }
 </script>
 

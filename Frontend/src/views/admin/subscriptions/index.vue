@@ -3,6 +3,8 @@
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
     <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
                          :subscription="subscription" :type="subDialogType" @subs-added="addNewSubsToList"/>
+    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="subscriptions" :data="deleteSubscription"
+                                @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getSubscriptions"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
       <button
@@ -12,7 +14,7 @@
         {{ local.add }} {{ local.subscription }}
       </button>
     </div>
-    <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
+    <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                         @open-link-dialog="openLinkDialog" :is-loading="loading"/>
     <div class="flex mt-6" v-if="!loading">
       <div
@@ -33,6 +35,7 @@ import SubscriptionDialog from "../../../components/subscriptionDialog.vue";
 import SubscriptionLinkDialog from "../../../components/subscriptionLinkDialog.vue";
 import axios from "axios";
 import {useDataStore} from "../../../store/dataStore.js";
+import DeleteConfirmationDialog from "../../../components/deleteConfirmationDialog.vue";
 
 let subscriptions = ref([])
 
@@ -90,5 +93,12 @@ watch(() => onboarding.value , () => {
 
 const addNewSubsToList = () => {
   getSubscriptions()
+}
+
+let deleteSubscription = reactive({})
+let showDeleteConfirmationDialog = ref(false)
+const openDeleteConfirmationDialog = (payload) => {
+  deleteSubscription = payload
+  showDeleteConfirmationDialog.value = true
 }
 </script>
