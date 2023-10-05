@@ -23,18 +23,14 @@
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
              :class="{'mt-0 opacity-100' : totalFlow}">{{ local.totalFlow }}</label>
-      <input type="number" :placeholder="local.totalFlow" v-model="totalFlow" v-if="useRoute().path.substring(0,6) === '/admin'"
-             class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-      <select type="number" v-model="totalFlow" v-else
+      <select type="number" v-model="totalFlow"
               class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150">
         <option value="" disabled selected>{{ local.totalFlow }}</option>
         <option v-for="totalFlow in totalFlows" class="my-4" :value="Number(totalFlow)">{{ totalFlow }} GB</option>
       </select>
       <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
              :class="{'mt-0 opacity-100' : periodLength}">{{ local.periodLength }}</label>
-      <input type="number" :placeholder="local.periodLength" v-model="periodLength" v-if="useRoute().path.substring(0,6) === '/admin'"
-             class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-      <select type="number" v-model="periodLength" v-else
+      <select type="number" v-model="periodLength"
               class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150">
         <option value="" disabled selected>{{ local.periodLength }}</option>
         <option v-for="periodLength in periodLengths" class="my-4" :value="Number(periodLength)">{{ periodLength }} {{ local.days}}</option>
@@ -43,7 +39,7 @@
              :class="{'mt-0 opacity-100' : number}" v-if="type === 'new'">{{ local.number }}</label>
       <input type="number" :placeholder="local.number" v-model="number" v-if="type === 'new'"
              class="z-20 w-72 md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-      <div class="flex justify-between z-0 px-2 pb-5 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : periodLength && totalFlow && number}" v-if="periodLength && totalFlow && useRoute().path.substring(0,9) == '/customer'">
+      <div class="flex justify-between z-0 px-2 pb-5 -mt-[40px] opacity-0 transition-all duration-200" :class="{'mt-0 opacity-100' : periodLength && totalFlow && number}" v-if="periodLength && totalFlow">
         <div>{{ local.price }}&nbsp :</div>
         <div>{{ plans.find((plan) => plan.totalFlow == totalFlow && plan.periodLength == periodLength).price * number }}</div>
       </div>
