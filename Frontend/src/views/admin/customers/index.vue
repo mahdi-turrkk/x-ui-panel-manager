@@ -7,7 +7,7 @@
                           :customer="customer" @customer-edited="getCustomers"/>
     <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
                             :isSelf="false" :user-id="passwordEditUserId"/>
-    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="users" :data="deleteCustomer"
+    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" :title="deleteConfirmationType" :data="deleteObj"
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getCustomers"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.customers }}</div>
@@ -21,6 +21,7 @@
     <customers-list @open-edit-Customer-dialog="openEditCustomerDialog" :customers="customers"
                     @open-link-dialog="openLinkDialog" :is-loading="loading"
                     @open-change-password-dialog="openChangePasswordDialog"
+                    @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription"
                     @open-delete-confirmation-dialog="openDeleteConfirmationDialog"/>
     <div class="flex mt-6" v-if="!loading">
       <div
@@ -103,10 +104,18 @@ const openChangePasswordDialog = (payload) => {
   showChangePasswordDialog.value = true
 }
 
-let deleteCustomer = reactive({})
+let deleteObj = reactive({})
 let showDeleteConfirmationDialog = ref(false)
+let deleteConfirmationType = ref('')
 const openDeleteConfirmationDialog = (payload) => {
-  deleteCustomer = payload
+  deleteObj = payload
+  deleteConfirmationType.value = 'users'
+  showDeleteConfirmationDialog.value = true
+}
+
+const openDeleteConfirmationDialogSubscription = (payload) => {
+  deleteObj = payload
+  deleteConfirmationType.value = 'subscriptions'
   showDeleteConfirmationDialog.value = true
 }
 </script>

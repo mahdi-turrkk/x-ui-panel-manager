@@ -7,7 +7,7 @@
         <div class="flex w-full items-center space-x-2">
           <div class="w-0 hidden md:w-[10%] md:inline-block no-scrollbar" @click="emits('setOnboarding' , customer.id)">{{ customer.id }}</div>
           <div class="w-[30%] md:w-[20%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">{{ customer.totalFlow == 0 ? "∞" : customer.totalFlow - customer.totalUsed + 'GB' }} - {{ customer.expirationDateTime ?  customer.expirationDateTime.substring(0,10) : "∞" }}</div>
-          <div class="w-[30%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">
+          <div class="w-[30%] no-scrollbar text-center overflow-auto" @click="emits('setOnboarding' , customer.id)">
             {{ customer.username }}
           </div>
           <div class="w-[20%] no-scrollbar flex justify-center">
@@ -38,7 +38,7 @@
             </div>
             <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
               <div class="relative">
-                <pencil-square-icon class="w-4 h-4 md:w-6 md:h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+                <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
                                     @mouseleave="showEditTag = false"
                                     @click="emits('openEditCustomerDialog' , customer)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -47,7 +47,7 @@
                 </div>
               </div>
               <div class="relative">
-                <lock-closed-icon class="w-4 h-4 md:w-6 md:h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+                <lock-closed-icon class="w-6 h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
                                   @mouseleave="showChangePasswordTag = false"
                                   @click="emits('openChangePasswordDialog' , customer.id)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -87,7 +87,7 @@
           </div>
         </div>
         <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription" v-if="subscriptions.length > 0"
-                                @open-link-dialog="openLinkDialog"
+                                @open-link-dialog="openLinkDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
       </div>
     </div>
@@ -104,7 +104,7 @@ import {Cog8ToothIcon, QrCodeIcon, TrashIcon} from "@heroicons/vue/24/outline/in
 import axios from "axios";
 
 let props = defineProps(['onboarding', 'customer'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription'])
 
 const expansionText = ref(null)
 
@@ -167,6 +167,10 @@ let showChangePasswordTag = ref(false)
 
 let showMenu = ref(false)
 let showDeleteTag = ref(false)
+
+const openDeleteConfirmationDialogSubscription = (payload) => {
+  emits('openDeleteConfirmationDialogSubscription'  ,payload)
+}
 </script>
 
 
