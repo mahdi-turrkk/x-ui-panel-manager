@@ -241,7 +241,7 @@ public class SubscriptionService {
             header += "download=" + subscription.getDownload() + "; ";
         if (subscription.getTotalFlow() != null)
             header += "total=" + subscription.getTotalFlow() + "; ";
-        if (subscription.getPeriodLength() != null)
+        if (subscription.getExpireDate() != null)
             header += "expire=" + subscription.getExpireDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Subscription-Userinfo", header);
