@@ -9,6 +9,7 @@ import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SyncService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/client/{uuid}")
-    public String getSubscriptionData(@PathVariable String uuid) throws Exception {
+    public ResponseEntity<String> getSubscriptionData(@PathVariable String uuid) throws Exception {
         return subscriptionService.getSubscriptionData(uuid);
     }
 
