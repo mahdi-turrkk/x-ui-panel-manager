@@ -11,6 +11,10 @@ import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -213,14 +217,26 @@ public class SubscriptionService {
         throw new Exception("link is invalid.");
     }
 
-    public String getSubscriptionData(String uuid) throws Exception {
+    public ResponseEntity<String> getSubscriptionData(String uuid) throws Exception {
         SubscriptionEntity subscription = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new Exception("subscription not found"));
         List<ClientEntity> entities = clientRepository.findAllBySubscriptionIdAndSendToUser(subscription.getId(), true);
         StringBuilder configs = new StringBuilder();
         for (ClientEntity entity : entities) {
             configs.append(clientService.generateClientString(entity)).append("\r\n");
         }
-        return configs.toString();
+        HttpHeaders headers = new HttpHeaders();
+        String header = "upload=" + subscription.getUpload() + "; " +
+                "download=" + subscription.getDownload() + "; " +
+                "total=" + subscription.getTotalFlow() + "; " +
+                "expire=" + subscription.getExpireDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Subscription-Userinfo", header);
+
+        // Create the response entity with headers, body, and status code
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(configs.toString(),
+                headers, HttpStatus.OK);
+
+        return responseEntity;
     }
 
     public SummaryModel getSummary() {
