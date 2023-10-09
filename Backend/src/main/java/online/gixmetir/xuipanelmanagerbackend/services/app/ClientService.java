@@ -15,7 +15,7 @@ import java.util.Map;
 @Service
 public class ClientService {
 
-    public String generateClientString(ClientEntity client) throws IOException {
+    public String generateClientString(ClientEntity client, long days, double remainingFlow) throws IOException {
         Map<String, String> values = new HashMap<>();
         String uuid = String.valueOf(client.getUuid());
         InboundEntity inbound = client.getInbound();
@@ -134,7 +134,7 @@ public class ClientService {
         link += queryParams;
 
         if (!inbound.getRemark().isEmpty() || !client.getEmail().isEmpty()) {
-            link += "#" + URI.create(inbound.getRemark() + "-" + client.getEmail().replace(" ","")).toASCIIString();
+            link += "#" + URI.create(client.getEmail().replace(" ", "")).toASCIIString();
         }
 
         return link;

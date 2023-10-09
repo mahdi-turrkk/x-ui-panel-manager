@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -221,14 +222,27 @@ public class SubscriptionService {
         SubscriptionEntity subscription = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new Exception("subscription not found"));
         List<ClientEntity> entities = clientRepository.findAllBySubscriptionIdAndSendToUser(subscription.getId(), true);
         StringBuilder configs = new StringBuilder();
+        Helper helper = new Helper();
+        double remainingFlow = helper.byteToGB((subscription.getTotalFlow() == null ? 0 : subscription.getTotalFlow()) - (subscription.getTotalUsed() == null ? 0 : subscription.getTotalUsed()));
+        long days = 0;
+        if (subscription.getExpireDate() != null)
+            days = ChronoUnit.DAYS.between(subscription.getExpireDate(), LocalDateTime.now());
+        else
+            days = subscription.getPeriodLength();
+
         for (ClientEntity entity : entities) {
-            configs.append(clientService.generateClientString(entity)).append("\r\n");
+            configs.append(clientService.generateClientString(entity, days, remainingFlow)).append("\r\n");
         }
         HttpHeaders headers = new HttpHeaders();
-        String header = "upload=" + subscription.getUpload() + "; " +
-                "download=" + subscription.getDownload() + "; " +
-                "total=" + subscription.getTotalFlow() + "; " +
-                "expire=" + subscription.getExpireDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+        String header = "";
+        if (subscription.getUpload() != null)
+            header += "upload=" + subscription.getUpload() + "; ";
+        if (subscription.getDownload() != null)
+            header += "download=" + subscription.getDownload() + "; ";
+        if (subscription.getTotalFlow() != null)
+            header += "total=" + subscription.getTotalFlow() + "; ";
+        if (subscription.getPeriodLength() != null)
+            header += "expire=" + subscription.getExpireDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Subscription-Userinfo", header);
 
