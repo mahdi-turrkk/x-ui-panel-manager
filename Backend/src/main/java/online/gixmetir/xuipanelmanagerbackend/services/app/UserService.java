@@ -4,11 +4,13 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.LoginModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.AuthenticationEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserRenewLogEntity;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.UserRenewLogRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -29,14 +32,16 @@ public class UserService {
     private final JwtService jwtService;
     private final AuthenticationRepository authenticationRepository;
     private final UserRenewLogRepository userRenewLogRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
-    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository) {
+    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository) {
         this.repository = repository;
         this.authenticationService = authenticationService;
         this.encoder = encoder;
         this.jwtService = jwtService;
         this.authenticationRepository = authenticationRepository;
         this.userRenewLogRepository = userRenewLogRepository;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
@@ -145,5 +150,15 @@ public class UserService {
                 .build();
         userRenewLogRepository.save(userRenewLogEntity);
         return new UserDto(entity);
+    }
+
+
+    public void getUserBalance(Long id) {
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserIdAndMarkAsPaid(id, true);
+        double balance = 0;
+        for (SubscriptionEntity subscriptionEntity : subscriptionEntities) {
+            balance += subscriptionEntity.getPrice();
+
+        }
     }
 }

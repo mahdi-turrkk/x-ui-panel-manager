@@ -40,4 +40,6 @@ public class SubscriptionRenewLogEntity {
     @LastModifiedDate
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+    @Column(name = "mark_as_paid")
+    private Boolean markAsPaid;
 }

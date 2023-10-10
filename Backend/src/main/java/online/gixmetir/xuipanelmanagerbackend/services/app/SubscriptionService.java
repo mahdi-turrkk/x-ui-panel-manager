@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
+import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionRenewLogFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
@@ -273,6 +274,17 @@ public class SubscriptionService {
         entity.setMarkAsPaid(newPayStatus);
         subscriptionRepository.save(entity);
         return new SubscriptionDto(entity);
+    }
+
+    public SubscriptionRenewDto changePayStatusForRenew(Boolean newPayStatus, Long id) {
+        SubscriptionRenewLogEntity subscriptionRenewLogEntity = subscriptionReNewLogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription renew not found"));
+        subscriptionRenewLogEntity.setMarkAsPaid(newPayStatus);
+        subscriptionReNewLogRepository.save(subscriptionRenewLogEntity);
+        return new SubscriptionRenewDto(subscriptionRenewLogEntity);
+    }
+
+    public Page<SubscriptionRenewDto> getAllRenewList(SubscriptionRenewLogFilter filter, Pageable pageable) {
+        return subscriptionReNewLogRepository.findAll(filter, pageable).map(SubscriptionRenewDto::new);
     }
 }
 

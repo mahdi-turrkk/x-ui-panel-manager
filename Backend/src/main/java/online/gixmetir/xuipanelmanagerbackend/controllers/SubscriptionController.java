@@ -1,10 +1,8 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionDto;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionRequest;
-import online.gixmetir.xuipanelmanagerbackend.models.SubscriptionUpdateType;
-import online.gixmetir.xuipanelmanagerbackend.models.SummaryModel;
+import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionRenewLogFilter;
+import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SubscriptionService;
 import online.gixmetir.xuipanelmanagerbackend.services.app.SyncService;
 import org.springframework.data.domain.Page;
@@ -46,6 +44,11 @@ public class SubscriptionController {
         return subscriptionService.getAll(filter, pageable, selfSubs);
     }
 
+    @GetMapping("/get-all-renew-list")
+    public Page<SubscriptionRenewDto> getAllRenewList(SubscriptionRenewLogFilter filter, Pageable pageable) {
+        return subscriptionService.getAllRenewList(filter, pageable);
+    }
+
     @GetMapping("/client/{uuid}")
     public ResponseEntity<String> getSubscriptionData(@PathVariable String uuid) throws Exception {
         return subscriptionService.getSubscriptionData(uuid);
@@ -56,9 +59,14 @@ public class SubscriptionController {
         return subscriptionService.changeStatus(newStatus, id);
     }
 
-    @PutMapping("/change-pay-status")
-    public SubscriptionDto changePayStatus(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
+    @PutMapping("/change-pay-status-for-subscription")
+    public SubscriptionDto changePayStatusForSubscription(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
         return subscriptionService.changePayStatus(newPayStatus, id);
+    }
+
+    @PutMapping("/change-pay-status-for-subscription-renew")
+    public void changePayStatusForSubscriptionRenew(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
+        subscriptionService.changePayStatusForRenew(newPayStatus, id);
     }
 
     @GetMapping("/report")

@@ -31,4 +31,6 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
 
     @Query("select sum(s.download) from SubscriptionEntity s")
     Long getTotalDownload();
+
+    List<SubscriptionEntity> findAllByUserIdAndMarkAsPaid(Long userId, Boolean markAsPaid);
 }
