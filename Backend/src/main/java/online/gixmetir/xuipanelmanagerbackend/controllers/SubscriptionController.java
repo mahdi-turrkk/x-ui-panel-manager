@@ -56,6 +56,11 @@ public class SubscriptionController {
         return subscriptionService.changeStatus(newStatus, id);
     }
 
+    @PutMapping("/change-pay-status")
+    public SubscriptionDto changePayStatus(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
+        return subscriptionService.changePayStatus(newPayStatus, id);
+    }
+
     @GetMapping("/report")
     public SubscriptionDto report(@RequestParam String subLink) throws Exception {
         return subscriptionService.report(subLink);

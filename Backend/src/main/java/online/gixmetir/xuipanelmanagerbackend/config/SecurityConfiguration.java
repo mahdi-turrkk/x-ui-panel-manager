@@ -66,6 +66,7 @@ public class SecurityConfiguration {
                         request
                                 .requestMatchers("/api/v1/users/change-password").hasAnyAuthority("Admin", "Customer")
                                 .requestMatchers("/api/v1/plans/get-all").hasAnyAuthority("Admin", "Customer")
+                                .requestMatchers("/api/v1/subscriptions/change-pay-status").hasAnyAuthority("Admin")
                                 .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
                                 .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
                                 .requestMatchers("/api/v1/plans/*").hasAnyAuthority("Admin")

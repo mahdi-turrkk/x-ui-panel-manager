@@ -267,5 +267,12 @@ public class SubscriptionService {
         model.setTotalLastMonthSold(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth(startOfMonth));
         return model;
     }
+
+    public SubscriptionDto changePayStatus(Boolean newPayStatus, Long id) {
+        SubscriptionEntity entity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
+        entity.setMarkAsPaid(newPayStatus);
+        subscriptionRepository.save(entity);
+        return new SubscriptionDto(entity);
+    }
 }
 
