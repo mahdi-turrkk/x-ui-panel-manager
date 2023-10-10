@@ -80,14 +80,24 @@
           <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.status }}</div>
           <div class="w-[10%] text-center text-xs md:text-sm">{{ local.url }}</div>
         </div>
-        <div class="h-full w-full flex justify-center items-center pt-12" v-if="subscriptions.length === 0">
+        <div class="h-full w-full flex justify-center items-center pt-12" v-if="!isLoading && subscriptions.length === 0">
           <div class="border-t-primary-3 w-full border-t-2 flex justify-center mx-2 md:mx-6">
             <div class="w-fit -mt-4 text-info-3 text-base md:text-xl bg-background-2 px-2">{{ local.noRecords }}</div>
           </div>
         </div>
-        <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription" v-if="subscriptions.length > 0"
+        <div class="flex justify-center mt-4" v-if="isLoading">
+          <loader/>
+        </div>
+        <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription" v-else-if="subscriptions.length > 0"
                                 @open-link-dialog="openLinkDialog"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
+        <div class="flex mt-3">
+          <div
+              class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
+              v-for="i in subsPages" :class="{'bg-opacity-50' : onboardingSubsPage === i}"
+              @click="onboardingSubsPage = i">{{ i }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -95,13 +105,14 @@
 
 <script setup>
 import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
 import {LockClosedIcon, QrCodeIcon , Cog8ToothIcon , TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 import {displayHelper} from "../helpers/displayHelper.js";
+import Loader from "./loader.vue";
 
 let props = defineProps(['onboarding', 'admin'])
 const emits = defineEmits(['setOnboarding', 'openEditAdminDialog', 'openLinkDialog', 'changeAdminStatus' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog'])
@@ -135,10 +146,13 @@ const openLinkDialog = (payload) => {
 }
 
 let subscriptions = ref([])
+let onboardingSubsPage = ref(1)
+let subsPages = ref(1)
+let isLoading = ref(true)
 
 
 onMounted(() => {
-  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.admin.id}`,
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.admin.id}&page=${onboardingSubsPage.value -1 }&size=10`,
       {
         headers: {
           Authorization: useDataStore().getToken
@@ -146,13 +160,33 @@ onMounted(() => {
       }
   ).then((response) => {
     subscriptions.value = response.data.content
+    subsPages.value = response.data.totalPages
     emits('setOnboarding', props.admin.id)
     setTimeout(() => {
       emits('setOnboarding', undefined)
     }, 1)
+    isLoading.value = false
   }).catch((error) => console.log(error))
 })
 
+const getSubscriptions = () => {
+  isLoading.value = true
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.admin.id}&page=${onboardingSubsPage.value -1 }&size=10`,
+      {
+        headers: {
+          Authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    subscriptions.value = response.data.content
+    subsPages.value = response.data.totalPages
+    isLoading.value = false
+  }).catch((error) => console.log(error))
+}
+
+watch(() => onboardingSubsPage.value , () => {
+  getSubscriptions()
+})
 const changeStatus = (payload) => {
   axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.admin.id}&newStatus=${payload}` ,
       {},

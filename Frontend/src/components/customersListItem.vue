@@ -5,8 +5,13 @@
           class="bg-background-3 flex rounded-t-xl justify-between items-center px-4 py-4 z-20 relative cursor-pointer text-info-3"
           :class="{'rounded-b-xl' : customer.id != onboarding}">
         <div class="flex w-full items-center space-x-2">
-          <div class="w-0 hidden md:w-[10%] md:inline-block no-scrollbar" @click="emits('setOnboarding' , customer.id)">{{ customer.id }}</div>
-          <div class="w-[30%] md:w-[20%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">{{ customer.totalFlow == 0 ? "∞" : customer.totalFlow - customer.totalUsed + 'GB' }} - {{ customer.expirationDateTime ?  customer.expirationDateTime.substring(0,10) : "∞" }}</div>
+          <div class="w-0 hidden md:w-[10%] md:inline-block no-scrollbar" @click="emits('setOnboarding' , customer.id)">
+            {{ customer.id }}
+          </div>
+          <div class="w-[30%] md:w-[20%] no-scrollbar text-center" @click="emits('setOnboarding' , customer.id)">
+            {{ customer.totalFlow == 0 ? "∞" : customer.totalFlow - customer.totalUsed + 'GB' }} -
+            {{ customer.expirationDateTime ? customer.expirationDateTime.substring(0, 10) : "∞" }}
+          </div>
           <div class="w-[30%] no-scrollbar text-center overflow-auto" @click="emits('setOnboarding' , customer.id)">
             {{ customer.username }}
           </div>
@@ -22,7 +27,8 @@
             </div>
             <div
                 class="bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 text-error relative w-fit px-4"
-                v-if="!customer.enabled" @mouseenter="showActivateTag = true" @mouseleave="showActivateTag = false" @click="changeStatus(true)">
+                v-if="!customer.enabled" @mouseenter="showActivateTag = true" @mouseleave="showActivateTag = false"
+                @click="changeStatus(true)">
               {{ local.inactive }}
               <div class="absolute -top-4 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
                    :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showActivateTag">{{ local.activate }}
@@ -30,7 +36,8 @@
               </div>
             </div>
           </div>
-          <div class="w-[20%] flex justify-center no-scrollbar relative" @mouseenter="showMenu = true" @mouseleave="showMenu = false" @click="showMenu = !showMenu">
+          <div class="w-[20%] flex justify-center no-scrollbar relative" @mouseenter="showMenu = true"
+               @mouseleave="showMenu = false" @click="showMenu = !showMenu">
             <div>
               <button class="flex justify-center items-center p-2">
                 <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
@@ -51,7 +58,8 @@
                                   @mouseleave="showChangePasswordTag = false"
                                   @click="emits('openChangePasswordDialog' , customer.id)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">{{ local.changePassword }}
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showChangePasswordTag">
+                  {{ local.changePassword }}
                 </div>
               </div>
               <div class="relative">
@@ -59,13 +67,15 @@
                             @mouseleave="showDeleteTag = false"
                             @click="emits('openDeleteConfirmationDialog' , customer)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
-                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }} {{local.customer}}
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeleteTag">{{ local.delete }}
+                  {{ local.customer }}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300" @click="emits('setOnboarding' , customer.id)"
+        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300"
+                           @click="emits('setOnboarding' , customer.id)"
                            :class="{'rotate-180' : onboarding === customer.id}"/>
       </div>
       <div class="bg-background-2 px-8 md:px-12 py-4 transition-all duration-700 z-10 relative rounded-b-xl text-info-3"
@@ -81,32 +91,48 @@
           <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.status }}</div>
           <div class="w-[10%] text-center text-xs md:text-sm">{{ local.url }}</div>
         </div>
-        <div class="h-full w-full flex justify-center items-center pt-12" v-if="subscriptions.length === 0">
+        <div class="h-full w-full flex justify-center items-center pt-12"
+             v-if="!isLoading && subscriptions.length === 0">
           <div class="border-t-primary-3 w-full border-t-2 flex justify-center mx-2 md:mx-6">
             <div class="w-fit -mt-4 text-info-3 text-base md:text-xl bg-background-2 px-2">{{ local.noRecords }}</div>
           </div>
         </div>
-        <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription" v-if="subscriptions.length > 0"
-                                @open-link-dialog="openLinkDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
+        <div class="flex justify-center mt-4" v-if="isLoading">
+          <loader/>
+        </div>
+        <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription"
+                                v-else-if="subscriptions.length > 0"
+                                @open-link-dialog="openLinkDialog"
+                                @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
+        <div class="flex mt-3">
+          <div
+              class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
+              v-for="i in subsPages" :class="{'bg-opacity-50' : onboardingSubsPage === i}"
+              @click="onboardingSubsPage = i">{{ i }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon , LockClosedIcon} from "@heroicons/vue/24/outline";
-import {computed, onMounted, ref} from "vue";
+import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon, LockClosedIcon} from "@heroicons/vue/24/outline";
+import {computed, onMounted, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
 import {Cog8ToothIcon, QrCodeIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
+import Loader from "./loader.vue";
 
 let props = defineProps(['onboarding', 'customer'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription'])
 
 const expansionText = ref(null)
+let onboardingSubsPage = ref(1)
+let subsPages = ref(1)
 
 let marginTop = computed(() => {
   if (expansionText.value != null) {
@@ -123,6 +149,7 @@ let local = computed(() => {
 let showEditTag = ref(false)
 let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
+let isLoading = ref(true)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
@@ -134,8 +161,9 @@ const openLinkDialog = (payload) => {
 
 let subscriptions = ref([])
 
-onMounted(() => {
-  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.customer.id}`,
+const getSubscriptions = () => {
+  isLoading.value = true
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.customer.id}&page=${onboardingSubsPage.value - 1}&size=10`,
       {
         headers: {
           Authorization: useDataStore().getToken
@@ -143,24 +171,46 @@ onMounted(() => {
       }
   ).then((response) => {
     subscriptions.value = response.data.content
+    subsPages.value = response.data.totalPages
+    isLoading.value = false
+  }).catch((error) => console.log(error))
+}
+
+onMounted(() => {
+  axios.get(`${useDataStore().getServerAddress}/subscriptions/get-all?userId=${props.customer.id}&page=${onboardingSubsPage.value - 1}&size=10`,
+      {
+        headers: {
+          Authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    subscriptions.value = response.data.content
+    subsPages.value = response.data.totalPages
     emits('setOnboarding', props.customer.id)
     setTimeout(() => {
       emits('setOnboarding', undefined)
     }, 1)
+    isLoading.value = false
   }).catch((error) => console.log(error))
 })
 
+watch(() => onboardingSubsPage.value, () => {
+  getSubscriptions()
+})
+
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.customer.id}&newStatus=${payload}` ,
+  axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.customer.id}&newStatus=${payload}`,
       {},
       {
-        headers : {
-          authorization : useDataStore().getToken
+        headers: {
+          authorization: useDataStore().getToken
         }
       }
   ).then((response) => {
-    emits('changeCustomerStatus' , payload)
-  }).catch((error) => {console.log(error)})
+    emits('changeCustomerStatus', payload)
+  }).catch((error) => {
+    console.log(error)
+  })
 }
 
 let showChangePasswordTag = ref(false)
@@ -169,7 +219,7 @@ let showMenu = ref(false)
 let showDeleteTag = ref(false)
 
 const openDeleteConfirmationDialogSubscription = (payload) => {
-  emits('openDeleteConfirmationDialogSubscription'  ,payload)
+  emits('openDeleteConfirmationDialogSubscription', payload)
 }
 </script>
 
