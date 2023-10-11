@@ -86,10 +86,10 @@
             class="flex space-x-2 items-center px-4 py-4 w-full bg-background-3 rounded-xl shadow-md mb-2 mt-4 font-bold text-sm"
             :class="{'shadow-info-1 shadow-sm' : useDataStore().getDarkStatus}">
           <div class="w-0 hidden md:inline-block md:w-[10%] text-xs md:text-sm">{{ local.id }}</div>
-          <div class="w-[30%] text-center text-xs md:text-sm">{{ local.startEndDate }}</div>
-          <div class="w-[30%] text-center text-xs md:text-sm">{{ local.usage }}</div>
+          <div class="w-[30%] md:w-[40%] text-center text-xs md:text-sm">{{ local.plan }}</div>
+          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.payStatus }}</div>
           <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.status }}</div>
-          <div class="w-[10%] text-center text-xs md:text-sm">{{ local.url }}</div>
+          <div class="w-[10%] text-center text-xs md:text-sm">{{ local.actions }}</div>
         </div>
         <div class="h-full w-full flex justify-center items-center pt-12"
              v-if="!isLoading && subscriptions.length === 0">
@@ -103,6 +103,7 @@
         <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription"
                                 v-else-if="subscriptions.length > 0"
                                 @open-link-dialog="openLinkDialog"
+                                @change-subscription-pay-status="(payload) => {subscription.markAsPaid = payload}"
                                 @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
         <div class="flex mt-3">
