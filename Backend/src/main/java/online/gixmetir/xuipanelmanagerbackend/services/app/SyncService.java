@@ -1,5 +1,6 @@
 package online.gixmetir.xuipanelmanagerbackend.services.app;
 
+import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientStatsModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
@@ -32,6 +33,7 @@ public class SyncService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public void expiration() throws Exception {
         // get all expired subscriptions
         List<SubscriptionEntity> expiredSubs = subscriptionRepository.getAllExpiredSubscriptions(LocalDateTime.now(), true);
@@ -56,6 +58,7 @@ public class SyncService {
     then it will get client logs (total used) from panel
     finally update clients and subscription (total used , upload, download)
     */
+    @Transactional
     public void syncWithPanels() throws Exception {
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAll();
         subscriptionEntities.forEach(a -> {
