@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SyncService {
@@ -73,7 +74,8 @@ public class SyncService {
                     clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
                     clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
                     clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
-                    SubscriptionEntity subscriptionEntity = subscriptionEntities.stream().filter(a -> a.getId() == clientEntity.getSubscriptionId()).toList().get(0);
+                    List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
+                    SubscriptionEntity subscriptionEntity = list.get(0);
                     subscriptionEntity.setUpload(subscriptionEntity.getUpload() + clientEntity.getUp());
                     subscriptionEntity.setDownload(subscriptionEntity.getDownload() + clientEntity.getDown());
                     subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
@@ -92,8 +94,8 @@ public class SyncService {
     */
     private void setExpirationDateToSubscription(SubscriptionEntity entity) {
         if (entity.getTotalUsed() > 1024 && entity.getExpireDate() == null && entity.getStartDate() == null) {
-            entity.setStartDate(entity.getCreatedDate());
-            entity.setExpireDate(entity.getCreatedDate().plusDays(entity.getPeriodLength()));
+            entity.setStartDate(LocalDateTime.now());
+            entity.setExpireDate(LocalDateTime.now().plusDays(entity.getPeriodLength()));
         }
     }
 }
