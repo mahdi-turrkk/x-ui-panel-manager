@@ -7,7 +7,7 @@
       <div class="hidden lg:inline-block lg:w-[30%] overflow-y-scroll no-scrollbar text-sm md:text-base">{{ local.password }}</div>
       <div class="w-[25%] lg:w-[10%] no-scrollbar text-sm md:text-base text-center">{{ local.status }}</div>
       <div class="w-[50%] lg:w-[10%] flex justify-center no-scrollbar text-sm md:text-base text-center">{{ local.actions }}</div>
-      <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 text-background-3"/>
+      <i class="pi pi-chevron-down text-base md:text-lg mx-1 text-background-1"/>
     </div>
     <div class="h-full w-full flex justify-center items-center pt-16" v-if="isLoading">
       <loader/>
@@ -27,7 +27,6 @@
 import ServersListItem from "./serversListItem.vue";
 import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
 import Loader from "./loader.vue";
 
 const props = defineProps(['servers', 'isLoading'])

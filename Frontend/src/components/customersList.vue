@@ -6,7 +6,7 @@
       <div class="w-[30%] no-scrollbar text-center text-sm md:text-base">{{ local.username }}</div>
       <div class="w-[20%] no-scrollbar text-center text-sm md:text-base">{{ local.status }}</div>
       <div class="w-[20%] text-center text-sm md:text-base">{{ local.actions }}</div>
-      <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 text-background-3"/>
+      <i class="pi pi-chevron-down text-base md:text-lg mx-1 text-background-3"/>
     </div>
     <div class="h-full w-full flex justify-center items-center pt-16" v-if="isLoading">
       <loader/>
@@ -26,9 +26,8 @@
 <script setup>
 import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
+import 'primeicons/primeicons.css';
 import CustomersListItem from "./customersListItem.vue";
-import {PencilSquareIcon} from "@heroicons/vue/24/outline/index.js";
 import Loader from "./loader.vue";
 
 const props = defineProps(['customers', 'isLoading'])

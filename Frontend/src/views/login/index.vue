@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen w-screen flex justify-center items-center bg-background-1 relative">
     <div class="absolute top-4 bg-error text-white z-50 flex rounded-xl px-3 py-1" v-if="showErrorMessage">
-      <XCircleIcon class="w-7 h-7 mx-2"/>
+      <i class="pi pi-times-circle text-xl"/>
       {{ errorMessage }}
     </div>
     <div class="bg-background-3 px-6 py-6 rounded-xl flex justify-center items-center flex-col drop-shadow-xl">
@@ -24,10 +24,10 @@
                class="z-20 w-72 md:w-96 shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}"
         />
-        <eye-icon class="z-20 h-5 w-5 text-info-2 absolute top-3 cursor-pointer"
+        <i class="pi pi-eye text-base z-20 text-info-2 absolute top-3 cursor-pointer"
                   :class="{'left-2' : isRtl , 'right-2' : !isRtl}" v-if="!showPass"
                   @click="showPass = !showPass"/>
-        <eye-slash-icon class="z-20 h-5 w-5 text-info-2 absolute top-3 cursor-pointer"
+        <i class="pi pi-eye-slash text-base z-20 text-info-2 absolute top-3 cursor-pointer"
                         :class="{'left-2' : isRtl , 'right-2' : !isRtl}" v-else
                         @click="showPass = !showPass"/>
       </div>
@@ -53,11 +53,6 @@
   </div>
 </template>
 <script setup>
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  XCircleIcon
-} from "@heroicons/vue/24/outline/index.js";
 import {computed, onMounted, ref} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
 import {useLocalization} from "../../store/localizationStore.js";

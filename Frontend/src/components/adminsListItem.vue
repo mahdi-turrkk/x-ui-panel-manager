@@ -32,12 +32,12 @@
           <div class="w-[20%] flex justify-center no-scrollbar relative" @mouseenter="showMenu = true" @mouseleave="showMenu = false" @click="showMenu = !showMenu">
             <div>
               <button class="flex justify-center items-center p-2">
-                <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+                <i class="pi pi-cog text-lg md:text-xl mx-1 text-info-3"/>
               </button>
             </div>
             <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
               <div class="relative">
-                <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+                <i class="pi pi-pencil text-lg md:text-xl mx-1 text-warning" @mouseenter="showEditTag = true"
                                     @mouseleave="showEditTag = false"
                                     @click="emits('openEditAdminDialog' , admin)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -46,7 +46,7 @@
                 </div>
               </div>
               <div class="relative">
-                <lock-closed-icon class="w-6 h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+                <i class="pi pi-lock text-lg md:text-xl mx-1 text-success" @mouseenter="showChangePasswordTag = true"
                                   @mouseleave="showChangePasswordTag = false"
                                   @click="emits('openChangePasswordDialog' , admin.id)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -54,7 +54,7 @@
                 </div>
               </div>
               <div class="relative">
-                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                <i class="pi pi-trash text-lg md:text-xl mx-1 text-error" @mouseenter="showDeleteTag = true"
                                   @mouseleave="showDeleteTag = false"
                                   @click="emits('openDeleteConfirmationDialog' , admin)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -64,7 +64,7 @@
             </div>
           </div>
         </div>
-        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300" @click="emits('setOnboarding' , admin.id)"
+        <i class="pi pi-chevron-down text-base transition-all duration-300" @click="emits('setOnboarding' , admin.id)"
                            :class="{'rotate-180' : onboarding === admin.id}"/>
       </div>
       <div class="bg-background-2 px-8 md:px-12 py-4 transition-all duration-700 z-10 relative rounded-b-xl text-info-3"
@@ -104,14 +104,11 @@
 </template>
 
 <script setup>
-import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
 import {computed, onMounted, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
-import {LockClosedIcon, QrCodeIcon , Cog8ToothIcon , TrashIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
-import {displayHelper} from "../helpers/displayHelper.js";
 import Loader from "./loader.vue";
 
 let props = defineProps(['onboarding', 'admin'])

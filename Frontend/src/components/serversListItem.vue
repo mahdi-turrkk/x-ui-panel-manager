@@ -40,12 +40,12 @@
                @mouseleave="showMenu = false" @click="showMenu = !showMenu">
             <div>
               <button class="flex justify-center items-center p-2">
-                <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+                <i class="pi pi-cog text-lg md:text-xl text-info-3"/>
               </button>
             </div>
             <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
               <div class="relative" v-if="false">
-                <ArrowPathIcon class="w-6 h-6 text-success mx-1" @mouseenter="showUpdateTag = true"
+                <i class="pi pi-refresh text-lg md:text-xl text-success mx-1" @mouseenter="showUpdateTag = true"
                                @mouseleave="showUpdateTag = false"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
                      :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showUpdateTag">{{ local.update }}
@@ -53,7 +53,7 @@
                 </div>
               </div>
               <div class="relative">
-                <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+                <i class="pi pi-pencil text-lg md:text-xl text-warning mx-1" @mouseenter="showEditTag = true"
                                     @mouseleave="showEditTag = false" @click="emits('openEditServerDialog' , server)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
                      :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showEditTag">{{ local.edit }}
@@ -61,7 +61,7 @@
                 </div>
               </div>
               <div class="relative" v-if="false">
-                <plus-icon class="w-6 h-6 text-success mx-1" @mouseenter="showAddTag = true"
+                <i class="pi pi-plus text-lg md:text-xl text-success mx-1" @mouseenter="showAddTag = true"
                            @mouseleave="showAddTag = false"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
                      :class="{'-left-8' : !isRtl , '-right-14' : isRtl}" v-if="showAddTag">{{ local.add }}
@@ -69,7 +69,7 @@
                 </div>
               </div>
               <div class="relative">
-                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                <i class="pi pi-trash text-lg md:text-xl text-error mx-1" @mouseenter="showDeleteTag = true"
                             @mouseleave="showDeleteTag = false"
                             @click="emits('openDeleteConfirmationDialog' , server)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -79,7 +79,7 @@
             </div>
           </div>
         </div>
-        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300"
+        <i class="pi pi-chevron-down text-lg transition-all duration-300"
                            @click="emits('setOnboarding' , server.id)"
                            :class="{'rotate-180' : onboarding === server.id}"/>
       </div>
@@ -121,13 +121,11 @@
 </template>
 
 <script setup>
-import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon} from "@heroicons/vue/24/outline";
 import {computed, onMounted, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import InboundListItem from "./inboundListItem.vue";
 import {useDataStore} from "../store/dataStore.js";
 import axios from "axios";
-import {Cog8ToothIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
 
 let props = defineProps(['onboarding', 'server'])
 const emits = defineEmits(['setOnboarding', 'openEditServerDialog', 'changeServerStatus' , 'openDeleteConfirmationDialog'])

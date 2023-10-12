@@ -2,11 +2,11 @@
   <admin-layout>
     <div class="w-full absolute top-3">
       <div class="w-fit bg-error text-white flex rounded-xl px-2 py-2 mx-auto" v-if="showErrorMessage">
-        <x-circle-icon class="w-5 h-5"/>
+        <i class="pi pi-times-circle text-xl"/>
         <div>{{ errorMessage }}</div>
       </div>
       <div class="w-fit bg-success text-white flex rounded-xl px-2 py-2 mx-auto" v-if="showSuccessMessage">
-        <check-circle-icon class="w-5 h-5"/>
+        <i class="pi pi-check-circle text-xl"/>
         <div>{{ successMessage }}</div>
       </div>
     </div>
@@ -15,7 +15,7 @@
       <button
           @click="syncWithPanel"
           class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-        <arrow-path-icon class="w-4 h-4"/>
+        <i class="pi pi-sync text-sm mx-1"/>
         {{ local.syncWithPanel }}
       </button>
     </div>
@@ -28,7 +28,7 @@
                  class="w-full shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                  :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}" @keydown.enter="searchSubscription"
           />
-          <magnifying-glass-icon class="h-5 w-5 text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
+          <i class="pi pi-search text-lg z-20 text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
                                  :class="{'left-2' : isRtl , 'right-2' : !isRtl}"
                                  @click="searchSubscription"/>
         </div>
@@ -71,7 +71,7 @@
           </div>
           <div class="absolute top-0 bottom-0 right-0 left-0 text-info-2 px-6 md:px-10 pb-14"
                v-if="!showSubDetail">
-            <document-magnifying-glass-icon class="w-full h-full"/>
+            <i class="pi pi-file text-[60px] md:text-[100px] mt-4 mb-8 mx-auto"/>
             <div class="text-xs md:text-sm">{{ local.enterSubToSearch }}</div>
           </div>
         </div>
@@ -82,12 +82,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 h-full py-4 px-4">
           <div @click="uploadDatabase"
                class="mx-2 my-2 rounded-xl py-4 border border-secondary-3 px-10 flex flex-col justify-center items-center text-secondary-3 brightness-75 hover:brightness-100 transition-all duration-200 cursor-pointer">
-            <arrow-up-tray-icon class="max-w-20 max-h-20"/>
+            <i class="pi pi-cloud-upload text-[80px] mt-4 mb-8 mx-auto"/>
             <div class="text-sm mt-4">{{ local.upload }} {{ local.database }}</div>
           </div>
           <div @click="downloadDatabase"
                class="mx-2 my-2 rounded-xl py-4 border border-primary-1 px-10 flex flex-col justify-center items-center text-primary-1 brightness-75 hover:brightness-150 transition-all duration-200 cursor-pointer">
-            <arrow-down-tray-icon class="max-w-20 max-h-20"/>
+            <i class="pi pi-cloud-download text-[80px] mt-4 mb-8 mx-auto"/>
             <div class="text-sm mt-4">{{ local.download }} {{ local.database }}</div>
           </div>
         </div>
@@ -123,8 +123,8 @@
               </div>
               </div>
             </div>
-            <div class="w-56 mx-auto -mt-8 hidden md:inline-block">
-              <PresentationChartLineIcon class="text-info-2"/>
+            <div class="w-56 mx-auto -mt-8 hidden md:inline-block text-center">
+              <i class="pi pi-chart-line text-[150px] my-4 text-info-2"/>
             </div>
           </div>
         </div>
@@ -137,17 +137,8 @@
 import AdminLayout from "../../../layouts/adminLayout.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
-import {
-  MagnifyingGlassIcon,
-  DocumentMagnifyingGlassIcon,
-  ArrowUpTrayIcon,
-  ArrowDownTrayIcon,
-  PresentationChartLineIcon,
-  ArrowPathIcon
-} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 import {useDataStore} from "../../../store/dataStore.js";
-import {CheckCircleIcon, XCircleIcon} from "@heroicons/vue/24/solid/index.js";
 
 
 let local = computed(() => useLocalization().getLocal)

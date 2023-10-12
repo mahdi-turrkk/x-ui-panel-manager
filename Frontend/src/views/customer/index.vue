@@ -27,7 +27,7 @@
             <button @click="showLookupDialog = true"
                     @mouseenter="showLookupTag = true" @mouseleave="showLookupTag = false"
                     class="relative p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 lg:hidden">
-              <magnifying-glass-icon class="w-6 h-6 text-info-3"/>
+              <i class="pi pi-search text-xl text-info-3"/>
               <div class="absolute -bottom-6 bg-background-3 text-info-3 rounded-lg py-1 px-4 text-sm w-max"
                    v-if="showLookupTag">{{ local.subLookUp }}
               </div>
@@ -37,23 +37,23 @@
             <div class="relative px-2 text-lg">
               <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
                    @click="showSettingMenu = !showSettingMenu">
-                <cog8-tooth-icon class="w-6 h-6"/>
+                <i class="pi pi-cog text-xl"/>
               </div>
               <div class="absolute left-0 rounded-xl w-max bg-background-3"
                    :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
                    v-if="showSettingMenu">
                 <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
                   <div
-                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex items-center"
                       @click="showSettingMenu = false;showChangePasswordDialog = true">
-                    <LockClosedIcon class="h-5 w-5 mx-2"/>
+                    <i class="pi pi-lock text-lg mx-2"/>
                     {{ local.changePassword }}
                   </div>
                   <div
-                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex items-center"
                       @click="changeThemeStatus">
-                    <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
-                    <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
+                    <i class="pi pi-sun text-lg mx-2" v-if="isDark"/>
+                    <i class="pi pi-moon text-lg mx-2" v-if="!isDark"/>
                     {{ local.changeTheme }}
                   </div>
                 </div>
@@ -77,7 +77,7 @@
                    class="w-full shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                    :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}" @keydown.enter="searchSubscription"
             />
-            <magnifying-glass-icon class="h-5 w-5 text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
+            <i class="pi pi-search text-lg z-20 text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
                                    :class="{'left-2' : isRtl , 'right-2' : !isRtl}"
                                    @click="searchSubscription"/>
           </div>
@@ -121,7 +121,7 @@
           </div>
           <div class="text-info-2 px-6 pb-14 text-center"
                v-if="!showSubDetail">
-            <document-magnifying-glass-icon class="max-w-56 max-h-56 mx-auto"/>
+            <i class="pi pi-file text-[80px] mt-4 mb-8 mx-auto"/>
             <div class="text-xs md:text-sm lg:text-base">{{ local.enterSubToSearch }}</div>
           </div>
         </div>
@@ -135,7 +135,7 @@
           <button
               @click="()=>{subscription = {};subEditType = 'new' ;showSubscriptionDialog = true}"
               class="outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-6 py-2 flex space-x-1 items-center text-sm">
-            <plus-icon class="w-4 h-4"/>
+            <i class="pi pi-plus text-sm mx-1"/>
             {{ local.add }} {{ local.subscription }}
           </button>
         </div>
@@ -155,16 +155,6 @@
 <script setup>
 import router from "../../router/index.js";
 import {useLocalization} from "../../store/localizationStore.js";
-import {
-  DocumentMagnifyingGlassIcon,
-  MagnifyingGlassIcon,
-  MoonIcon,
-  PlusIcon,
-  SunIcon,
-  Cog8ToothIcon,
-  LockClosedIcon,
-  ArrowPathIcon
-} from "@heroicons/vue/24/outline/index.js";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useDataStore} from "../../store/dataStore.js";
 import SubscriptionsList from "../../components/subscriptionsList.vue";
