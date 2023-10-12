@@ -74,15 +74,17 @@ public class SyncService {
                 List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
                 for (ClientEntity clientEntity : clientEntities) {
                     ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
-                    clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
-                    clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
-                    clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
-                    List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
-                    SubscriptionEntity subscriptionEntity = list.get(0);
-                    subscriptionEntity.setUpload(subscriptionEntity.getUpload() + clientEntity.getUp());
-                    subscriptionEntity.setDownload(subscriptionEntity.getDownload() + clientEntity.getDown());
-                    subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
-                    setExpirationDateToSubscription(subscriptionEntity);
+                    if (model != null) {
+                        clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
+                        clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
+                        clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
+                        List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
+                        SubscriptionEntity subscriptionEntity = list.get(0);
+                        subscriptionEntity.setUpload(subscriptionEntity.getUpload() + clientEntity.getUp());
+                        subscriptionEntity.setDownload(subscriptionEntity.getDownload() + clientEntity.getDown());
+                        subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
+                        setExpirationDateToSubscription(subscriptionEntity);
+                    }
                 }
                 clientRepository.saveAll(clientEntities);
             }
