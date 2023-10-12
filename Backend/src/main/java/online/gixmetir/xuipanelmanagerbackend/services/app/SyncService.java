@@ -92,8 +92,8 @@ public class SyncService {
     */
     private void setExpirationDateToSubscription(SubscriptionEntity entity) {
         if (entity.getTotalUsed() > 1024 && entity.getExpireDate() == null && entity.getStartDate() == null) {
-            entity.setStartDate(LocalDateTime.now());
-            entity.setExpireDate(LocalDateTime.now().plusDays(entity.getPeriodLength()));
+            entity.setStartDate(entity.getCreatedDate());
+            entity.setExpireDate(entity.getCreatedDate().plusDays(entity.getPeriodLength()));
         }
     }
 }
