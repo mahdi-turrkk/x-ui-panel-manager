@@ -22,6 +22,7 @@ public class SubscriptionDto {
     private Boolean status;
     private String title;
     private String link;
+    private Boolean markAsPaid;
 
     public SubscriptionDto(SubscriptionEntity subscriptionEntity) {
         this.id = subscriptionEntity.getId();
@@ -34,6 +35,7 @@ public class SubscriptionDto {
         this.status = subscriptionEntity.getStatus();
         this.title = subscriptionEntity.getTitle();
         this.link = new Helper().generateLink(subscriptionEntity.getUuid());
+        this.markAsPaid = subscriptionEntity.getMarkAsPaid();
     }
 
 }

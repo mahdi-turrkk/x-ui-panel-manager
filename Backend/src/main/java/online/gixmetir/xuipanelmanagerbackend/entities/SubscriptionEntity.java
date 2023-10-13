@@ -55,5 +55,7 @@ public class SubscriptionEntity {
     @LastModifiedDate
     @Column(name = "last_updated-date")
     private LocalDateTime lastUpdatedDate;
+    @Column(name = "mark_as_paid")
+    private Boolean markAsPaid;
 
 }
