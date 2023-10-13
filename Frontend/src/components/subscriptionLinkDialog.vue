@@ -3,17 +3,17 @@
        v-if="showDialog" @click="backdropClicked" ref="backdrop">
     <div class="bg-background-3 text-info-3 px-6 w-80 rounded-xl flex flex-col py-6 relative">
       <div class="rounded-xl bg-success flex items-center text-white justify-center py-2 px-2 absolute left-6 right-6" v-if="linkCopiedAlert">
-        <check-circle-icon class="h-4 w-4 mx-2"/>
+        <i class="pi pi-check-circle text-xl"/>
         {{ local.copySuccessful }}
       </div>
       <div class="rounded-xl bg-error flex items-center text-white justify-center py-2 px-2 absolute left-6 right-6" v-if="linkNotCopiedAlert">
-        <X-circle-icon class="h-5 w-5 mx-2"/>
+        <i class="pi pi-times-circle text-xl"/>
         {{ local.copyUnsuccessful }}
       </div>
       <div
           @click="emits('closeDialog')"
           class="bg-background-3 text-error w-6 h-6 rounded-full absolute -top-2 -right-2 flex justify-center items-center border border-error hover:brightness-125 cursor-pointer">
-        <x-mark-icon class="h-4 w-4"/>
+        <i class="pi pi-times text-base mx-1"/>
       </div>
       <div class="text-center font-bold mb-4">{{ local.subscriptionUrl }}</div>
       <div class="bg-white p-8 rounded-xl cursor-pointer" @click="copyUrl">
@@ -29,7 +29,6 @@
 <script setup>
 import {computed, reactive, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {XMarkIcon , CheckCircleIcon, XCircleIcon} from "@heroicons/vue/24/outline";
 import QrcodeVue from 'qrcode.vue'
 
 let local = computed(() => {

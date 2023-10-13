@@ -7,20 +7,20 @@
                        @admin-edited="getAdmins"/>
     <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
                             :isSelf="false" :user-id="passwordEditUserId"/>
-    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="users" :data="deleteAdmin"
+    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" :title="deleteTitle" :data="deleteObj"
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getAdmins"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.admins }}</div>
       <button
           @click="()=>{showAdminAddDialog = true}"
           class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-        <plus-icon class="w-4 h-4"/>
+        <i class="pi pi-plus text-sm mx-1"/>
         {{ local.add }} {{ local.admin }}
       </button>
     </div>
     <admins-list @open-edit-admin-dialog="openEditAdminDialog" :admins="admins" @open-link-dialog="openLinkDialog"
                  :is-loading="loading" @open-change-password-dialog="openChangePasswordDialog"
-                 @open-delete-confirmation-dialog="openDeleteConfirmationDialog"/>
+                 @open-delete-confirmation-dialog="openDeleteConfirmationDialog" @open-delete-sub-confirmation-dialog="openDeleteSubConfirmationDialog"/>
     <div class="flex mt-6" v-if="!loading">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
@@ -33,7 +33,6 @@
 import AdminLayout from "../../../layouts/adminLayout.vue";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
-import {PlusIcon} from "@heroicons/vue/24/solid/index.js";
 import CustomersList from "../../../components/customersList.vue";
 import CustomerAddDialog from "../../../components/customerAddDialog.vue";
 import SubscriptionLinkDialog from "../../../components/subscriptionLinkDialog.vue";
@@ -105,10 +104,18 @@ const openChangePasswordDialog = (payload) => {
   showChangePasswordDialog.value = true
 }
 
-let deleteAdmin = reactive({})
+let deleteObj = reactive({})
 let showDeleteConfirmationDialog = ref(false)
+let deleteTitle = ref('')
 const openDeleteConfirmationDialog = (payload) => {
-  deleteAdmin = payload
+  deleteObj = payload
+  deleteTitle.value = 'users'
+  showDeleteConfirmationDialog.value = true
+}
+
+const openDeleteSubConfirmationDialog = (payload) => {
+  deleteObj = payload
+  deleteTitle.value = 'subscriptions'
   showDeleteConfirmationDialog.value = true
 }
 </script>

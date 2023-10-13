@@ -8,7 +8,7 @@
       <button
           @click="()=>{type = 'new';showPlanDialog = true}"
           class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-        <plus-icon class="w-4 h-4"/>
+        <i class="pi pi-plus text-sm mx-1"/>
         {{ local.add }} {{ local.plan }}
       </button>
     </div>
@@ -34,7 +34,6 @@
 
 <script setup>
 import AdminLayout from "../../../layouts/adminLayout.vue";
-import {PlusIcon} from "@heroicons/vue/24/solid/index.js";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
 import PlanCard from "../../../components/planCard.vue";

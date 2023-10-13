@@ -2,10 +2,10 @@
   <div class="rounded-xl bg-background-3 p-6 text-info-3 mb-4" :class="{'mr-4' : !isRtl , 'ml-4' : isRtl}">
     <div class="flex justify-end">
       <div class="cursor-pointer mx-2" @click="emits('editPlan' , props.plan)">
-        <pencil-square-icon class="w-6 h-6 text-warning"/>
+        <i class="pi pi-pencil text-lg md:text-xl text-warning"/>
       </div>
       <div class="cursor-pointer" @click="emits('deletePlan' , props.plan)">
-        <trash-icon class="w-6 h-6 text-error"/>
+        <i class="pi pi-trash text-lg md:text-xl text-error"/>
       </div>
     </div>
     <div>
@@ -23,7 +23,6 @@
 <script setup>
 import {computed} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {PencilSquareIcon,TrashIcon} from "@heroicons/vue/24/outline/index.js";
 
 const local = computed(()=>{return useLocalization().getLocal})
 

@@ -5,11 +5,11 @@
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="loadServers"/>
     <div class="w-full absolute top-5">
       <div class="w-fit bg-error text-white flex rounded-xl px-2 py-2 mx-auto items-center" v-if="showErrorMessage">
-        <x-circle-icon class="w-5 h-5"/>
+        <i class="pi pi-times-circle text-xl"/>
         <div>{{ errorMessage }}</div>
       </div>
       <div class="w-fit bg-success text-white flex rounded-xl px-2 py-2 mx-auto items-center" v-if="showSuccessMessage">
-        <check-circle-icon class="w-5 h-5"/>
+        <i class="pi pi-check-circle text-xl"/>
         <div>{{ successMessage }}</div>
       </div>
     </div>
@@ -19,20 +19,20 @@
         <button
             @click="updateSubscriptions"
             class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-          <arrow-path-rounded-square-icon class="w-5 h-5"/>
+          <i class="pi pi-sync text-sm mx-1"/>
           {{ displayHelper(windowWidth).smAndUp ? local.syncSubs : '' }}
         </button>
         <button
             @click="updateInbounds"
             class="text-xs md:text-sm outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-          <arrow-path-icon class="w-4 h-4"/>
+          <i class="pi pi-refresh text-sm mx-1"/>
           {{ displayHelper(windowWidth).smAndUp ? local.update : '' }}
           {{ displayHelper(windowWidth).lgAndUp ? local.inbounds : '' }}
         </button>
         <button
             @click="()=>{server = {};showServerDialog = true}"
             class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-          <plus-icon class="w-4 h-4"/>
+          <i class="pi pi-plus text-sm mx-1"/>
           {{ displayHelper(windowWidth).smAndUp ? local.add : '' }}
           {{ displayHelper(windowWidth).lgAndUp ? local.server : '' }}
         </button>
@@ -52,13 +52,6 @@ import AdminLayout from "../../../layouts/adminLayout.vue";
 import ServersList from "../../../components/serversList.vue";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
-import {
-  PlusIcon,
-  ArrowPathIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ArrowPathRoundedSquareIcon
-} from "@heroicons/vue/24/outline/index.js";
 import ServerDialog from "../../../components/serverDialog.vue";
 import {useDataStore} from "../../../store/dataStore.js";
 import axios from "axios";

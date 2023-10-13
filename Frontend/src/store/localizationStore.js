@@ -117,6 +117,11 @@ export const useLocalization = defineStore('localize', {
                     errorOccurredWhileDeleting : 'مشکلی پیش آمده.دوباره تلاش کنید.',
                     deleteConfirmation : "حذف",
                     deleteConfirmationMessage : "آیا از حذف مطمئن هستید؟",
+                    markAsPaid : 'علامت گذاری به عنوان پرداخت شده',
+                    markAsNotPaid : 'علامت گذاری به عنوان پرداخت نشده',
+                    payStatus : 'وضعیت پرداخت',
+                    paid : 'پرداخت شده',
+                    notPaid : 'پرداخت نشده'
                 },
                 en: {
                     username: 'Username',
@@ -228,6 +233,11 @@ export const useLocalization = defineStore('localize', {
                     errorOccurredWhileDeleting : 'Error occurred while deletion.Try again.',
                     deleteConfirmation : "Delete confirmation",
                     deleteConfirmationMessage : "Are you sure to delete?",
+                    markAsPaid : 'Mark as paid',
+                    markAsNotPaid : 'Mark as not paid',
+                    payStatus : 'Pay status',
+                    paid : 'Paid',
+                    notPaid : 'Not Paid'
                 },
             }
         }

@@ -5,7 +5,7 @@
       <div class="w-[40%] no-scrollbar text-center text-sm md:text-base">{{ local.username }}</div>
       <div class="w-[20%] no-scrollbar text-center text-sm md:text-base">{{ local.status }}</div>
       <div class="w-[20%] text-center text-sm md:text-base">{{ local.actions }}</div>
-      <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 text-background-3"/>
+      <i class="pi pi-chevron-down text-base md:text-lg mx-1 text-background-3"/>
     </div>
     <div class="h-full w-full flex justify-center items-center pt-16" v-if="isLoading">
       <loader/>
@@ -17,20 +17,18 @@
     </div>
     <admins-list-item @open-edit-admin-dialog="openEditAdminDialog" @open-link-dialog="openLinkDialog"
                          v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
-                         :admin="admin" @change-admin-status="(payload) => {admin.enabled = payload}" v-if="!isLoading && admins.length > 0"/>
+                         :admin="admin" @change-admin-status="(payload) => {admin.enabled = payload}" v-if="!isLoading && admins.length > 0" @open-delete-sub-confirmation-dialog="(payload) => {emits('openDeleteSubConfirmationDialog' , payload)}"/>
   </div>
 </template>
 
 <script setup>
 import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
-import {PencilSquareIcon} from "@heroicons/vue/24/outline/index.js";
 import Loader from "./loader.vue";
 import AdminsListItem from "./adminsListItem.vue";
 
 const props = defineProps(['admins', 'isLoading'])
-const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog' , 'openDeleteConfirmationDialog'])
+const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog' , 'openDeleteConfirmationDialog' ,'openDeleteSubConfirmationDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {

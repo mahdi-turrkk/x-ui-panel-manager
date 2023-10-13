@@ -33,23 +33,23 @@
             <div class="relative text-lg">
               <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
                    @click="showSettingMenu = !showSettingMenu">
-                <cog8-tooth-icon class="w-6 h-6"/>
+                <i class="pi pi-cog text-xl"/>
               </div>
               <div class="absolute left-0 rounded-xl w-max bg-background-3"
                    :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
                    v-if="showSettingMenu">
                 <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
                   <div
-                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex items-center"
                       @click="showSettingMenu = false;showChangePasswordDialog = true">
-                    <LockClosedIcon class="h-5 w-5 mx-2"/>
+                    <i class="pi pi-cog text-base mx-2"/>
                     {{ local.changePassword }}
                   </div>
                   <div
-                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                      class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex items-center"
                       @click="changeThemeStatus">
-                    <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
-                    <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
+                    <i class="pi pi-sun text-base mx-2" v-if="isDark"/>
+                    <i class="pi pi-moon text-base mx-2" v-if="!isDark"/>
                     {{ local.changeTheme }}
                   </div>
                 </div>
@@ -89,23 +89,23 @@
           <div class="relative text-lg">
             <div class="text-info-3 bg-primary-1 bg-opacity-0 hover:bg-opacity-20 p-2 rounded-xl cursor-pointer"
                  @click="showSettingMenu = !showSettingMenu">
-              <cog8-tooth-icon class="w-6 h-6"/>
+              <i class="pi pi-cog text-xl"/>
             </div>
             <div class="absolute left-0 rounded-xl w-max bg-background-3"
                  :class="{'left-0' : isRtl , '-left-20' : !isRtl}"
                  v-if="showSettingMenu">
               <div class="flex flex-col rounded-xl bg-primary-1 bg-opacity-20">
                 <div
-                    class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                    class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex items-center"
                     @click="showSettingMenu = false;showChangePasswordDialog = true">
-                  <LockClosedIcon class="h-5 w-5 mx-2"/>
+                  <i class="pi pi-lock text-lg mx-2"/>
                   {{ local.changePassword }}
                 </div>
                 <div
-                    class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex"
+                    class="text-info-3 px-3 py-2 hover:bg-primary-1 hover:bg-opacity-60 cursor-pointer rounded-xl text-xs md:text-sm flex items-center"
                     @click="changeThemeStatus">
-                  <sun-icon class="w-5 h-5 mx-2" v-if="isDark"/>
-                  <moon-icon class="w-5 h-5 mx-2" v-if="!isDark"/>
+                  <i class="pi pi-sun text-lg mx-2" v-if="isDark"/>
+                  <i class="pi pi-moon text-lg mx-2" v-if="!isDark"/>
                   {{ local.changeTheme }}
                 </div>
               </div>
@@ -117,49 +117,49 @@
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin')">
-        <squares2-x2-icon class="w-6 h-6"/>
+        <i class="pi pi-th-large text-lg md:text-xl"/>
         <div class="px-3">{{ local.dashboard }}</div>
       </button>
       <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/admins' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/admins' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/admins')">
-        <users-icon class="w-6 h-6"/>
+        <i class="pi pi-users text-lg md:text-xl"/>
         <div class="px-3">{{ local.admins }}</div>
       </button>
       <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/servers' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/servers' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/servers')">
-        <server-stack-icon class="w-6 h-6"/>
+        <i class="pi pi-server text-lg md:text-xl"/>
         <div class="px-3">{{ local.servers }}</div>
       </button>
       <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/customers' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/customers' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/customers')">
-        <UserGroupIcon class="w-6 h-6"/>
+        <i class="pi pi-users text-lg md:text-xl"/>
         <div class="px-3">{{ local.customers }}</div>
       </button>
       <button
           class="text-info-3 text-lg rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/subscriptions' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/subscriptions' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/subscriptions')">
-        <clipboard-document-list-icon class="w-6 h-6"/>
+        <i class="pi pi-list text-lg md:text-xl"/>
         <div class="px-3">{{ local.subscriptions }}</div>
       </button>
       <button
           class="text-info-3 text-lg rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'bg-opacity-20 px-2 mr-2': ($route.fullPath == '/admin/plans' && isRtl) , 'bg-opacity-20 px-2 ml-2': ($route.fullPath == '/admin/plans' && !isRtl) , 'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="router.push('/admin/plans')">
-        <queue-list-icon class="w-6 h-6"/>
+        <i class="pi pi-box text-lg md:text-xl"/>
         <div class="px-3">{{ local.plans }}</div>
       </button>
       <button
           class="text-info-3 text-xl rounded-xl py-3 flex items-center bg-primary-1 bg-opacity-0 hover:bg-opacity-20 hover:px-2 transition-all duration-200"
           :class="{'hover:mr-2' : isRtl , 'hover:ml-2' : !isRtl}"
           @click="logOut">
-        <arrow-left-on-rectangle-icon class="w-6 h-6"/>
+        <i class="pi pi-sign-out text-lg md:text-xl"/>
         <div class="px-3">{{ local.signOut }}</div>
       </button>
     </div>
@@ -172,19 +172,6 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {displayHelper} from "../helpers/displayHelper.js";
-import {
-  SunIcon,
-  MoonIcon,
-  ServerStackIcon,
-  Squares2X2Icon,
-  UserGroupIcon,
-  ClipboardDocumentListIcon,
-  ArrowLeftOnRectangleIcon,
-  UsersIcon,
-  Cog8ToothIcon,
-  LockClosedIcon,
-    QueueListIcon
-} from "@heroicons/vue/24/outline/index.js";
 import {useDataStore} from "../store/dataStore.js";
 import router from "../router/index.js";
 import {useLocalization} from "../store/localizationStore.js";

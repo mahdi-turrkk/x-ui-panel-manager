@@ -40,12 +40,12 @@
                @mouseleave="showMenu = false" @click="showMenu = !showMenu">
             <div>
               <button class="flex justify-center items-center p-2">
-                <cog8-tooth-icon class="w-6 h-6 text-info-3"/>
+                <i class="pi pi-cog text-lg md:text-xl mx-1 text-info-3"/>
               </button>
             </div>
             <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
               <div class="relative">
-                <pencil-square-icon class="w-6 h-6 text-warning mx-1" @mouseenter="showEditTag = true"
+                <i class="pi pi-pencil text-lg md:text-xl mx-1 text-warning" @mouseenter="showEditTag = true"
                                     @mouseleave="showEditTag = false"
                                     @click="emits('openEditCustomerDialog' , customer)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -54,7 +54,7 @@
                 </div>
               </div>
               <div class="relative">
-                <lock-closed-icon class="w-6 h-6 text-success mx-1" @mouseenter="showChangePasswordTag = true"
+                <i class="pi pi-lock text-lg md:text-xl mx-1 text-success" @mouseenter="showChangePasswordTag = true"
                                   @mouseleave="showChangePasswordTag = false"
                                   @click="emits('openChangePasswordDialog' , customer.id)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -63,7 +63,7 @@
                 </div>
               </div>
               <div class="relative">
-                <trash-icon class="w-6 h-6 text-error mx-1" @mouseenter="showDeleteTag = true"
+                <i class="pi pi-trash text-lg md:text-xl mx-1 text-error" @mouseenter="showDeleteTag = true"
                             @mouseleave="showDeleteTag = false"
                             @click="emits('openDeleteConfirmationDialog' , customer)"/>
                 <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
@@ -74,7 +74,7 @@
             </div>
           </div>
         </div>
-        <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 transition-all duration-300"
+          <i class="pi pi-chevron-down text-base md:text-lg mx-1 text-info-3 transition-all duration-300"
                            @click="emits('setOnboarding' , customer.id)"
                            :class="{'rotate-180' : onboarding === customer.id}"/>
       </div>
@@ -86,10 +86,10 @@
             class="flex space-x-2 items-center px-4 py-4 w-full bg-background-3 rounded-xl shadow-md mb-2 mt-4 font-bold text-sm"
             :class="{'shadow-info-1 shadow-sm' : useDataStore().getDarkStatus}">
           <div class="w-0 hidden md:inline-block md:w-[10%] text-xs md:text-sm">{{ local.id }}</div>
-          <div class="w-[30%] text-center text-xs md:text-sm">{{ local.startEndDate }}</div>
-          <div class="w-[30%] text-center text-xs md:text-sm">{{ local.usage }}</div>
+          <div class="w-[30%] md:w-[40%] text-center text-xs md:text-sm">{{ local.plan }}</div>
+          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.payStatus }}</div>
           <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.status }}</div>
-          <div class="w-[10%] text-center text-xs md:text-sm">{{ local.url }}</div>
+          <div class="w-[10%] text-center text-xs md:text-sm">{{ local.actions }}</div>
         </div>
         <div class="h-full w-full flex justify-center items-center pt-12"
              v-if="!isLoading && subscriptions.length === 0">
@@ -103,6 +103,7 @@
         <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription"
                                 v-else-if="subscriptions.length > 0"
                                 @open-link-dialog="openLinkDialog"
+                                @change-subscription-pay-status="(payload) => {subscription.markAsPaid = payload}"
                                 @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
         <div class="flex mt-3">
@@ -118,12 +119,11 @@
 </template>
 
 <script setup>
-import {ChevronDownIcon, ArrowPathIcon, PencilSquareIcon, PlusIcon, LockClosedIcon} from "@heroicons/vue/24/outline";
 import {computed, onMounted, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import {useDataStore} from "../store/dataStore.js";
 import SubscriptionListItem from "./subscriptionListItem.vue";
-import {Cog8ToothIcon, QrCodeIcon, TrashIcon} from "@heroicons/vue/24/outline/index.js";
+import 'primeicons/primeicons.css';
 import axios from "axios";
 import Loader from "./loader.vue";
 

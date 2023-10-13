@@ -29,7 +29,6 @@
 <script setup>
 import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
 import DetailedSubscriptionListItem from "./detailedSubscriptionListItem.vue";
 import Loader from "./loader.vue";
 

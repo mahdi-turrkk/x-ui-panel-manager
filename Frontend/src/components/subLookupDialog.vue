@@ -5,7 +5,7 @@
       <div
           @click="lookupSubscription = {};emits('closeDialog')"
           class="bg-background-3 text-error w-6 h-6 rounded-full absolute -top-2 -right-2 flex justify-center items-center border border-error hover:brightness-125 cursor-pointer">
-        <x-mark-icon class="h-4 w-4"/>
+        <i class="pi pi-times text-lg"/>
       </div>
       <div class="font-bold text-sm text-center mb-4">{{ local.subLookUp }}</div>
       <div class="flex relative w-full">
@@ -13,7 +13,7 @@
                class="w-full shadow-lg mb-4 rounded-xl py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"
                :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}" @keydown.enter="searchSubscription"
         />
-        <magnifying-glass-icon class="h-5 w-5 text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
+        <i class="pi pi-search text-xl text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
                                :class="{'left-2' : isRtl , 'right-2' : !isRtl}"
                                @click="searchSubscription"/>
       </div>
@@ -55,9 +55,9 @@
         </div>
         </div>
       </div>
-      <div class="text-info-2 px-6 md:px-10 pb-14"
+      <div class="text-info-2 px-6 md:px-10 pb-14 text-center"
            v-if="!showSubDetail">
-        <document-magnifying-glass-icon class="w-36 h-36 mx-auto"/>
+        <i class="pi pi-file text-[90px] mt-4 mb-8"/>
         <div class="text-xs md:text-sm">{{ local.enterSubToSearch }}</div>
       </div>
     </div>
@@ -67,8 +67,6 @@
 <script setup>
 import {computed, reactive, ref, watch} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {XMarkIcon} from "@heroicons/vue/24/solid/index.js";
-import {DocumentMagnifyingGlassIcon, MagnifyingGlassIcon} from "@heroicons/vue/24/outline/index.js";
 import axios from "axios";
 import {useDataStore} from "../store/dataStore.js";
 
