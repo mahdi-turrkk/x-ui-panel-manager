@@ -36,19 +36,21 @@
           <div class="w-[35%] text-center">{{ renew.createDate.substring(0,10) }}</div>
           <div class="w-[30%] text-center">
             <div
-                class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-fit text-success relative mx-auto cursor-pointer"
+                class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-fit text-success relative mx-auto"
+                :class="{'cursor-pointer' : userType === 'Admin'}"
                 v-if="renew.markAsPaid" @mouseenter="markAsNotPaidTag = index"
                 @mouseleave="markAsNotPaidTag = undefined" @click="changePayStatus(false , index)">{{ local.paid }}
               <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1 text-error"
-                   :class="{'-left-0' : !isRtl , '-left-4' : isRtl}" v-if="markAsNotPaidTag === index">{{ local.markAsNotPaid }}
+                   :class="{'-left-0' : !isRtl , '-left-4' : isRtl}" v-if="userType === 'Admin' && markAsNotPaidTag === index">{{ local.markAsNotPaid }}
               </div>
             </div>
             <div
-                class="bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 px-4 w-fit text-error relative mx-auto cursor-pointer"
+                class="bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 px-4 w-fit text-error relative mx-auto"
+                :class="{'cursor-pointer' : userType === 'Admin'}"
                 v-if="!renew.markAsPaid" @mouseenter="markAsPaidTag = index"
                 @mouseleave="markAsPaidTag = undefined" @click="changePayStatus(true , index)">{{ local.notPaid }}
               <div class="absolute -top-10 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1 text-success"
-                   :class="{'-left-0' : !isRtl , '-left-4' : isRtl}" v-if="markAsPaidTag === index">{{ local.markAsPaid }}
+                   :class="{'-left-0' : !isRtl , '-left-4' : isRtl}" v-if="userType === 'Admin' && markAsPaidTag === index">{{ local.markAsPaid }}
               </div>
             </div>
           </div>
@@ -80,7 +82,7 @@ onMounted(() => {
     windowWidth.value = window.innerWidth
   })
 })
-const props = defineProps(['showDialog' , 'subscription'])
+const props = defineProps(['showDialog' , 'subscription' , 'userType'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let markAsNotPaidTag = ref(undefined)
@@ -130,24 +132,26 @@ const getRenewLog = () => {
 }
 
 const changePayStatus = (status , index) => {
-  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-?newPayStatus=${status}&id=${subscriptionRenewLog.value[index].id}`,
-      {},
-      {
-        headers : {
-          Authorization : useDataStore().getToken
+  if(props.userType === 'Admin') {
+    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-?newPayStatus=${status}&id=${subscriptionRenewLog.value[index].id}`,
+        {},
+        {
+          headers : {
+            Authorization : useDataStore().getToken
+          }
         }
-      }
-  ).then(() => {
-    markAsNotPaidTag.value = undefined
-    markAsPaidTag.value = undefined
-    subscriptionRenewLog.value[index].markAsPaid = status
-  }).catch(() => {
-    errorMessage.value = local.value.errorOccurredWhileChangingStatus
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    } , 1000)
-  })
+    ).then(() => {
+      markAsNotPaidTag.value = undefined
+      markAsPaidTag.value = undefined
+      subscriptionRenewLog.value[index].markAsPaid = status
+    }).catch(() => {
+      errorMessage.value = local.value.errorOccurredWhileChangingStatus
+      showErrorMessage.value = true
+      setTimeout(() => {
+        showErrorMessage.value = false
+      } , 1000)
+    })
+  }
 }
 
 </script>

@@ -19,6 +19,7 @@
       </div>
     </div>
     <detailed-subscription-list-item @open-link-dialog="openLinkDialog"
+                                     :user-type="userType"
                                      @open-renew-subscription-dialog="openRenewSubscriptionDialog"
                                      @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                                      @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
@@ -33,7 +34,7 @@ import {useLocalization} from "../store/localizationStore.js";
 import DetailedSubscriptionListItem from "./detailedSubscriptionListItem.vue";
 import Loader from "./loader.vue";
 
-const props = defineProps(['subscriptions', 'isLoading'])
+const props = defineProps(['subscriptions', 'isLoading' , 'userType'])
 const emits = defineEmits(['openRenewSubscriptionDialog', 'openLinkDialog' , 'openDeleteConfirmationDialog' , 'openRenewHistoryDialog'])
 
 const setOnboarding = (index) => {

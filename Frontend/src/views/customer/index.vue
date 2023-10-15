@@ -3,6 +3,7 @@
     <sub-lookup-dialog :show-dialog="showLookupDialog" @close-dialog="showLookupDialog = false"/>
     <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
                             :isSelf="true"/>
+    <subscription-renew-history-dialog user-type="Customer" :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
     <div class="col-span-12 relative z-20 bg-background-3">
       <div class="px-4 py-4">
         <div class="flex items-center justify-between">
@@ -139,8 +140,8 @@
             {{ local.add }} {{ local.subscription }}
           </button>
         </div>
-        <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
-                            @open-link-dialog="openLinkDialog" :is-loading="loading"/>
+        <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog" user-type="Customer"
+                            @open-link-dialog="openLinkDialog" :is-loading="loading" @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
         <div class="flex mt-6">
           <div
               class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
@@ -163,6 +164,7 @@ import SubscriptionLinkDialog from "../../components/subscriptionLinkDialog.vue"
 import SubLookupDialog from "../../components/subLookupDialog.vue";
 import axios from "axios";
 import ChangePasswordDialog from "../../components/changePasswordDialog.vue";
+import SubscriptionRenewHistoryDialog from "../../components/subscriptionRenewHistoryDialog.vue";
 
 let isDark = computed(() => {
   return useDataStore().getDarkStatus
@@ -201,6 +203,7 @@ let subscriptions = ref([])
 
 let subLink = ref('')
 let showSubDetail = ref(false)
+let showRenewHistoryDialog = ref(false)
 
 const searchSubscription = () => {
   if (subLink.value) {

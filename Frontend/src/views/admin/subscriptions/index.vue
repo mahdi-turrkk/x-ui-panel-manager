@@ -1,6 +1,6 @@
 <template>
   <admin-layout>
-    <subscription-renew-history-dialog :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
+    <subscription-renew-history-dialog user-type="Admin" :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
     <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
                          :subscription="subscription" :type="subDialogType" @subs-added="addNewSubsToList"/>
@@ -16,7 +16,7 @@
       </button>
     </div>
     <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
-                        @open-link-dialog="openLinkDialog" :is-loading="loading" @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
+                        user-type="Admin" @open-link-dialog="openLinkDialog" :is-loading="loading" @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
     <div class="flex mt-6" v-if="!loading">
       <div
           class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
