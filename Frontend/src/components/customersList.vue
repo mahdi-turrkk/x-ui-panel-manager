@@ -17,6 +17,7 @@
       </div>
     </div>
     <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog"
+                         @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
                          v-for="customer in customers" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                          @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription"
                          :customer="customer" @change-customer-status="(payload) => {customer.enabled = payload}" v-if="!isLoading && customers.length > 0"/>
@@ -31,7 +32,7 @@ import CustomersListItem from "./customersListItem.vue";
 import Loader from "./loader.vue";
 
 const props = defineProps(['customers', 'isLoading'])
-const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription'])
+const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {

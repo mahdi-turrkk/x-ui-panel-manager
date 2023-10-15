@@ -60,6 +60,7 @@ export const useLocalization = defineStore('localize', {
                     subLookUp : 'استعلام وضعیت اشتراک',
                     startDate: 'تاریخ شروع',
                     expireDate: 'تاریخ انقضا',
+                    date : 'تاریخ',
                     totalUsed: 'حجم مصرف‌شده',
                     enterSubToSearch : 'برای گزارش‌گیری لینک اشتراک را وارد کرده و روی ذره‌بین کلیک کنید.',
                     database: 'پایگاه داده',
@@ -121,7 +122,11 @@ export const useLocalization = defineStore('localize', {
                     markAsNotPaid : 'علامت گذاری به عنوان پرداخت نشده',
                     payStatus : 'وضعیت پرداخت',
                     paid : 'پرداخت شده',
-                    notPaid : 'پرداخت نشده'
+                    notPaid : 'پرداخت نشده',
+                    history : 'تاریخچه',
+                    errorGettingHistory : 'مشکلی در دریافت تاریخچه تمدید پیش آمده،دوباره تلاش کنید.',
+                    renewHistory: 'تاریخچه تمدید ها',
+                    errorOccurredWhileChangingStatus : 'مشکلی پیش آمده.دوباره تلاش کنید.',
                 },
                 en: {
                     username: 'Username',
@@ -176,6 +181,7 @@ export const useLocalization = defineStore('localize', {
                     subLookUp: 'Subscription status lookup',
                     startDate: 'Start date',
                     expireDate: 'Expire date',
+                    date : 'Date',
                     totalUsed: 'Total used',
                     enterSubToSearch : 'Enter subscription link and press magnifier to lookup subscription status.',
                     database: 'Database',
@@ -237,7 +243,11 @@ export const useLocalization = defineStore('localize', {
                     markAsNotPaid : 'Mark as not paid',
                     payStatus : 'Pay status',
                     paid : 'Paid',
-                    notPaid : 'Not Paid'
+                    notPaid : 'Not Paid',
+                    history : 'History',
+                    errorGettingHistory : 'Error occurred getting renew history,Try again.',
+                    renewHistory : 'Renew history',
+                    errorOccurredWhileChangingStatus : 'Error occurred while changing status.Try again.',
                 },
             }
         }

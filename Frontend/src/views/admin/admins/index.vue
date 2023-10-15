@@ -9,6 +9,7 @@
                             :isSelf="false" :user-id="passwordEditUserId"/>
     <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" :title="deleteTitle" :data="deleteObj"
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getAdmins"/>
+    <subscription-renew-history-dialog :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscriptionHistory"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.admins }}</div>
       <button
@@ -19,6 +20,7 @@
       </button>
     </div>
     <admins-list @open-edit-admin-dialog="openEditAdminDialog" :admins="admins" @open-link-dialog="openLinkDialog"
+                 @open-renew-history-dialog="(payload) => {subscriptionHistory = payload;showRenewHistoryDialog = true}"
                  :is-loading="loading" @open-change-password-dialog="openChangePasswordDialog"
                  @open-delete-confirmation-dialog="openDeleteConfirmationDialog" @open-delete-sub-confirmation-dialog="openDeleteSubConfirmationDialog"/>
     <div class="flex mt-6" v-if="!loading">
@@ -44,6 +46,7 @@ import AdminEditDialog from "../../../components/adminEditDialog.vue";
 import AdminsList from "../../../components/adminsList.vue";
 import ChangePasswordDialog from "../../../components/changePasswordDialog.vue";
 import DeleteConfirmationDialog from "../../../components/deleteConfirmationDialog.vue";
+import SubscriptionRenewHistoryDialog from "../../../components/subscriptionRenewHistoryDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -54,6 +57,9 @@ let onboarding = ref(1)
 let showAdminAddDialog = ref(false)
 let showAdminEditDialog = ref(false)
 let showLinkDialog = ref(false)
+let showRenewHistoryDialog = ref(false)
+
+let subscriptionHistory = reactive({})
 
 let admin = reactive(undefined)
 let link = ref('')

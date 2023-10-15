@@ -9,6 +9,7 @@
                             :isSelf="false" :user-id="passwordEditUserId"/>
     <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" :title="deleteConfirmationType" :data="deleteObj"
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getCustomers"/>
+    <subscription-renew-history-dialog :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscriptionHistory"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.customers }}</div>
       <button
@@ -19,6 +20,7 @@
       </button>
     </div>
     <customers-list @open-edit-Customer-dialog="openEditCustomerDialog" :customers="customers"
+                    @open-renew-history-dialog="(payload) => {subscriptionHistory = payload;showRenewHistoryDialog = true}"
                     @open-link-dialog="openLinkDialog" :is-loading="loading"
                     @open-change-password-dialog="openChangePasswordDialog"
                     @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription"
@@ -43,6 +45,7 @@ import axios from "axios";
 import {useDataStore} from "../../../store/dataStore.js";
 import ChangePasswordDialog from "../../../components/changePasswordDialog.vue";
 import DeleteConfirmationDialog from "../../../components/deleteConfirmationDialog.vue";
+import SubscriptionRenewHistoryDialog from "../../../components/subscriptionRenewHistoryDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -53,6 +56,9 @@ let onboarding = ref(1)
 let showCustomerAddDialog = ref(false)
 let showCustomerEditDialog = ref(false)
 let showLinkDialog = ref(false)
+let showRenewHistoryDialog = ref(false)
+
+let subscriptionHistory = reactive({})
 
 let customer = reactive(undefined)
 let link = ref('')
