@@ -3,16 +3,10 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.LoginModel;
-import online.gixmetir.xuipanelmanagerbackend.entities.AuthenticationEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.UserRenewLogEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
-import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.UserRenewLogRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.data.domain.Page;
@@ -33,8 +27,9 @@ public class UserService {
     private final AuthenticationRepository authenticationRepository;
     private final UserRenewLogRepository userRenewLogRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionRenewLogRepository subscriptionLogRepository;
 
-    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository) {
+    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository, SubscriptionRenewLogRepository subscriptionLogRepository) {
         this.repository = repository;
         this.authenticationService = authenticationService;
         this.encoder = encoder;
@@ -42,6 +37,7 @@ public class UserService {
         this.authenticationRepository = authenticationRepository;
         this.userRenewLogRepository = userRenewLogRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.subscriptionLogRepository = subscriptionLogRepository;
     }
 
     public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
@@ -153,12 +149,14 @@ public class UserService {
     }
 
 
-    public void getUserBalance(Long id) {
-        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserIdAndMarkAsPaid(id, true);
+    public double getUserBalance(Long userId) {
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserId(userId);
         double balance = 0;
-        for (SubscriptionEntity subscriptionEntity : subscriptionEntities) {
-            balance += subscriptionEntity.getPrice();
-
+        List<Long> ids = subscriptionEntities.stream().map(SubscriptionEntity::getId).toList();
+        List<SubscriptionLogEntity> allBySubscriptionIdInAndMarkAsPaid = subscriptionLogRepository.findAllBySubscriptionIdInAndMarkAsPaid(ids, false);
+        for (SubscriptionLogEntity subscriptionLogEntity : allBySubscriptionIdInAndMarkAsPaid) {
+            balance += subscriptionLogEntity.getPrice();
         }
+        return balance;
     }
 }
