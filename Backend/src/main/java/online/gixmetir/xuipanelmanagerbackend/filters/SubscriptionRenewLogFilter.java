@@ -6,7 +6,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Builder;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionRenewLogEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionLogEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.LinkedList;
@@ -17,10 +17,10 @@ public record SubscriptionRenewLogFilter(
         Long id,
         Long subscriptionId,
         Boolean markAsPaid
-) implements Specification<SubscriptionRenewLogEntity> {
+) implements Specification<SubscriptionLogEntity> {
     @Override
     public Predicate toPredicate(
-            @Nonnull Root<SubscriptionRenewLogEntity> root,
+            @Nonnull Root<SubscriptionLogEntity> root,
             @Nonnull CriteriaQuery<?> query,
             @Nonnull CriteriaBuilder builder) {
         List<Predicate> predicates = new LinkedList<>();
@@ -28,9 +28,9 @@ public record SubscriptionRenewLogFilter(
         if (id != null)
             predicates.add(builder.equal(root.get("id"), id));
         if (subscriptionId != null)
-            predicates.add(builder.equal(root.get("subscription_id"), subscriptionId));
+            predicates.add(builder.equal(root.get("subscriptionId"), subscriptionId));
         if (markAsPaid != null)
-            predicates.add(builder.equal(root.get("mark_as_paid"), markAsPaid));
+            predicates.add(builder.equal(root.get("markAsPaid"), markAsPaid));
 
         return predicates.stream().reduce(builder::and).orElse(null);
     }

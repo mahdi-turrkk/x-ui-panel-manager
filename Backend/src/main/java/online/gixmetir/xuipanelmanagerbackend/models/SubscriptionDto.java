@@ -22,7 +22,7 @@ public class SubscriptionDto {
     private Boolean status;
     private String title;
     private String link;
-    private Boolean markAsPaid;
+    private boolean markAsPaid;
 
     public SubscriptionDto(SubscriptionEntity subscriptionEntity) {
         this.id = subscriptionEntity.getId();
@@ -35,7 +35,7 @@ public class SubscriptionDto {
         this.status = subscriptionEntity.getStatus();
         this.title = subscriptionEntity.getTitle();
         this.link = new Helper().generateLink(subscriptionEntity.getUuid());
-        this.markAsPaid = subscriptionEntity.getMarkAsPaid();
+        this.markAsPaid = subscriptionEntity.getMarkAsPaid() != null && subscriptionEntity.getMarkAsPaid();
     }
 
 }

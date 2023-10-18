@@ -46,7 +46,7 @@ public class SubscriptionController {
 
     @GetMapping("/get-all-renew-list")
     public Page<SubscriptionRenewDto> getAllRenewList(SubscriptionRenewLogFilter filter, Pageable pageable) {
-        return subscriptionService.getAllRenewList(filter, pageable);
+        return subscriptionService.getAllSubscriptionLogList(filter, pageable);
     }
 
     @GetMapping("/client/{uuid}")
@@ -59,20 +59,22 @@ public class SubscriptionController {
         return subscriptionService.changeStatus(newStatus, id);
     }
 
-    @PutMapping("/change-pay-status-for-subscription")
-    public SubscriptionDto changePayStatusForSubscription(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
-        return subscriptionService.changePayStatus(newPayStatus, id);
+    @PutMapping("/change-pay-status-for-subscription-renew-log")
+    public SubscriptionRenewDto changePayStatusForSubscription(@RequestParam Boolean newPayStatus, @RequestParam Long renewId) {
+        return subscriptionService.changePayStatusForSubscriptionRenewLog(newPayStatus, renewId);
     }
 
-    @PutMapping("/change-pay-status-for-subscription-renew")
-    public void changePayStatusForSubscriptionRenew(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
-        subscriptionService.changePayStatusForRenew(newPayStatus, id);
+    @PutMapping("/change-pay-status-for-subscription")
+    public SubscriptionDto changePayStatusForSubscriptionRenew(@RequestParam Boolean newPayStatus, @RequestParam Long id) {
+        return subscriptionService.changePayStatusForSubscription(newPayStatus, id);
     }
 
     @GetMapping("/report")
     public SubscriptionDto report(@RequestParam String subLink) throws Exception {
         return subscriptionService.report(subLink);
     }
+
+
 
     @GetMapping("/sync")
     public void sync() throws Exception {
