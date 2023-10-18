@@ -9,11 +9,16 @@ import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -149,14 +154,89 @@ public class UserService {
     }
 
 
-    public double getUserBalance(Long userId) {
+    public ResponseEntity<InputStreamResource> getUserReport(Long userId) throws FileNotFoundException {
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserId(userId);
-        double balance = 0;
+//        double balance = 0;
         List<Long> ids = subscriptionEntities.stream().map(SubscriptionEntity::getId).toList();
         List<SubscriptionLogEntity> allBySubscriptionIdInAndMarkAsPaid = subscriptionLogRepository.findAllBySubscriptionIdInAndMarkAsPaid(ids, false);
-        for (SubscriptionLogEntity subscriptionLogEntity : allBySubscriptionIdInAndMarkAsPaid) {
-            balance += subscriptionLogEntity.getPrice();
-        }
-        return balance;
+//        for (SubscriptionLogEntity subscriptionLogEntity : allBySubscriptionIdInAndMarkAsPaid) {
+//            balance += subscriptionLogEntity.getPrice();
+//        }
+
+        String filePath = createCsvFile(allBySubscriptionIdInAndMarkAsPaid);
+        String fileName = new File(filePath).getName();
+
+        // Open the file as an InputStream
+        InputStream stream = new FileInputStream(filePath);
+
+        // Set the HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        // Wrap the InputStream in an InputStreamResource
+        InputStreamResource resource = new InputStreamResource(stream);
+
+        // Return the ResponseEntity with the InputStreamResource and headers
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(new File(filePath).length())
+                .body(resource);
+//        return createCsvFile(allBySubscriptionIdInAndMarkAsPaid);
     }
+
+    private String createCsvFile(List<SubscriptionLogEntity> logs) {
+
+        String csvFileName = "./report.csv";
+
+        try {
+            // Remove the existing file if it exists
+            File existingFile = new File(csvFileName);
+            if (existingFile.exists()) {
+                existingFile.delete();
+            }
+            // Create a FileWriter and specify the CSV file name
+            FileWriter csvWriter = new FileWriter(csvFileName);
+
+
+            csvWriter.append("حجم");
+            csvWriter.append(" , ");
+            csvWriter.append("طول بازه زمانی");
+            csvWriter.append(" , ");
+            csvWriter.append("تاریخ");
+            csvWriter.append(" , ");
+            csvWriter.append("مبلغ");
+            csvWriter.append("\n");
+
+
+            Double sumOfPrices = 0D;
+            Helper helper = new Helper();
+            // Write the data to the CSV file
+            for (SubscriptionLogEntity log : logs) {
+                csvWriter.append(String.valueOf(helper.byteToGB(log.getTotalFlow()))).append(" GB");
+                csvWriter.append(" , ");
+                csvWriter.append(log.getPeriodLength().toString()).append(" روز ");
+                csvWriter.append(" , ");
+                csvWriter.append(log.getCreateDate().toLocalDate().toString());
+                csvWriter.append(" , ");
+                csvWriter.append(log.getPrice().toString());
+                csvWriter.append("\n");
+                sumOfPrices += log.getPrice();
+            }
+            csvWriter.append("\n");
+            csvWriter.append(sumOfPrices.toString());
+            csvWriter.append(" تومان ");
+            csvWriter.append(" , ");
+            csvWriter.append("جمع کل : ");
+
+
+            // Close the FileWriter
+            csvWriter.close();
+            return csvFileName;
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
