@@ -37,6 +37,15 @@
             </div>
             <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
               <div class="relative">
+                <i class="pi pi-file-pdf text-lg md:text-xl mx-1 text-success" @mouseenter="showDownloadReportTag = true"
+                   @mouseleave="showDownloadReportTag = false"
+                   @click="downloadReport"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDownloadReportTag">
+                  {{ local.downloadReport }}
+                </div>
+              </div>
+              <div class="relative">
                 <i class="pi pi-pencil text-lg md:text-xl mx-1 text-warning" @mouseenter="showEditTag = true"
                                     @mouseleave="showEditTag = false"
                                     @click="emits('openEditAdminDialog' , admin)"/>
@@ -135,6 +144,7 @@ let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
 let showMenu = ref(false)
 let showDeleteTag = ref(false)
+let showDownloadReportTag = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
@@ -201,6 +211,28 @@ const changeStatus = (payload) => {
 
 let showChangePasswordTag = ref(false)
 
+const downloadReport = () => {
+  // Make an Axios GET request to download the file
+  axios.get(`${useDataStore().getServerAddress}/users/download-user-report?userId=${props.admin.id}`, {
+    headers: {
+      Authorization: useDataStore().getToken
+    },
+    responseType: 'blob', // Important: set the response type to 'blob' to handle binary data
+  })
+      .then((response) => {
+        // Create a blob object from the response data
+        const blob = new Blob([response.data], {type: response.headers['content-type']});
+        // Create a link element to trigger the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = window.URL.createObjectURL(blob);
+        downloadLink.download = 'report.csv'; // Set the desired file name
+        // Trigger the download by clicking the link
+        downloadLink.click();
+      })
+      .catch((error) => {
+        console.error('Error downloading the file:', error);
+      });
+}
 </script>
 
 
