@@ -55,8 +55,6 @@ public class SubscriptionService {
             entity.setUuid(UUID.randomUUID().toString());
             entity.setStatus(true);
             subscriptionEntities.add(entity);
-            PlanEntity planEntity = getPriceOfSubscription(entity.getTotalFlow(), entity.getPeriodLength());
-            createLog(entity, request, planEntity, SubscriptionLogType.CREATE);
 //            entity.setPrice(planEntity.getPrice());
             // increase user total used
             long totalUsed = (userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed()) + entity.getTotalFlow();
@@ -64,6 +62,10 @@ public class SubscriptionService {
         }
 
         subscriptionRepository.saveAll(subscriptionEntities);
+        subscriptionEntities.forEach(a -> {
+            PlanEntity planEntity = getPriceOfSubscription(a.getTotalFlow(), a.getPeriodLength());
+            createLog(a, request, planEntity, SubscriptionLogType.CREATE);
+        });
         userRepository.save(userEntity);
         addOrUpdateClientsRelatedToSubscription(subscriptionEntities);
         return subscriptionEntities.stream().map(SubscriptionDto::new).toList();
@@ -138,7 +140,7 @@ public class SubscriptionService {
         SubscriptionLogEntity logEntity = SubscriptionLogEntity.builder()
                 .subscriptionId(subscriptionEntityFromDb.getId())
                 .periodLength(request.getPeriodLength())
-                .totalFlow(request.getTotalFlow())
+                .totalFlow(new Helper().GBToByte(request.getTotalFlow()))
                 .price(planEntity.getPrice())
                 .logType(logType)
                 .markAsPaid(false)
