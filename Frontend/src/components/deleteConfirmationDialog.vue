@@ -58,7 +58,6 @@ const backdropClicked = (data) => {
 }
 
 const confirmDelete = () => {
-  console.log(props.data.value)
   axios.delete(`${useDataStore().getServerAddress}/${props.title}/delete?id=${props.data.id}`,
       {
         headers: {

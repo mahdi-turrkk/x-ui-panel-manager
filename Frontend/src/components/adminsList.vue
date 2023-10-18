@@ -16,7 +16,8 @@
       </div>
     </div>
     <admins-list-item @open-edit-admin-dialog="openEditAdminDialog" @open-link-dialog="openLinkDialog"
-                         v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
+                      @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
+                      v-for="admin in admins" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                          :admin="admin" @change-admin-status="(payload) => {admin.enabled = payload}" v-if="!isLoading && admins.length > 0" @open-delete-sub-confirmation-dialog="(payload) => {emits('openDeleteSubConfirmationDialog' , payload)}"/>
   </div>
 </template>
@@ -26,9 +27,10 @@ import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
 import Loader from "./loader.vue";
 import AdminsListItem from "./adminsListItem.vue";
+import SubscriptionListItem from "./subscriptionListItem.vue";
 
 const props = defineProps(['admins', 'isLoading'])
-const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog' , 'openDeleteConfirmationDialog' ,'openDeleteSubConfirmationDialog'])
+const emits = defineEmits(['openEditAdminDialog', 'openLinkDialog' ,'openChangePasswordDialog' , 'openDeleteConfirmationDialog' ,'openDeleteSubConfirmationDialog' , 'openRenewHistoryDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {

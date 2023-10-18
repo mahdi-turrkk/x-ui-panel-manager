@@ -2,13 +2,22 @@
   <div class="flex space-x-2 items-center px-4 py-4 w-full bg-background-3 rounded-xl shadow-md my-2 text-info-3"
        :class="{'shadow-info-1 shadow-sm' : useDataStore().getDarkStatus}">
     <div class="w-0 hidden md:inline-block md:w-[10%]">{{ subscription.id }}</div>
-    <div class="w-[30%] md:w-[40%] flex justify-center">
+    <div class="hidden md:flex md:w-[25%] justify-center">
       <div>
         {{ subscription.totalFlow ? subscription.totalFlow + 'GB' : '0.00 GB' }}
       </div>
       -
       <div>
         {{ subscription.periodLength + local.days }}
+      </div>
+    </div>
+    <div class="w-[30%] md:w-[20%] flex justify-center flex-col md:flex-row">
+      <div class="text-center">
+        {{ subscription.totalUsed ? (subscription.totalFlow - subscription.totalUsed).toFixed(2) + 'GB' : subscription.totalFlow.toFixed(2) + 'GB' }}
+      </div>
+      <div class="hidden md:inline-block">&nbsp;/&nbsp;</div>
+      <div class="text-center">
+        {{ subscription.expireDate ? subscription.expireDate.substring(0,10) : '' }}
       </div>
     </div>
     <div class="w-[30%] md:w-[20%]">
@@ -29,7 +38,7 @@
         </div>
       </div>
     </div>
-    <div class="w-[30%] md:w-[20%]">
+    <div class="w-[30%] md:w-[15%]">
       <div
           class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-min text-success relative mx-auto cursor-pointer"
           v-if="subscription.status" @mouseenter="showDeactivateSubscriptionTag = true"
@@ -59,6 +68,14 @@
         </button>
       </div>
       <div class="absolute flex w-fit bg-background-1 p-2 rounded-xl" v-if="showMenu">
+        <div class="relative cursor-pointer">
+          <i class="pi pi-history text-lg md:text-xl text-warning mx-1" @mouseenter="showRenewHistoryTag = true"
+             @mouseleave="showRenewHistoryTag = false" @click="emits('openRenewHistoryDialog' , subscription)"/>
+          <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+               :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showRenewHistoryTag">{{ local.show }}
+            {{ local.renewHistory }}
+          </div>
+        </div>
         <div class="relative cursor-pointer">
           <i class="pi pi-qrcode text-lg md:text-xl mx-1 text-success" @mouseenter="showUrlTag = true"
                         @mouseleave="showUrlTag = false" @click="emits('openLinkDialog' , subscription.link)"/>
@@ -91,7 +108,7 @@ import 'primeicons/primeicons.css';
 
 
 const props = defineProps(['subscription'])
-const emits = defineEmits(['openLinkDialog', 'changeSubscriptionStatus', 'openDeleteConfirmationDialog', 'changeSubscriptionPayStatus'])
+const emits = defineEmits(['openLinkDialog', 'changeSubscriptionStatus', 'openDeleteConfirmationDialog', 'changeSubscriptionPayStatus' , 'openRenewHistoryDialog'])
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
@@ -105,6 +122,7 @@ let showDeactivateSubscriptionTag = ref(false)
 let showMarkAsPaidTag = ref(false)
 let showMarkAsNotPaidTag = ref(false)
 let showUrlTag = ref(false)
+let showRenewHistoryTag = ref(false)
 
 const changeStatus = (payload) => {
   axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${props.subscription.id}&newStatus=${payload}`,
