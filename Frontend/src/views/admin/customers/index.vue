@@ -9,7 +9,7 @@
                             :isSelf="false" :user-id="passwordEditUserId"/>
     <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" :title="deleteConfirmationType" :data="deleteObj"
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getCustomers"/>
-    <subscription-renew-history-dialog :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscriptionHistory"/>
+    <subscription-renew-history-dialog  userType="Admin" :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscriptionHistory"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.customers }}</div>
       <button

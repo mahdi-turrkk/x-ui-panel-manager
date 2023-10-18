@@ -133,7 +133,7 @@ const getRenewLog = () => {
 
 const changePayStatus = (status , index) => {
   if(props.userType === 'Admin') {
-    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-?newPayStatus=${status}&id=${subscriptionRenewLog.value[index].id}`,
+    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-subscription-renew-log?newPayStatus=${status}&renewId=${subscriptionRenewLog.value[index].id}`,
         {},
         {
           headers : {
