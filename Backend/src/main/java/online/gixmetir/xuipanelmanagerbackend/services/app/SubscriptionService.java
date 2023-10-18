@@ -56,7 +56,8 @@ public class SubscriptionService {
             entity.setStatus(true);
             subscriptionEntities.add(entity);
             PlanEntity planEntity = getPriceOfSubscription(entity.getTotalFlow(), entity.getPeriodLength());
-            entity.setPrice(planEntity.getPrice());
+            createLog(entity, request, planEntity, SubscriptionLogType.CREATE);
+//            entity.setPrice(planEntity.getPrice());
             // increase user total used
             long totalUsed = (userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed()) + entity.getTotalFlow();
             userEntity.setTotalUsed(totalUsed);
@@ -68,7 +69,7 @@ public class SubscriptionService {
         return subscriptionEntities.stream().map(SubscriptionDto::new).toList();
     }
 
-    private PlanEntity getPriceOfSubscription(Long totalFlow, Integer periodLength) throws Exception {
+    private PlanEntity getPriceOfSubscription(Long totalFlow, Integer periodLength) {
         double flow = new Helper().byteToGB(totalFlow);
         return planRepository.findByTotalFlowAndPeriodLength((long) flow, periodLength).orElseThrow(() -> new EntityNotFoundException("Plan not found"));
     }
@@ -117,27 +118,33 @@ public class SubscriptionService {
 
     public SubscriptionDto update(Long id, SubscriptionRequest request, SubscriptionUpdateType updateType) throws Exception {
         SubscriptionEntity subscriptionEntityFromDb = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
-        PlanEntity palnEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
+        PlanEntity planEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
 
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
 
-            SubscriptionRenewLogEntity logEntity = SubscriptionRenewLogEntity.builder()
-                    .subscriptionId(subscriptionEntityFromDb.getId())
-                    .periodLength(subscriptionEntityFromDb.getPeriodLength())
-                    .totalFlow(subscriptionEntityFromDb.getTotalFlow())
-                    .price(palnEntity.getPrice())
-                    .build();
-
-            subscriptionReNewLogRepository.save(logEntity);
+            createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW);
 
         } else {
             request.toEntity(subscriptionEntityFromDb);
-            subscriptionEntityFromDb.setPrice(palnEntity.getPrice());
+//            subscriptionEntityFromDb.setPrice(planEntity.getPrice());
         }
 
         subscriptionRepository.save(subscriptionEntityFromDb);
         return new SubscriptionDto(subscriptionEntityFromDb);
+    }
+
+    private void createLog(SubscriptionEntity subscriptionEntityFromDb, SubscriptionRequest request, PlanEntity planEntity, SubscriptionLogType logType) {
+        SubscriptionLogEntity logEntity = SubscriptionLogEntity.builder()
+                .subscriptionId(subscriptionEntityFromDb.getId())
+                .periodLength(request.getPeriodLength())
+                .totalFlow(request.getTotalFlow())
+                .price(planEntity.getPrice())
+                .logType(logType)
+                .markAsPaid(false)
+                .build();
+
+        subscriptionReNewLogRepository.save(logEntity);
     }
 
     /*
@@ -151,9 +158,21 @@ public class SubscriptionService {
         // increase user total user when renew subscription
         UserEntity userEntity = userRepository.findById(subscription.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
         userEntity.setTotalUsed(userEntity.getTotalUsed() + request.getTotalFlow());
+
+        if (subscription.getExpireDate() != null) {
+            if (subscription.getExpireDate().isBefore(LocalDateTime.now())) {
+                subscription.setTotalUsed(subscription.getTotalUsed() + request.getTotalFlow());
+                subscription.setExpireDate(LocalDateTime.now().plusDays(request.getPeriodLength()));
+            } else {
+                if (subscription.getTotalUsed() >= subscription.getTotalFlow()) {
+                    subscription.setExpireDate(LocalDateTime.now().plusDays(request.getPeriodLength()));
+                } else
+                    subscription.setExpireDate(subscription.getExpireDate().plusDays(request.getPeriodLength()));
+            }
+        }
         subscription.setTotalFlow(subscription.getTotalFlow() + new Helper().GBToByte(request.getTotalFlow()));
-        if (subscription.getExpireDate() != null)
-            subscription.setExpireDate(subscription.getExpireDate().plusDays(subscription.getPeriodLength()));
+        subscription.setPeriodLength(subscription.getPeriodLength() + request.getPeriodLength());
+
         subscription.setStatus(true);
         List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionId(subscription.getId());
         List<ClientEntity> clientEntitiesMustToUpdateInPanel = new ArrayList<>();
@@ -269,22 +288,59 @@ public class SubscriptionService {
         return model;
     }
 
-    public SubscriptionDto changePayStatus(Boolean newPayStatus, Long id) {
-        SubscriptionEntity entity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
-        entity.setMarkAsPaid(newPayStatus);
-        subscriptionRepository.save(entity);
-        return new SubscriptionDto(entity);
+    private void syncMarkAsPaidForSubscription(SubscriptionEntity subscription) {
+        List<SubscriptionLogEntity> subscriptionLogEntities = subscriptionReNewLogRepository.findAllBySubscriptionId(subscription.getId());
+        List<SubscriptionLogEntity> entities = subscriptionLogEntities.stream().filter(a -> !a.getMarkAsPaid()).toList();
+        subscription.setMarkAsPaid(entities.isEmpty());
+        subscriptionRepository.save(subscription);
     }
 
-    public SubscriptionRenewDto changePayStatusForRenew(Boolean newPayStatus, Long id) {
-        SubscriptionRenewLogEntity subscriptionRenewLogEntity = subscriptionReNewLogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription renew not found"));
+    public SubscriptionRenewDto changePayStatusForSubscriptionRenewLog(Boolean newPayStatus, Long id) {
+        SubscriptionLogEntity subscriptionRenewLogEntity = subscriptionReNewLogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription renew not found"));
         subscriptionRenewLogEntity.setMarkAsPaid(newPayStatus);
         subscriptionReNewLogRepository.save(subscriptionRenewLogEntity);
+        syncMarkAsPaidForSubscription(subscriptionRenewLogEntity.getSubscription());
         return new SubscriptionRenewDto(subscriptionRenewLogEntity);
     }
 
-    public Page<SubscriptionRenewDto> getAllRenewList(SubscriptionRenewLogFilter filter, Pageable pageable) {
+    public Page<SubscriptionRenewDto> getAllSubscriptionLogList(SubscriptionRenewLogFilter filter, Pageable pageable) {
         return subscriptionReNewLogRepository.findAll(filter, pageable).map(SubscriptionRenewDto::new);
     }
+
+
+    public SubscriptionDto changePayStatusForSubscription(Boolean newPayStatus, Long id) {
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
+        subscriptionEntity.setMarkAsPaid(newPayStatus);
+        subscriptionRepository.save(subscriptionEntity);
+
+        List<SubscriptionLogEntity> subscriptionLogEntities = subscriptionReNewLogRepository.findAllBySubscriptionId(id);
+        subscriptionLogEntities.forEach(a -> a.setMarkAsPaid(newPayStatus));
+        subscriptionReNewLogRepository.saveAll(subscriptionLogEntities);
+        return new SubscriptionDto(subscriptionEntity);
+    }
+
+//    public void createRenewLogForAllSubscriptions() {
+//
+//
+//        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAll();
+//        List<SubscriptionLogEntity> subscriptionLogEntities = new ArrayList<>(List.of());
+//        subscriptionEntities.forEach(a -> {
+//            if (a.getId() == 7 || a.getId() == 34) {
+//
+//            } else {
+//                PlanEntity planEntity = getPriceOfSubscription(a.getTotalFlow(), a.getPeriodLength());
+//                SubscriptionLogEntity logEntity = SubscriptionLogEntity.builder()
+//                        .subscriptionId(a.getId())
+//                        .periodLength(a.getPeriodLength())
+//                        .totalFlow(a.getTotalFlow())
+//                        .price(planEntity.getPrice())
+//                        .logType(SubscriptionLogType.CREATE)
+//                        .markAsPaid(false)
+//                        .build();
+//                subscriptionLogEntities.add(logEntity);
+//            }
+//        });
+//        subscriptionReNewLogRepository.saveAll(subscriptionLogEntities);
+//    }
 }
 
