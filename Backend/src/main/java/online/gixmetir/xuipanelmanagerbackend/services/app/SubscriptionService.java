@@ -63,7 +63,7 @@ public class SubscriptionService {
 
         subscriptionRepository.saveAll(subscriptionEntities);
         subscriptionEntities.forEach(a -> {
-            PlanEntity planEntity = getPriceOfSubscription(a.getTotalFlow(), a.getPeriodLength());
+            PlanEntity planEntity = getPriceOfSubscription((long) new Helper().byteToGB(a.getTotalFlow()), a.getPeriodLength());
             createLog(a, request, planEntity, SubscriptionLogType.CREATE);
         });
         userRepository.save(userEntity);
@@ -72,8 +72,7 @@ public class SubscriptionService {
     }
 
     private PlanEntity getPriceOfSubscription(Long totalFlow, Integer periodLength) {
-        double flow = new Helper().byteToGB(totalFlow);
-        return planRepository.findByTotalFlowAndPeriodLength((long) flow, periodLength).orElseThrow(() -> new EntityNotFoundException("Plan not found"));
+        return planRepository.findByTotalFlowAndPeriodLength(totalFlow, periodLength).orElseThrow(() -> new EntityNotFoundException("Plan not found"));
     }
 
     @Transactional
