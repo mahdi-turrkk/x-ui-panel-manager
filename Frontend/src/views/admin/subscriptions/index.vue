@@ -54,6 +54,7 @@ let link = ref('')
 let isRenew = ref(false)
 
 const openRenewSubscriptionDialog = (payload) => {
+  subDialogType.value = 'ReNew'
   subscription = payload
   isRenew.value = true
   showSubscriptionDialog.value = true
