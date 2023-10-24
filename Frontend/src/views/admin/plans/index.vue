@@ -23,10 +23,15 @@
         <div class="w-fit -mt-4 text-info-3 text-base md:text-xl bg-background-1 px-2">{{ local.noRecords }}</div>
       </div>
     </div>
-    <div class="flex" v-if="!loading">
-      <div
-          class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-          v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i;getPlans">{{ i }}
+    <div class="flex mt-3" v-if="!loading">
+      <div class="flex" v-for="i in pages" >
+        <div class="text-lg" v-if="(pages > 5) && ((i === onboarding-1 && i > 2) || (i === onboarding+2 && i !== pages))">...</div>
+        <div
+            v-if="pages <= 5 || (i === 1 || i === pages || i-1 === onboarding || i+1 === onboarding || i === onboarding)"
+            class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
+            :class="{'bg-opacity-50' : onboarding === i}"
+            @click="onboarding = i;getPlans">{{ i }}
+        </div>
       </div>
     </div>
   </admin-layout>

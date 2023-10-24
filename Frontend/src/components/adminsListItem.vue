@@ -103,10 +103,14 @@
                                 @open-link-dialog="openLinkDialog" @change-subscription-pay-status="(payload) => {subscription.markAsPaid = payload}"
                                 @change-subscription-status="(payload) => {subscription.status = payload}" @open-delete-confirmation-dialog="(payload) => {emits('openDeleteSubConfirmationDialog' , payload)}"/>
         <div class="flex mt-3">
-          <div
-              class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-              v-for="i in subsPages" :class="{'bg-opacity-50' : onboardingSubsPage === i}"
-              @click="onboardingSubsPage = i">{{ i }}
+          <div class="flex" v-for="i in subsPages" >
+            <div class="text-lg" v-if="(subsPages > 5) && ((i === onboardingSubsPage-1 && i > 2) || (i === onboardingSubsPage+2 && i !== subsPages))">...</div>
+            <div
+                v-if="subsPages <= 5 || (i === 1 || i === subsPages || i-1 === onboardingSubsPage || i+1 === onboardingSubsPage || i === onboardingSubsPage)"
+                class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
+                :class="{'bg-opacity-50' : onboardingSubsPage === i}"
+                @click="onboardingSubsPage = i">{{ i }}
+            </div>
           </div>
         </div>
       </div>
