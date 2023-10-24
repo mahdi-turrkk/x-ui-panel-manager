@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.CustomException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.ForbiddenException;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionRenewLogFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
@@ -214,6 +216,9 @@ public class SubscriptionService {
     @Transactional
     public SubscriptionDto changeStatus(Boolean newStatus, Long id) throws Exception {
         SubscriptionEntity entity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
+        if (entity.isExpired()) {
+            throw new CustomException("اشتراک منقضی شده است نمیتوان دوباره آن را فعال کرد ");
+        }
         entity.setStatus(newStatus);
         addOrUpdateClientsRelatedToSubscription(List.of(entity));
         return new SubscriptionDto(entity);
@@ -235,8 +240,8 @@ public class SubscriptionService {
         if (userEntity.getId() == entity.getUserId() || userEntity.getRole() == Role.Admin)
             return new SubscriptionDto(entity);
         if (userEntity.getId() != entity.getUserId())
-            throw new Exception("doesnt access to this method.");
-        throw new Exception("link is invalid.");
+            throw new ForbiddenException("doesnt access to this method.");
+        throw new IllegalArgumentException("link is invalid.");
     }
 
     public ResponseEntity<String> getSubscriptionData(String uuid) throws Exception {

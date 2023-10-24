@@ -3,6 +3,7 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 import jakarta.persistence.EntityNotFoundException;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.DuplicateException;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerRequest;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
@@ -35,7 +36,8 @@ public class ServerService {
 
     public ServerDto create(ServerRequest request) throws Exception {
         ServerEntity serverFromDb = serverRepository.findByUrl(request.getUrl()).orElse(null);
-        if (serverFromDb != null) throw new Exception("Server with url: " + request.getUrl() + " already exists");
+        if (serverFromDb != null)
+            throw new DuplicateException("Server with url: " + request.getUrl() + " already exists");
         ServerEntity entity = request.toEntity();
         entity.setStatus(true);
         serverRepository.save(entity);

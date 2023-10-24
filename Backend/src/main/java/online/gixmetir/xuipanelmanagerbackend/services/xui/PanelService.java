@@ -4,6 +4,8 @@ import online.gixmetir.xuipanelmanagerbackend.clients.XuiClient;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.CustomException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.json.JSONArray;
@@ -30,7 +32,7 @@ public class PanelService {
                 .build();
         ResponseEntity<ResponseModel> response = xuiClient.login(URI.create(serverDto.getUrl()), loginModel);
         if (!Objects.requireNonNull(response.getBody()).getSuccess()) {
-            throw new Exception("نام کاربری یا رمز عبور اشتباه هست ");
+            throw new UsernameOrPasswordWrongException("نام کاربری یا رمز عبور اشتباه هست ");
         }
         String header = Objects.requireNonNull(response.getHeaders().get("set-cookie")).toString();
         return Helper.getSessionKey(header);
@@ -43,7 +45,7 @@ public class PanelService {
         if (model.getSuccess()) {
             return model.getObj();
         } else {
-            throw new Exception(model.getMsg());
+            throw new CustomException(model.getMsg());
         }
     }
 
@@ -52,7 +54,7 @@ public class PanelService {
         JSONObject jsonObject = convertListOfClientModelToJsonStructure(clients, inboundIdFromPanel);
         ResponseEntity<ResponseModel> response = xuiClient.addClient(URI.create(serverDto.getUrl()), sessionKey, jsonObject.toString());
         if (!Objects.requireNonNull(response.getBody()).getSuccess()) {
-            throw new Exception(response.getBody().getMsg());
+            throw new CustomException(response.getBody().getMsg());
         }
     }
 
@@ -94,7 +96,7 @@ public class PanelService {
             String sessionKey = login(new ServerDto(serverEntity));
             ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverEntity.getUrl()), sessionKey, client.getInbound().getIdFromPanel(), client.getUuid());
             if (!Objects.requireNonNull(response.getBody()).getSuccess())
-                throw new Exception(response.getBody().getMsg());
+                throw new CustomException(response.getBody().getMsg());
         }
 
     }
@@ -104,6 +106,6 @@ public class PanelService {
         if (response.getBody().getSuccess()) {
             return response.getBody().getObj();
         } else
-            throw new Exception(response.getBody().getMsg());
+            throw new CustomException(response.getBody().getMsg());
     }
 }

@@ -4,6 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.LoginModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.CustomException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.DuplicateException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.ForbiddenException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.*;
@@ -51,7 +55,7 @@ public class UserService {
 
     public UserDto create(UserRequest request) throws Exception {
         if (authenticationRepository.findByUsername(request.getUsername()).orElse(null) != null) {
-            throw new Exception("User with username: " + request.getUsername() + " already exists");
+            throw new DuplicateException("User with username: " + request.getUsername() + " already exists");
         }
         UserEntity userEntity = request.toEntity();
         userEntity.setStartDateTime(LocalDateTime.now());
@@ -82,7 +86,7 @@ public class UserService {
     }
 
     @Transactional
-    public AuthDto login(LoginModel loginModel) {
+    public AuthDto login(LoginModel loginModel) throws UsernameOrPasswordWrongException {
         UserEntity entity = authenticationService.loadUserByUsername(loginModel.getUsername());
         if (encoder.matches(loginModel.getPassword(), entity.getPassword())) {
             return AuthDto.builder()
@@ -91,7 +95,7 @@ public class UserService {
                     .build();
 
         } else {
-            throw new IllegalArgumentException("username or password is wrong");
+            throw new UsernameOrPasswordWrongException("username or password is wrong");
         }
     }
 
@@ -110,12 +114,12 @@ public class UserService {
             if (entity.getRole() == Role.Admin) {
                 authenticationEntity = authenticationRepository.findByUserId(changePasswordModel.getUserId()).orElseThrow(() -> new EntityNotFoundException("user not found"));
             } else {
-                throw new Exception("only admin can change password");
+                throw new ForbiddenException("only admin can change password");
             }
         } else {
             if (encoder.matches(changePasswordModel.getOldPassword(), entity.getPassword())) {
                 authenticationEntity = authenticationRepository.findByUserId(entity.getId()).orElseThrow(() -> new EntityNotFoundException("user not found"));
-            } else throw new Exception("old password doesnt.");
+            } else throw new IllegalArgumentException("old password doesnt matched.");
         }
         authenticationEntity.setPassword(encoder.encode(changePasswordModel.getNewPassword()));
         authenticationRepository.save(authenticationEntity);
@@ -235,7 +239,7 @@ public class UserService {
             return csvFileName;
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(e.getMessage());
         }
     }
 
