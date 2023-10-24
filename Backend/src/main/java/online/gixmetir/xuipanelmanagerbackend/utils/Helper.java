@@ -1,6 +1,7 @@
 package online.gixmetir.xuipanelmanagerbackend.utils;
 
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.regex.Matcher;
@@ -45,7 +46,7 @@ public class Helper {
             System.out.println("Extracted UUID: " + uuid);
             return uuid;
         } else {
-            throw new Exception("link is invalid");
+            throw new IllegalArgumentException("link is invalid");
         }
     }
 
@@ -66,12 +67,12 @@ public class Helper {
         } else {
             System.out.println("UUID not found in the VLESS URI.");
         }
-        throw new Exception("config is invalid");
+        throw new IllegalArgumentException("config is invalid");
     }
 
     public UserEntity getUserFromContext() throws Exception {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
-            throw new Exception("anonymous user requested");
+            throw new UsernameOrPasswordWrongException("anonymous user requested");
         }
         return (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }

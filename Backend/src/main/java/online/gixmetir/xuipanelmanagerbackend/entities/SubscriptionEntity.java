@@ -58,4 +58,8 @@ public class SubscriptionEntity {
     @Column(name = "mark_as_paid")
     private Boolean markAsPaid;
 
+    public boolean isExpired() {
+        return expireDate.isBefore(LocalDateTime.now()) || totalFlow <= totalUsed;
+    }
+
 }

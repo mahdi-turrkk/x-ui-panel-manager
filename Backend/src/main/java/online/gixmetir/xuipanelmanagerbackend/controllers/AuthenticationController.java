@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.controllers;
 
 import online.gixmetir.xuipanelmanagerbackend.clients.models.LoginModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
 import online.gixmetir.xuipanelmanagerbackend.models.AuthDto;
 import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
@@ -20,7 +21,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthDto> login(@RequestBody LoginModel loginModel) {
+    public ResponseEntity<AuthDto> login(@RequestBody LoginModel loginModel) throws UsernameOrPasswordWrongException {
         return ResponseEntity.ok(service.login(loginModel));
     }
 
