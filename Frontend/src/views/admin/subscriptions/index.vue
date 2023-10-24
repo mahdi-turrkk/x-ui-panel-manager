@@ -17,10 +17,15 @@
     </div>
     <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
                         user-type="Admin" @open-link-dialog="openLinkDialog" :is-loading="loading" @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
-    <div class="flex mt-6" v-if="!loading">
-      <div
-          class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-          v-for="i in pages" :class="{'bg-opacity-50' : onboarding == i}" @click="onboarding = i">{{ i }}
+    <div class="flex mt-3" v-if="!loading">
+      <div class="flex" v-for="i in pages" >
+        <div class="text-lg" v-if="(pages > 5) && ((i === onboarding-1 && i > 2) || (i === onboarding+2 && i !== pages))">...</div>
+        <div
+            v-if="pages <= 5 || (i === 1 || i === pages || i-1 === onboarding || i+1 === onboarding || i === onboarding)"
+            class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
+            :class="{'bg-opacity-50' : onboarding === i}"
+            @click="onboarding = i">{{ i }}
+        </div>
       </div>
     </div>
   </admin-layout>
