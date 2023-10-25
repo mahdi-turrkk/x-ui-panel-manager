@@ -5,7 +5,7 @@
       <i class="pi pi-times-circle text-xl"/>
       <div>{{ errorMessage }}</div>
     </div>
-    <div class="bg-background-3 text-info-3 px-6 w-full md:w-fit md:min-w-fit rounded-xl flex flex-col py-4 bottom-0 h-[500px] md:bottom-auto md:max-h-[600px] fixed md:sticky md:top-10">
+    <div class="bg-background-3 text-info-3 px-6 w-full md:w-fit md:min-w-fit rounded-xl flex flex-col py-4 bottom-0 max-h-[500px] md:bottom-auto md:max-h-[600px] fixed md:sticky md:top-10">
       <div
           @click="emits('closeDialog')"
           v-if="displayHelper(windowWidth).mdAndUp"

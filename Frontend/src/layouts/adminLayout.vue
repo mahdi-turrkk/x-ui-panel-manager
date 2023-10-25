@@ -163,7 +163,7 @@
         <div class="px-3">{{ local.signOut }}</div>
       </button>
     </div>
-    <div class="col-span-12 md:col-span-9 lg:col-span-10 relative z-0 pt-4 px-4">
+    <div class="col-span-12 md:col-span-9 lg:col-span-10 relative z-0 pt-4 px-4 min-h-screen">
       <slot/>
     </div>
   </div>
