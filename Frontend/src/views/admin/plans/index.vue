@@ -3,7 +3,7 @@
     <plan-dialog :show-dialog="showPlanDialog" @close-dialog="showPlanDialog = false"
                  @plan-added="getPlans" :type="type" :plan="editPlan"/>
     <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="plans" :data="deletePlan" @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getPlans"/>
-    <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
+    <div class="rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.plans }}</div>
       <button
           @click="()=>{type = 'new';showPlanDialog = true}"
@@ -16,7 +16,7 @@
       <loader/>
     </div>
     <div class="rounded-xl w-full py-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" v-if="!loading && plans.length > 0">
-      <plan-card v-for="plan in plans" :plan="plan" @edit-plan="openEditPlanDialog" @delete-plan="openDeleteConfirmationDialog"/>
+      <plan-card v-for="(plan , index) in plans" :plan="plan" :index="index" @edit-plan="openEditPlanDialog" @delete-plan="openDeleteConfirmationDialog"/>
     </div>
     <div class="w-full flex justify-center items-center pt-12" v-if="!loading && plans.length === 0">
       <div class="border-t-primary-3 w-full border-t-2 flex justify-center mx-2 md:mx-6">
