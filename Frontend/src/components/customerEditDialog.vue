@@ -134,7 +134,7 @@ const saveCustomer = () => {
       totalFlow.value = 0
       isIndefiniteFlow.value = true
     }
-    axios.put(`${useDataStore().getServerAddress}/users/update?id=${customerId}`,
+    axios.put(`${useDataStore().getServerAddress}/users/update?id=${customerId.value}`,
         {
           firstName: firstName.value,
           lastName: lastName.value,
