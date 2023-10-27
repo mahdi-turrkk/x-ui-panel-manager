@@ -36,7 +36,6 @@
                :class="{'mt-0 opacity-100' : periodLength}">{{ local.periodLength }}</label>
         <input type="number" :placeholder="local.periodLength" v-model="periodLength"
                class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-
         <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
                :class="{'-mt-[8px] opacity-100' : phoneNumber}">{{ local.phoneNumber }}</label>
         <input type="tel" :placeholder="local.phoneNumber" v-model="phoneNumber"
@@ -90,7 +89,6 @@ let customerId = ref('')
 let firstName = ref('')
 let lastName = ref('')
 let username = ref('')
-let password = ref('')
 let phoneNumber = ref('')
 let email = ref('')
 let address = ref('')
@@ -108,7 +106,6 @@ watch(() => props.customer, (newVal) => {
   firstName.value = props.customer.firstName
   lastName.value = props.customer.lastName
   username.value = props.customer.username
-  password.value = props.customer.password
   phoneNumber.value = props.customer.phoneNumber
   email.value = props.customer.email
   address.value = props.customer.address
@@ -128,7 +125,7 @@ const backdropClicked = (data) => {
 }
 
 const saveCustomer = () => {
-  if (firstName.value && lastName.value && phoneNumber.value && address.value && password.value) {
+  if (firstName.value && lastName.value && phoneNumber.value && address.value) {
     if (!periodLength.value || Number(periodLength.value) == 0) {
       periodLength.value = 0
       isIndefiniteExpirationTime.value = true
