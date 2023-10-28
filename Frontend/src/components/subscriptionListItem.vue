@@ -3,7 +3,7 @@
        :class="{'shadow-info-1 shadow-sm' : useDataStore().getDarkStatus}">
     <div class="w-0 hidden md:inline-block md:w-[10%]">{{ subscription.id }}</div>
     <div class="w-[30%] text-center">{{ subscription.startDate ? subscription.startDate.substring(0,10) : '' }}&nbsp;/&nbsp;{{ subscription.expireDate ? subscription.expireDate.substring(0,10) : '' }}</div>
-    <div class="w-[30%] text-center" style="direction: ltr">{{ subscription.totalUsed ? subscription.totalUsed : '0.00' }}&nbsp;/&nbsp;{{ subscription.totalFlow ? subscription.totalFlow : '0.00'}} GB
+    <div class="w-[30%] text-center" style="direction: ltr">{{ subscription.totalUsed ? subscription.totalUsed.toFixed(2) : '0.00' }}&nbsp;/&nbsp;{{ subscription.totalFlow ? subscription.totalFlow : '0.00'}} GB
     </div>
     <div class="w-[30%] md:w-[20%]">
       <div
