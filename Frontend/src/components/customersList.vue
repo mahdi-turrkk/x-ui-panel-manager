@@ -6,7 +6,7 @@
       <div class="w-[30%] no-scrollbar text-center text-sm md:text-base">{{ local.username }}</div>
       <div class="w-[20%] no-scrollbar text-center text-sm md:text-base">{{ local.status }}</div>
       <div class="w-[20%] text-center text-sm md:text-base">{{ local.actions }}</div>
-      <chevron-down-icon class="h-4 w-4 md:h-5 md:w-5 text-background-3"/>
+      <i class="pi pi-chevron-down text-base md:text-lg mx-1 text-background-3"/>
     </div>
     <div class="h-full w-full flex justify-center items-center pt-16" v-if="isLoading">
       <loader/>
@@ -17,7 +17,9 @@
       </div>
     </div>
     <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog"
-                         v-for="customer in customers" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog"
+                         @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
+                         v-for="customer in customers" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
+                         @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription"
                          :customer="customer" @change-customer-status="(payload) => {customer.enabled = payload}" v-if="!isLoading && customers.length > 0"/>
   </div>
 </template>
@@ -25,13 +27,12 @@
 <script setup>
 import {computed, ref} from "vue";
 import {useLocalization} from "../store/localizationStore.js";
-import {ChevronDownIcon} from "@heroicons/vue/24/solid/index.js";
+import 'primeicons/primeicons.css';
 import CustomersListItem from "./customersListItem.vue";
-import {PencilSquareIcon} from "@heroicons/vue/24/outline/index.js";
 import Loader from "./loader.vue";
 
 const props = defineProps(['customers', 'isLoading'])
-const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog'])
+const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
@@ -55,6 +56,13 @@ const openLinkDialog = (payload) => {
 
 const openChangePasswordDialog = (payload) => {
   emits('openChangePasswordDialog' , payload)
+}
+
+const openDeleteConfirmationDialog = (payload) => {
+  emits('openDeleteConfirmationDialog' , payload)
+}
+const openDeleteConfirmationDialogSubscription = (payload) => {
+  emits('openDeleteConfirmationDialogSubscription' , payload)
 }
 </script>
 

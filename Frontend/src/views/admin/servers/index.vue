@@ -1,13 +1,15 @@
 <template>
   <admin-layout>
     <server-dialog :show-dialog="showServerDialog" @close-dialog="showServerDialog = false" :server="server" @server-submitted="loadServers"/>
+    <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="servers" :data="deleteServer"
+                                @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="loadServers"/>
     <div class="w-full absolute top-5">
       <div class="w-fit bg-error text-white flex rounded-xl px-2 py-2 mx-auto items-center" v-if="showErrorMessage">
-        <x-circle-icon class="w-5 h-5"/>
+        <i class="pi pi-times-circle text-xl"/>
         <div>{{ errorMessage }}</div>
       </div>
       <div class="w-fit bg-success text-white flex rounded-xl px-2 py-2 mx-auto items-center" v-if="showSuccessMessage">
-        <check-circle-icon class="w-5 h-5"/>
+        <i class="pi pi-check-circle text-xl"/>
         <div>{{ successMessage }}</div>
       </div>
     </div>
@@ -17,30 +19,35 @@
         <button
             @click="updateSubscriptions"
             class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-          <arrow-path-rounded-square-icon class="w-5 h-5"/>
+          <i class="pi pi-sync text-sm mx-1"/>
           {{ displayHelper(windowWidth).smAndUp ? local.syncSubs : '' }}
         </button>
         <button
             @click="updateInbounds"
             class="text-xs md:text-sm outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-          <arrow-path-icon class="w-4 h-4"/>
+          <i class="pi pi-refresh text-sm mx-1"/>
           {{ displayHelper(windowWidth).smAndUp ? local.update : '' }}
           {{ displayHelper(windowWidth).lgAndUp ? local.inbounds : '' }}
         </button>
         <button
             @click="()=>{server = {};showServerDialog = true}"
             class="text-xs md:text-sm mx-2 outline-none border-2 rounded-xl border-success bg-success bg-opacity-20 text-success px-2 md:px-6 py-2 flex space-x-1 items-center">
-          <plus-icon class="w-4 h-4"/>
+          <i class="pi pi-plus text-sm mx-1"/>
           {{ displayHelper(windowWidth).smAndUp ? local.add : '' }}
           {{ displayHelper(windowWidth).lgAndUp ? local.server : '' }}
         </button>
       </div>
     </div>
-    <servers-list @open-edit-server-dialog="openEditServerDialog" :servers="servers" :is-loading="loading"/>
-    <div class="flex mt-6" v-if="!loading">
-      <div
-          class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
-          v-for="i in pages" :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i">{{ i }}
+    <servers-list @open-edit-server-dialog="openEditServerDialog" :servers="servers" :is-loading="loading" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"/>
+    <div class="flex mt-3" v-if="!loading">
+      <div class="flex" v-for="i in pages" >
+        <div class="text-lg" v-if="(pages > 5) && ((i === onboarding-1 && i > 2) || (i === onboarding+2 && i !== pages))">...</div>
+        <div
+            v-if="pages <= 5 || (i === 1 || i === pages || i-1 === onboarding || i+1 === onboarding || i === onboarding)"
+            class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
+            :class="{'bg-opacity-50' : onboarding === i}"
+            @click="onboarding = i">{{ i }}
+        </div>
       </div>
     </div>
   </admin-layout>
@@ -50,18 +57,12 @@ import AdminLayout from "../../../layouts/adminLayout.vue";
 import ServersList from "../../../components/serversList.vue";
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
-import {
-  PlusIcon,
-  ArrowPathIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ArrowPathRoundedSquareIcon
-} from "@heroicons/vue/24/outline/index.js";
 import ServerDialog from "../../../components/serverDialog.vue";
 import {useDataStore} from "../../../store/dataStore.js";
 import axios from "axios";
 import Loader from "../../../components/loader.vue";
 import {displayHelper} from "../../../helpers/displayHelper.js";
+import DeleteConfirmationDialog from "../../../components/deleteConfirmationDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -162,5 +163,12 @@ const updateSubscriptions = () => {
       showErrorMessage.value = false
     }, 2000)
   })
+}
+
+let deleteServer = reactive({})
+let showDeleteConfirmationDialog = ref(false)
+const openDeleteConfirmationDialog = (payload) => {
+  deleteServer = payload
+  showDeleteConfirmationDialog.value = true
 }
 </script>

@@ -1,12 +1,8 @@
 package online.gixmetir.xuipanelmanagerbackend.models;
 
-import jakarta.persistence.*;
 import lombok.*;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionRenewLogEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionLogEntity;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +14,7 @@ import java.time.LocalDateTime;
 public class SubscriptionRenewDto {
     private Long id;
     private Long subscriptionId;
-    private LocalDateTime date;
+//    private LocalDateTime date;
     private Double totalFlow;
     private Integer periodLength;
     private Double price;
@@ -26,10 +22,10 @@ public class SubscriptionRenewDto {
     private LocalDateTime lastModifiedDate;
     private Boolean markAsPaid;
 
-    public SubscriptionRenewDto(SubscriptionRenewLogEntity subscriptionRenewLogEntity) {
+    public SubscriptionRenewDto(SubscriptionLogEntity subscriptionRenewLogEntity) {
         this.id = subscriptionRenewLogEntity.getId();
         this.subscriptionId = subscriptionRenewLogEntity.getSubscription().getId();
-        this.date = subscriptionRenewLogEntity.getDate();
+//        this.date = subscriptionRenewLogEntity.getDate();
         this.totalFlow = new Helper().byteToGB(subscriptionRenewLogEntity.getTotalFlow());
         this.periodLength = subscriptionRenewLogEntity.getPeriodLength();
         this.price = subscriptionRenewLogEntity.getPrice();

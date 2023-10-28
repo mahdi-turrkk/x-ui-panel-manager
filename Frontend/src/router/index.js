@@ -5,6 +5,7 @@ import adminServersPage from '../views/admin/servers/index.vue'
 import adminSubscriptionsPage from '../views/admin/subscriptions/index.vue'
 import adminCustomersPage from '../views/admin/customers/index.vue'
 import adminsListPage from '../views/admin/admins/index.vue'
+import plansListPage from '../views/admin/plans/index.vue'
 import customersPage from '../views/customer/index.vue'
 
 
@@ -35,6 +36,10 @@ const routes = [
             {
                 path: 'admins',
                 component: adminsListPage
+            },
+            {
+                path: 'plans',
+                component: plansListPage
             },
         ]
     },

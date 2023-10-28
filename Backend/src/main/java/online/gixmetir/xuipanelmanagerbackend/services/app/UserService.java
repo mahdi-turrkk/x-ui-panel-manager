@@ -3,23 +3,26 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.LoginModel;
-import online.gixmetir.xuipanelmanagerbackend.entities.AuthenticationEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
-import online.gixmetir.xuipanelmanagerbackend.entities.UserRenewLogEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.*;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.CustomException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.DuplicateException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.ForbiddenException;
+import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
-import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.UserRenewLogRepository;
-import online.gixmetir.xuipanelmanagerbackend.repositories.UserRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.security.jwt.JwtService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,8 +36,9 @@ public class UserService {
     private final AuthenticationRepository authenticationRepository;
     private final UserRenewLogRepository userRenewLogRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionRenewLogRepository subscriptionLogRepository;
 
-    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository) {
+    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository, SubscriptionRenewLogRepository subscriptionLogRepository) {
         this.repository = repository;
         this.authenticationService = authenticationService;
         this.encoder = encoder;
@@ -42,6 +46,7 @@ public class UserService {
         this.authenticationRepository = authenticationRepository;
         this.userRenewLogRepository = userRenewLogRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.subscriptionLogRepository = subscriptionLogRepository;
     }
 
     public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
@@ -50,7 +55,7 @@ public class UserService {
 
     public UserDto create(UserRequest request) throws Exception {
         if (authenticationRepository.findByUsername(request.getUsername()).orElse(null) != null) {
-            throw new Exception("User with username: " + request.getUsername() + " already exists");
+            throw new DuplicateException("User with username: " + request.getUsername() + " already exists");
         }
         UserEntity userEntity = request.toEntity();
         userEntity.setStartDateTime(LocalDateTime.now());
@@ -81,7 +86,7 @@ public class UserService {
     }
 
     @Transactional
-    public AuthDto login(LoginModel loginModel) {
+    public AuthDto login(LoginModel loginModel) throws UsernameOrPasswordWrongException {
         UserEntity entity = authenticationService.loadUserByUsername(loginModel.getUsername());
         if (encoder.matches(loginModel.getPassword(), entity.getPassword())) {
             return AuthDto.builder()
@@ -90,7 +95,7 @@ public class UserService {
                     .build();
 
         } else {
-            throw new IllegalArgumentException("username or password is wrong");
+            throw new UsernameOrPasswordWrongException("username or password is wrong");
         }
     }
 
@@ -109,12 +114,12 @@ public class UserService {
             if (entity.getRole() == Role.Admin) {
                 authenticationEntity = authenticationRepository.findByUserId(changePasswordModel.getUserId()).orElseThrow(() -> new EntityNotFoundException("user not found"));
             } else {
-                throw new Exception("only admin can change password");
+                throw new ForbiddenException("only admin can change password");
             }
         } else {
             if (encoder.matches(changePasswordModel.getOldPassword(), entity.getPassword())) {
                 authenticationEntity = authenticationRepository.findByUserId(entity.getId()).orElseThrow(() -> new EntityNotFoundException("user not found"));
-            } else throw new Exception("old password doesnt.");
+            } else throw new IllegalArgumentException("old password doesnt matched.");
         }
         authenticationEntity.setPassword(encoder.encode(changePasswordModel.getNewPassword()));
         authenticationRepository.save(authenticationEntity);
@@ -153,12 +158,89 @@ public class UserService {
     }
 
 
-    public void getUserBalance(Long id) {
-        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserIdAndMarkAsPaid(id, true);
-        double balance = 0;
-        for (SubscriptionEntity subscriptionEntity : subscriptionEntities) {
-            balance += subscriptionEntity.getPrice();
+    public ResponseEntity<InputStreamResource> getUserReport(Long userId) throws FileNotFoundException {
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserId(userId);
+//        double balance = 0;
+        List<Long> ids = subscriptionEntities.stream().map(SubscriptionEntity::getId).toList();
+        List<SubscriptionLogEntity> allBySubscriptionIdInAndMarkAsPaid = subscriptionLogRepository.findAllBySubscriptionIdInAndMarkAsPaid(ids, false);
+//        for (SubscriptionLogEntity subscriptionLogEntity : allBySubscriptionIdInAndMarkAsPaid) {
+//            balance += subscriptionLogEntity.getPrice();
+//        }
 
+        String filePath = createCsvFile(allBySubscriptionIdInAndMarkAsPaid);
+        String fileName = new File(filePath).getName();
+
+        // Open the file as an InputStream
+        InputStream stream = new FileInputStream(filePath);
+
+        // Set the HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        // Wrap the InputStream in an InputStreamResource
+        InputStreamResource resource = new InputStreamResource(stream);
+
+        // Return the ResponseEntity with the InputStreamResource and headers
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(new File(filePath).length())
+                .body(resource);
+//        return createCsvFile(allBySubscriptionIdInAndMarkAsPaid);
+    }
+
+    private String createCsvFile(List<SubscriptionLogEntity> logs) {
+
+        String csvFileName = "./report.csv";
+
+        try {
+            // Remove the existing file if it exists
+            File existingFile = new File(csvFileName);
+            if (existingFile.exists()) {
+                existingFile.delete();
+            }
+            // Create a FileWriter and specify the CSV file name
+            FileWriter csvWriter = new FileWriter(csvFileName);
+
+
+            csvWriter.append("حجم");
+            csvWriter.append(" , ");
+            csvWriter.append("طول بازه زمانی");
+            csvWriter.append(" , ");
+            csvWriter.append("تاریخ");
+            csvWriter.append(" , ");
+            csvWriter.append("مبلغ");
+            csvWriter.append("\n");
+
+
+            Double sumOfPrices = 0D;
+            Helper helper = new Helper();
+            // Write the data to the CSV file
+            for (SubscriptionLogEntity log : logs) {
+                csvWriter.append(String.valueOf(helper.byteToGB(log.getTotalFlow()))).append(" GB");
+                csvWriter.append(" , ");
+                csvWriter.append(log.getPeriodLength().toString()).append(" روز ");
+                csvWriter.append(" , ");
+                csvWriter.append(log.getCreateDate().toLocalDate().toString());
+                csvWriter.append(" , ");
+                csvWriter.append(log.getPrice().toString());
+                csvWriter.append("\n");
+                sumOfPrices += log.getPrice();
+            }
+            csvWriter.append("\n");
+            csvWriter.append(sumOfPrices.toString());
+            csvWriter.append(" تومان ");
+            csvWriter.append(" , ");
+            csvWriter.append("جمع کل : ");
+
+
+            // Close the FileWriter
+            csvWriter.close();
+            return csvFileName;
+
+        } catch (IOException e) {
+            throw new CustomException(e.getMessage());
         }
     }
+
 }
