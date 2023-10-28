@@ -125,9 +125,8 @@ public class SubscriptionService {
 
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
-
             createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW);
-
+            subscriptionEntityFromDb.setMarkAsPaid(false);
         } else {
             request.toEntity(subscriptionEntityFromDb);
 //            subscriptionEntityFromDb.setPrice(planEntity.getPrice());
@@ -157,14 +156,14 @@ public class SubscriptionService {
     then it will enable the clients if that are disabled
      */
     private void reNewSubscription(SubscriptionEntity subscription, SubscriptionRequest request) throws Exception {
-        subscription.setPeriodLength(request.getPeriodLength());
+        subscription.setPeriodLength(subscription.getPeriodLength() + request.getPeriodLength());
         // increase user total user when renew subscription
         UserEntity userEntity = userRepository.findById(subscription.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
         userEntity.setTotalUsed(userEntity.getTotalUsed() + request.getTotalFlow());
 
         if (subscription.getExpireDate() != null) {
             if (subscription.getExpireDate().isBefore(LocalDateTime.now())) {
-                subscription.setTotalUsed(subscription.getTotalUsed() + request.getTotalFlow());
+                subscription.setTotalUsed(subscription.getTotalFlow());
                 subscription.setExpireDate(LocalDateTime.now().plusDays(request.getPeriodLength()));
             } else {
                 if (subscription.getTotalUsed() >= subscription.getTotalFlow()) {
@@ -174,8 +173,6 @@ public class SubscriptionService {
             }
         }
         subscription.setTotalFlow(subscription.getTotalFlow() + new Helper().GBToByte(request.getTotalFlow()));
-        subscription.setPeriodLength(subscription.getPeriodLength() + request.getPeriodLength());
-
         subscription.setStatus(true);
         List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionId(subscription.getId());
         List<ClientEntity> clientEntitiesMustToUpdateInPanel = new ArrayList<>();
@@ -216,7 +213,7 @@ public class SubscriptionService {
     @Transactional
     public SubscriptionDto changeStatus(Boolean newStatus, Long id) throws Exception {
         SubscriptionEntity entity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
-        if (entity.isExpired()) {
+        if (entity.isExpired() && !entity.getStatus() && newStatus) {
             throw new CustomException("اشتراک منقضی شده است نمیتوان دوباره آن را فعال کرد ");
         }
         entity.setStatus(newStatus);
