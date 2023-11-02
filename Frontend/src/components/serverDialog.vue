@@ -103,7 +103,8 @@ const saveServer = () => {
             url: serverUrl.value,
             username: serverUsername.value,
             password: serverPassword.value,
-            generatable: props.server.generatable
+            generatable: props.server.generatable,
+            status: props.server.status
           },
           {
             headers: {
