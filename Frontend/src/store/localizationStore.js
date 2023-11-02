@@ -127,7 +127,9 @@ export const useLocalization = defineStore('localize', {
                     errorGettingHistory : 'مشکلی در دریافت تاریخچه تمدید پیش آمده،دوباره تلاش کنید.',
                     renewHistory: 'تاریخچه تمدید ها',
                     errorOccurredWhileChangingStatus : 'مشکلی پیش آمده.دوباره تلاش کنید.',
-                    downloadReport: 'دانلود گزارش'
+                    downloadReport: 'دانلود گزارش',
+                    debt : "میزان بدهی",
+                    soldFlow: "میزان فروش"
                 },
                 en: {
                     username: 'Username',
@@ -249,7 +251,9 @@ export const useLocalization = defineStore('localize', {
                     errorGettingHistory : 'Error occurred getting renew history,Try again.',
                     renewHistory : 'Renew history',
                     errorOccurredWhileChangingStatus : 'Error occurred while changing status.Try again.',
-                    downloadReport  : 'Download report'
+                    downloadReport  : 'Download report',
+                    debt : "Debt",
+                    soldFlow : "Sold flow"
                 },
             }
         }
