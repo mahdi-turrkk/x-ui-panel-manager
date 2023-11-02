@@ -2,7 +2,7 @@
   <admin-layout>
     <subscription-renew-history-dialog user-type="Admin" :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
     <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
-    <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
+    <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" user-type="Admin"
                          :subscription="subscription" :type="subDialogType" @subs-added="addNewSubsToList"/>
     <delete-confirmation-dialog :show-dialog="showDeleteConfirmationDialog" title="subscriptions" :data="deleteSubscription"
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getSubscriptions"/>

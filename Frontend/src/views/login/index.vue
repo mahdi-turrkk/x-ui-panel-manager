@@ -154,7 +154,7 @@ onMounted(() => {
     ).then((response) => {
       if (response.data === 'Admin')
         router.push('/admin')
-      else if (response.data === 'Customer')
+      else if (response.data === 'Customer' || response.data === 'SuperCustomer')
         router.push('/customer')
     })
   }

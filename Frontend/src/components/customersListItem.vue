@@ -71,6 +71,15 @@
                   {{ local.changePassword }}
                 </div>
               </div>
+              <div class="relative" v-if="customerType === 'SuperCustomer'">
+                <i class="pi pi-refresh text-lg md:text-xl mx-1 text-success" @mouseenter="showRenewTag = true"
+                   @mouseleave="showRenewTag = false"
+                   @click="emits('openRenewCustomerDialog' , customer)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showRenewTag">
+                  {{ local.renew}} {{ local.superCustomer}}
+                </div>
+              </div>
               <div class="relative">
                 <i class="pi pi-trash text-lg md:text-xl mx-1 text-error" @mouseenter="showDeleteTag = true"
                             @mouseleave="showDeleteTag = false"
@@ -151,8 +160,8 @@ import 'primeicons/primeicons.css';
 import axios from "axios";
 import Loader from "./loader.vue";
 
-let props = defineProps(['onboarding', 'customer'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog'])
+let props = defineProps(['onboarding', 'customer' , 'customerType'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog' , 'openRenewCustomerDialog'])
 
 const expansionText = ref(null)
 let onboardingSubsPage = ref(1)
@@ -175,6 +184,7 @@ let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
 let isLoading = ref(true)
 let showDownloadReportTag = ref(false)
+let showRenewTag = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'

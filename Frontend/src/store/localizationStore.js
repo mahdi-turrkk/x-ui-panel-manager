@@ -129,7 +129,10 @@ export const useLocalization = defineStore('localize', {
                     errorOccurredWhileChangingStatus : 'مشکلی پیش آمده.دوباره تلاش کنید.',
                     downloadReport: 'دانلود گزارش',
                     debt : "میزان بدهی",
-                    soldFlow: "میزان فروش"
+                    soldFlow: "میزان فروش",
+                    superCustomer: 'فروشنده',
+                    superCustomers: 'فروشنده‌ها',
+                    pricePerUse: 'قیمت به ازای هر گیگ'
                 },
                 en: {
                     username: 'Username',
@@ -253,7 +256,10 @@ export const useLocalization = defineStore('localize', {
                     errorOccurredWhileChangingStatus : 'Error occurred while changing status.Try again.',
                     downloadReport  : 'Download report',
                     debt : "Debt",
-                    soldFlow : "Sold flow"
+                    soldFlow : "Sold flow",
+                    superCustomer: 'Vendor',
+                    superCustomers: 'Vendors',
+                    pricePerUse: 'Price per GB'
                 },
             }
         }

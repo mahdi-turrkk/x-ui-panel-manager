@@ -17,9 +17,9 @@
       </div>
     </div>
     <customers-list-item @open-edit-customer-dialog="openEditCustomerDialog" @open-link-dialog="openLinkDialog"
-                         @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
+                         @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}" :customer-type="customerType"
                          v-for="customer in customers" :onboarding="onboarding" @set-onboarding="setOnboarding" @open-change-password-dialog="openChangePasswordDialog" @open-delete-confirmation-dialog="openDeleteConfirmationDialog"
-                         @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription"
+                         @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription" @open-renew-customer-dialog="(payload) => {emits('openRenewCustomerDialog' , payload)}"
                          :customer="customer" @change-customer-status="(payload) => {customer.enabled = payload}" v-if="!isLoading && customers.length > 0"/>
   </div>
 </template>
@@ -31,8 +31,8 @@ import 'primeicons/primeicons.css';
 import CustomersListItem from "./customersListItem.vue";
 import Loader from "./loader.vue";
 
-const props = defineProps(['customers', 'isLoading'])
-const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog'])
+const props = defineProps(['customers', 'isLoading' , 'customerType'])
+const emits = defineEmits(['openEditCustomerDialog', 'openLinkDialog' , 'openChangePasswordDialog' , 'openDeleteConfirmationDialog' , 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog' , 'openRenewCustomerDialog'])
 
 const setOnboarding = (index) => {
   if (index == onboarding.value) {
