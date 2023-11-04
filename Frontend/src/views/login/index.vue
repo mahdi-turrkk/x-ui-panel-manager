@@ -100,7 +100,7 @@ const signIn = () => {
       document.cookie = `direction=${useLocalization().getDirection}`
       if (response.data.role === 'Admin')
         router.push('/admin')
-      else if (response.data.role === 'Customer')
+      else if (response.data.role === 'Customer' || response.data.role === 'SuperCustomer')
         router.push('/customer')
     }).catch((error) => {
       errorMessage.value = local.value.errorLoggingIn

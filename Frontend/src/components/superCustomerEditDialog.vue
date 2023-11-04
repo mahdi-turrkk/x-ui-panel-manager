@@ -28,18 +28,18 @@
                :class="{'-mt-[8px] opacity-100' : lastName}">{{ local.lastName }}</label>
         <input type="text" :placeholder="local.lastName" v-model="lastName"
                class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-        <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
-               :class="{'mt-0 opacity-100' : totalFlow}">{{ local.totalFlow }}</label>
-        <input type="number" :placeholder="local.totalFlow + '(' + 'GB' + ')'" v-model="totalFlow"
-               class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-        <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
-               :class="{'mt-0 opacity-100' : periodLength}">{{ local.periodLength }}</label>
-        <input type="number" :placeholder="local.periodLength" v-model="periodLength"
-               class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
-        <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
-               :class="{'mt-0 opacity-100' : pricePerUse}">{{ local.pricePerUse }}</label>
-        <input type="number" :placeholder="local.pricePerUse" v-model="pricePerUse"
-               class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
+<!--        <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"-->
+<!--               :class="{'mt-0 opacity-100' : totalFlow}">{{ local.totalFlow }}</label>-->
+<!--        <input type="number" :placeholder="local.totalFlow + '(' + 'GB' + ')'" v-model="totalFlow"-->
+<!--               class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>-->
+<!--        <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"-->
+<!--               :class="{'mt-0 opacity-100' : periodLength}">{{ local.periodLength }}</label>-->
+<!--        <input type="number" :placeholder="local.periodLength" v-model="periodLength"-->
+<!--               class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>-->
+<!--        <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"-->
+<!--               :class="{'mt-0 opacity-100' : pricePerUse}">{{ local.pricePerUse }}</label>-->
+<!--        <input type="number" :placeholder="local.pricePerUse" v-model="pricePerUse"-->
+<!--               class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>-->
         <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
                :class="{'-mt-[8px] opacity-100' : phoneNumber}">{{ local.phoneNumber }}</label>
         <input type="tel" :placeholder="local.phoneNumber" v-model="phoneNumber"
@@ -118,7 +118,7 @@ watch(() => props.customer, (newVal) => {
   periodLength.value = props.customer.periodLength
   isIndefiniteExpirationTime.value = props.customer.isIndefiniteExpirationTime
   isIndefiniteFlow.value = props.customer.isIndefiniteFlow
-  pricePerUse.value = props.customer.pricePerUse
+  pricePerUse.value = props.customer.pricePerGb
 })
 
 const emits = defineEmits(['closeDialog', 'customerEdited'])
@@ -154,7 +154,7 @@ const saveCustomer = () => {
           periodLength: periodLength.value,
           isIndefiniteFlow: isIndefiniteFlow.value,
           isIndefiniteExpirationTime: isIndefiniteExpirationTime.value,
-          pricePerUse: pricePerUse.value
+          pricePerGb: pricePerUse.value
         },
         {
           headers: {

@@ -18,7 +18,7 @@
           class="bg-background-3 text-error w-6 h-6 rounded-full absolute -top-2 -right-2 flex justify-center items-center border border-error hover:brightness-125 cursor-pointer">
         <i class="pi pi-times text-base mx-1"/>
       </div>
-      <div class="text-center font-bold mb-4">{{ local.customer }}</div>
+      <div class="text-center font-bold mb-4">{{ local.superCustomer }}</div>
       <div class="flex flex-col overflow-y-scroll no-scrollbar">
         <label class="z-0 px-2 pb-3 -mt-[35px] opacity-0 transition-all duration-200"
                :class="{'mt-0 opacity-100' : firstName}">{{ local.firstName }}</label>
@@ -164,7 +164,7 @@ const saveCustomer = () => {
           periodLength: periodLength.value,
           isIndefiniteFlow: isIndefiniteFlow.value,
           isIndefiniteExpirationTime: isIndefiniteExpirationTime.value,
-          pricePerUse: pricePerUse.value
+          pricePerGb: pricePerUse.value
         },
         {
           headers: {
