@@ -15,7 +15,7 @@ public class Helper {
         return items[0];
     }
 
-    public double byteToGB(Long byteNumber) {
+    public double  byteToGB(Long byteNumber) {
         if (byteNumber == null) return 0;
         return (double) byteNumber / 1024 / 1024 / 1024;
     }

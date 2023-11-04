@@ -4,6 +4,7 @@ import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.ChangePasswordModel;
 import online.gixmetir.xuipanelmanagerbackend.models.UserDto;
 import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
+import online.gixmetir.xuipanelmanagerbackend.models.UserSelfDetails;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -37,8 +38,8 @@ public class UserController {
     }
 
     @PutMapping("/renew")
-    public ResponseEntity<UserDto> renew(@RequestParam Long id, @RequestBody UserRequest request) {
-        return ResponseEntity.ok(service.renew(id, request));
+    public void renew(@RequestParam Long id, @RequestBody UserRequest request) {
+        service.renew(id, request);
     }
 
     @DeleteMapping("/delete")
@@ -59,5 +60,10 @@ public class UserController {
     @GetMapping("/download-user-report")
     public ResponseEntity<InputStreamResource> downloadUserReport(@RequestParam Long userId) throws Exception {
         return service.getUserReport(userId);
+    }
+
+    @GetMapping("/self-details")
+    public ResponseEntity<UserSelfDetails> getSelfDetails() throws Exception {
+        return ResponseEntity.ok(service.getSelfDetails());
     }
 }

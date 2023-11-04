@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import online.gixmetir.xuipanelmanagerbackend.models.UserLogType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -31,4 +32,7 @@ public class UserRenewLogEntity {
     private Long totalFlow;
     @Column(name = "period_length")
     private Integer periodLength;
+    @Column(name = "log_type")
+    @Enumerated(EnumType.STRING)
+    private UserLogType userLogType;
 }

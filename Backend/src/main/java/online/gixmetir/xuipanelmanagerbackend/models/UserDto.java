@@ -25,6 +25,10 @@ public class UserDto {
     private double totalFlow;
     private LocalDateTime expirationDateTime;
     private LocalDateTime startDateTime;
+    private Boolean isIndefiniteFlow;
+    private Boolean isIndefiniteExpirationTime;
+    private Double pricePerGb;
+    private Long payedAmount;
 
 
     public UserDto(UserEntity entity) {
@@ -42,5 +46,9 @@ public class UserDto {
         this.totalFlow = helper.byteToGB(entity.getTotalFlow());
         this.expirationDateTime = entity.getExpirationDateTime();
         this.startDateTime = entity.getStartDateTime();
+        this.pricePerGb = entity.getPricePerGb();
+        this.payedAmount = entity.getPayedAmount();
+        this.isIndefiniteFlow = entity.getIsIndefiniteFlow();
+        this.isIndefiniteExpirationTime = entity.getIsIndefiniteExpirationTime();
     }
 }

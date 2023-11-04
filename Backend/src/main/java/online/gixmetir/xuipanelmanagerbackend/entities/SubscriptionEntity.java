@@ -59,7 +59,7 @@ public class SubscriptionEntity {
     private Boolean markAsPaid;
 
     public boolean isExpired() {
-        return expireDate.isBefore(LocalDateTime.now()) || totalFlow <= totalUsed;
+        return expireDate != null && expireDate.isBefore(LocalDateTime.now()) || totalUsed != null && totalFlow <= totalUsed;
     }
 
 }

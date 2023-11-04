@@ -33,4 +33,5 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     Long getTotalDownload();
 
     List<SubscriptionEntity> findAllByUserId(Long userId);
+
 }

@@ -51,13 +51,15 @@ public class SubscriptionService {
     public List<SubscriptionDto> createSubscription(SubscriptionRequest request) throws Exception {
         List<SubscriptionEntity> subscriptionEntities = new ArrayList<>();
         UserEntity userEntity = new Helper().getUserFromContext();
+        boolean hasAccess = isUserAllowToCreateSubscription(userEntity, request);
+        if (!hasAccess)
+            throw new ForbiddenException("user is not allowed to create subscription.");
         request.setUserId(userEntity.getId());
         for (int i = 0; i < request.getNumberSubscriptionsToGenerate(); i++) {
             SubscriptionEntity entity = request.toEntity();
             entity.setUuid(UUID.randomUUID().toString());
             entity.setStatus(true);
             subscriptionEntities.add(entity);
-//            entity.setPrice(planEntity.getPrice());
             // increase user total used
             long totalUsed = (userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed()) + entity.getTotalFlow();
             userEntity.setTotalUsed(totalUsed);
@@ -65,12 +67,44 @@ public class SubscriptionService {
 
         subscriptionRepository.saveAll(subscriptionEntities);
         subscriptionEntities.forEach(a -> {
-            PlanEntity planEntity = getPriceOfSubscription((long) new Helper().byteToGB(a.getTotalFlow()), a.getPeriodLength());
-            createLog(a, request, planEntity, SubscriptionLogType.CREATE);
+            if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
+                double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
+
+                createLog(a, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE);
+            } else {
+                PlanEntity planEntity = getPriceOfSubscription((long) new Helper().byteToGB(a.getTotalFlow()), a.getPeriodLength());
+                createLog(a, request, planEntity, SubscriptionLogType.CREATE);
+            }
+
         });
         userRepository.save(userEntity);
         addOrUpdateClientsRelatedToSubscription(subscriptionEntities);
         return subscriptionEntities.stream().map(SubscriptionDto::new).toList();
+    }
+
+    private boolean isUserAllowToCreateSubscription(UserEntity userEntity, SubscriptionRequest request) {
+
+        Helper helper = new Helper();
+        Long totalFlow = userEntity.getTotalFlow() == null ? 0 : userEntity.getTotalFlow();
+        Long totalUsed = userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed();
+        long remainingFlow = totalFlow - totalUsed;
+        long requestedFlow = helper.GBToByte(request.getTotalFlow() * request.getNumberSubscriptionsToGenerate());
+        if (userEntity.getRole() == Role.SuperCustomer) {
+            if (userEntity.getIsIndefiniteExpirationTime()) {
+                if (userEntity.getIsIndefiniteFlow()) {
+                    return true;
+                } else {
+                    return remainingFlow >= requestedFlow;
+                }
+            } else {
+                if (userEntity.getIsIndefiniteFlow()) {
+                    return userEntity.getExpirationDateTime().isAfter(LocalDateTime.now());
+                } else {
+                    return remainingFlow >= requestedFlow && userEntity.getExpirationDateTime().isAfter(LocalDateTime.now());
+                }
+            }
+        }
+        return true;
     }
 
     private PlanEntity getPriceOfSubscription(Long totalFlow, Integer periodLength) {
@@ -121,14 +155,23 @@ public class SubscriptionService {
 
     public SubscriptionDto update(Long id, SubscriptionRequest request, SubscriptionUpdateType updateType) throws Exception {
         SubscriptionEntity subscriptionEntityFromDb = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
-        PlanEntity planEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
+        UserEntity userEntity = new Helper().getUserFromContext();
 
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
-            createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW);
+//            createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW);
+            if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
+                double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
+                createLog(subscriptionEntityFromDb, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE);
+            } else {
+                PlanEntity planEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
+
+                createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.CREATE);
+            }
             subscriptionEntityFromDb.setMarkAsPaid(false);
         } else {
             request.toEntity(subscriptionEntityFromDb);
+            // todo edit log for edited sub  and log type is create
 //            subscriptionEntityFromDb.setPrice(planEntity.getPrice());
         }
 
@@ -159,7 +202,8 @@ public class SubscriptionService {
         subscription.setPeriodLength(subscription.getPeriodLength() + request.getPeriodLength());
         // increase user total user when renew subscription
         UserEntity userEntity = userRepository.findById(subscription.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        userEntity.setTotalUsed(userEntity.getTotalUsed() + request.getTotalFlow());
+        Helper helper = new Helper();
+        userEntity.setTotalUsed(userEntity.getTotalUsed() + helper.GBToByte(request.getTotalFlow()));
 
         if (subscription.getExpireDate() != null) {
             if (subscription.getExpireDate().isBefore(LocalDateTime.now())) {
@@ -172,7 +216,7 @@ public class SubscriptionService {
                     subscription.setExpireDate(subscription.getExpireDate().plusDays(request.getPeriodLength()));
             }
         }
-        subscription.setTotalFlow(subscription.getTotalFlow() + new Helper().GBToByte(request.getTotalFlow()));
+        subscription.setTotalFlow(subscription.getTotalFlow() + helper.GBToByte(request.getTotalFlow()));
         subscription.setStatus(true);
         List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionId(subscription.getId());
         List<ClientEntity> clientEntitiesMustToUpdateInPanel = new ArrayList<>();
@@ -194,12 +238,19 @@ public class SubscriptionService {
         List<ClientEntity> clients = clientRepository.findAllBySubscriptionId(id);
         panelService.deleteClients(clients);
         clientRepository.deleteAll(clients);
-        subscriptionRepository.deleteById(id);
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
+        UserEntity userEntity = userRepository.findById(subscriptionEntity.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Helper helper = new Helper();
+        long notUsedFlow = Math.abs((long) helper.byteToGB(subscriptionEntity.getTotalFlow() - (subscriptionEntity.getTotalUsed() == null ? 0 : subscriptionEntity.getTotalUsed())));
+        userEntity.setTotalUsed(userEntity.getTotalUsed() == null ? 0 : userEntity.getTotalUsed() - helper.GBToByte(notUsedFlow));
+        subscriptionReNewLogRepository.deleteAllBySubscriptionId(subscriptionEntity.getId());
+        subscriptionRepository.delete(subscriptionEntity);
+        userRepository.save(userEntity);
     }
 
     public Page<SubscriptionDto> getAll(SubscriptionFilter filter, Pageable pageable, Boolean selfSubs) throws Exception {
         UserEntity entity = new Helper().getUserFromContext();
-        if (entity.getRole() == Role.Customer) {
+        if (entity.getRole() == Role.Customer || entity.getRole() == Role.SuperCustomer) {
             SubscriptionFilter filter1 = new SubscriptionFilter(filter.id(), filter.Uuid(), filter.status(), filter.title(), entity.getId());
             return subscriptionRepository.findAll(filter1, pageable).map(SubscriptionDto::new);
         }
@@ -207,6 +258,7 @@ public class SubscriptionService {
             SubscriptionFilter filter1 = new SubscriptionFilter(filter.id(), filter.Uuid(), filter.status(), filter.title(), entity.getId());
             return subscriptionRepository.findAll(filter1, pageable).map(SubscriptionDto::new);
         }
+
         return subscriptionRepository.findAll(filter, pageable).map(SubscriptionDto::new);
     }
 
