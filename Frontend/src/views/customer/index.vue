@@ -213,7 +213,7 @@
           </button>
         </div>
         <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
-                            user-type="Customer"
+                            :user-type="customerType"
                             @open-link-dialog="openLinkDialog" :is-loading="loading"
                             @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
         <div class="flex mt-3" v-if="!loading">
@@ -257,6 +257,7 @@ const changeThemeStatus = () => {
 }
 
 let showLangMenu = ref(false)
+let customerType = ref("")
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
@@ -403,6 +404,7 @@ onMounted(() => {
           }
         }
     ).then((response) => {
+      customerType.value = response.data
       if (response.data !== 'Customer' && response.data !== 'SuperCustomer'){
         router.push('/')
       }
