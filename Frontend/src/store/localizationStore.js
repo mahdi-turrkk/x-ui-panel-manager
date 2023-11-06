@@ -132,7 +132,8 @@ export const useLocalization = defineStore('localize', {
                     soldFlow: "میزان فروش",
                     superCustomer: 'فروشنده',
                     superCustomers: 'فروشنده‌ها',
-                    pricePerUse: 'قیمت به ازای هر گیگ'
+                    pricePerUse: 'قیمت به ازای هر گیگ',
+                    userDetail : 'اطلاعات کاربر'
                 },
                 en: {
                     username: 'Username',
@@ -259,7 +260,8 @@ export const useLocalization = defineStore('localize', {
                     soldFlow : "Sold flow",
                     superCustomer: 'Vendor',
                     superCustomers: 'Vendors',
-                    pricePerUse: 'Price per GB'
+                    pricePerUse: 'Price per GB',
+                    userDetail : 'User detail'
                 },
             }
         }

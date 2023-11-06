@@ -5,6 +5,7 @@
                             :isSelf="true"/>
     <subscription-renew-history-dialog user-type="Customer" :show-dialog="showRenewHistoryDialog"
                                        @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
+    <user-detail-dialog :show-dialog="showUserDetailDialog" @close-dialog="showUserDetailDialog = false" :user-detail="userDetail"/>
     <div class="col-span-12 relative z-20 bg-background-3">
       <div class="px-4 py-4">
         <div class="flex items-center justify-between">
@@ -32,6 +33,14 @@
               <i class="pi pi-search text-xl text-info-3"/>
               <div class="absolute -bottom-6 bg-background-3 text-info-3 rounded-lg py-1 px-4 text-sm w-max"
                    v-if="showLookupTag">{{ local.subLookUp }}
+              </div>
+            </button>
+            <button @click="showUserDetailDialog = true"
+                    @mouseenter="showUserDetailTag = true" @mouseleave="showUserDetailTag = false"
+                    class="relative p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 lg:hidden">
+              <i class="pi pi-id-card text-xl text-info-3"/>
+              <div class="absolute -bottom-6 bg-background-3 text-info-3 rounded-lg py-1 px-4 text-sm w-max"
+                   v-if="showUserDetailTag">{{ local.userDetail }}
               </div>
             </button>
           </div>
@@ -245,6 +254,7 @@ import SubLookupDialog from "../../components/subLookupDialog.vue";
 import axios from "axios";
 import ChangePasswordDialog from "../../components/changePasswordDialog.vue";
 import SubscriptionRenewHistoryDialog from "../../components/subscriptionRenewHistoryDialog.vue";
+import UserDetailDialog from "../../components/userDetailDialog.vue";
 
 let isDark = computed(() => {
   return useDataStore().getDarkStatus
@@ -326,6 +336,8 @@ let pages = ref(1)
 let onboarding = ref(1)
 let showSubscriptionDialog = ref(false)
 let showLinkDialog = ref(false)
+let showUserDetailDialog = ref(false)
+let showUserDetailTag = ref(false)
 const openRenewSubscriptionDialog = (payload) => {
   subscription = payload
   subEditType.value = 'ReNew'
