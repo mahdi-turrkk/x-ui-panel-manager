@@ -74,6 +74,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/api/v1/plans/*").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("api/v1/servers/*").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/user-payment-logs/*").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("v3/api-docs/**", "swagger-ui/*", "api/v1/authentication/*", "/api/v1/subscriptions/client/**").permitAll()
                                 .anyRequest().authenticated()
 
