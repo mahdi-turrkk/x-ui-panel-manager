@@ -72,6 +72,15 @@
                 </div>
               </div>
               <div class="relative" v-if="customerType === 'SuperCustomer'">
+                <i class="pi pi-credit-card text-lg md:text-xl mx-1 text-success" @mouseenter="showAddPaymentTag = true"
+                   @mouseleave="showAddPaymentTag = false"
+                   @click="emits('openAddPaymentDialog' , customer)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showAddPaymentTag">
+                  {{ local.addPayment }}
+                </div>
+              </div>
+              <div class="relative" v-if="customerType === 'SuperCustomer'">
                 <i class="pi pi-refresh text-lg md:text-xl mx-1 text-success" @mouseenter="showRenewTag = true"
                    @mouseleave="showRenewTag = false"
                    @click="emits('openRenewCustomerDialog' , customer)"/>
@@ -127,14 +136,13 @@
                                 @change-subscription-pay-status="(payload) => {subscription.markAsPaid = payload}"
                                 @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
-        <div class="flex mt-6" v-if="!loading">
-          <div class="flex" v-for="i in pages" >
+        <div class="flex mt-6" v-if="!isLoading">
+          <div class="flex" v-for="i in subsPages" >
             <div
                 class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
                 :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i">{{ i }}
             </div>
           </div>
-
         </div>
         <div class="flex mt-3">
           <div class="flex" v-for="i in subsPages" >
@@ -162,7 +170,7 @@ import axios from "axios";
 import Loader from "./loader.vue";
 
 let props = defineProps(['onboarding', 'customer' , 'customerType'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog' , 'openRenewCustomerDialog'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog' , 'openRenewCustomerDialog' , 'openAddPaymentDialog'])
 
 const expansionText = ref(null)
 let onboardingSubsPage = ref(1)
@@ -186,6 +194,7 @@ let showDeactivateTag = ref(false)
 let isLoading = ref(true)
 let showDownloadReportTag = ref(false)
 let showRenewTag = ref(false)
+let showAddPaymentTag = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'

@@ -11,6 +11,7 @@
                                 @close-dialog="showDeleteConfirmationDialog = false" @delete-complete="getCustomers"/>
     <subscription-renew-history-dialog  userType="Admin" :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscriptionHistory"/>
     <super-customer-renew-dialog :customer="customer" :show-dialog="showRenewCustomerDialog" @close-dialog="showRenewCustomerDialog = false" @customer-edited="getCustomers"/>
+    <add-payment-dialog @close-dialog="showAddPaymentDialog = false" :show-dialog="showAddPaymentDialog" :user="customer"/>
     <div class=" rounded-xl w-full py-3 px-2 md:px-4 flex justify-between items-center">
       <div class="text-info-3 font-bold text-lg">{{ local.superCustomers }}</div>
       <button
@@ -24,6 +25,7 @@
                     @open-renew-history-dialog="(payload) => {subscriptionHistory = payload;showRenewHistoryDialog = true}"
                     @open-link-dialog="openLinkDialog" :is-loading="loading" @open-renew-customer-dialog="openRenewCustomerDialog"
                     @open-change-password-dialog="openChangePasswordDialog"
+                    @open-add-payment-dialog="openAddPaymentDialog"
                     @open-delete-confirmation-dialog-subscription="openDeleteConfirmationDialogSubscription"
                     @open-delete-confirmation-dialog="openDeleteConfirmationDialog"/>
     <div class="flex mt-3" v-if="!loading">
@@ -53,6 +55,7 @@ import SubscriptionRenewHistoryDialog from "../../../components/subscriptionRene
 import SuperCustomerAddDialog from "../../../components/superCustomerAddDialog.vue";
 import SuperCustomerEditDialog from "../../../components/superCustomerEditDialog.vue";
 import SuperCustomerRenewDialog from "../../../components/superCustomerRenewDialog.vue";
+import AddPaymentDialog from "../../../components/addPaymentDialog.vue";
 
 let local = computed(() => {
   return useLocalization().getLocal
@@ -65,6 +68,7 @@ let showCustomerEditDialog = ref(false)
 let showLinkDialog = ref(false)
 let showRenewHistoryDialog = ref(false)
 let showRenewCustomerDialog = ref(false)
+let showAddPaymentDialog = ref(false)
 
 let subscriptionHistory = reactive({})
 
@@ -120,6 +124,11 @@ const showChangePasswordDialog = ref(false)
 const openChangePasswordDialog = (payload) => {
   passwordEditUserId.value = payload
   showChangePasswordDialog.value = true
+}
+
+const openAddPaymentDialog = (payload) => {
+  customer = payload
+  showAddPaymentDialog.value = true
 }
 
 let deleteObj = reactive({})
