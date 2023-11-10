@@ -21,7 +21,7 @@ public class UserPaymentLogDto {
 
     public UserPaymentLogDto(UserPaymentLogEntity userPaymentLogEntity) {
         this.id = userPaymentLogEntity.getId();
-        this.userId = userPaymentLogEntity.getUser().getId();
+        this.userId = userPaymentLogEntity.getUserId();
         this.user = userPaymentLogEntity.getUser();
         this.date = userPaymentLogEntity.getDate();
         this.lastModifiedDate = userPaymentLogEntity.getLastModifiedDate();
