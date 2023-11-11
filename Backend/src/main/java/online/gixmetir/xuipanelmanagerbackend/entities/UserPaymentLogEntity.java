@@ -9,14 +9,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users-renew-log")
+@Table(name = "users_payment_log")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class UserRenewLogEntity {
+public class UserPaymentLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,11 +28,9 @@ public class UserRenewLogEntity {
     @Column(name = "date")
     @CreatedDate
     private LocalDateTime date;
-    @Column(name = "total_flow")
-    private Long totalFlow;
-    @Column(name = "period_length")
-    private Integer periodLength;
-    @Column(name = "log_type")
-    @Enumerated(EnumType.STRING)
-    private UserLogType userLogType;
+    @Column(name = "last_modified_date")
+    private LocalDateTime lastModifiedDate;
+    @Column(name = "pay_amount")
+    private Double payAmount;
 }
+

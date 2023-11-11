@@ -23,8 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.time.Duration;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,8 +38,9 @@ public class UserService {
     private final UserRenewLogRepository userRenewLogRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionRenewLogRepository subscriptionLogRepository;
+    private final UserPaymentLogRepository userPaymentLogRepository;
 
-    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository, SubscriptionRenewLogRepository subscriptionLogRepository) {
+    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository, SubscriptionRenewLogRepository subscriptionLogRepository, UserPaymentLogRepository userPaymentLogRepository) {
         this.repository = repository;
         this.authenticationService = authenticationService;
         this.encoder = encoder;
@@ -47,6 +49,7 @@ public class UserService {
         this.userRenewLogRepository = userRenewLogRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.subscriptionLogRepository = subscriptionLogRepository;
+        this.userPaymentLogRepository = userPaymentLogRepository;
     }
 
     public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
@@ -60,16 +63,19 @@ public class UserService {
         UserEntity userEntity = request.toEntity();
         userEntity.setStartDateTime(LocalDateTime.now());
         if (!userEntity.getIsIndefiniteExpirationTime())
-            userEntity.setExpirationDateTime(LocalDateTime.now().plusDays(userEntity.getPeriodLength()));
+            userEntity.setExpirationDateTime(LocalDateTime.now().plusDays(request.getPeriodLength()));
         repository.save(userEntity);
         AuthenticationEntity authenticationEntity = AuthenticationEntity.builder()
                 .password(encoder.encode(request.getPassword()))
                 .username(request.getUsername())
                 .userId(userEntity.getId())
                 .build();
+
         authenticationRepository.save(authenticationEntity);
         userEntity.setAuthenticationId(authenticationEntity.getId());
+
         repository.save(userEntity);
+        createRenewLog(userEntity.getId(), request, UserLogType.CREATE);
         return new UserDto(userEntity);
     }
 
@@ -82,6 +88,10 @@ public class UserService {
 
     public void delete(Long id) {
         UserEntity entity = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("User with id: " + id + "not found"));
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserId(entity.getId());
+        if (!subscriptionEntities.isEmpty())
+            throw new ForbiddenException("you can't delete user witch has subscriptions");
+        authenticationRepository.deleteById(entity.getAuthenticationId());
         repository.delete(entity);
     }
 
@@ -125,38 +135,63 @@ public class UserService {
         authenticationRepository.save(authenticationEntity);
     }
 
-    public UserDto renew(Long id, UserRequest request) {
+    public void renew(Long id, UserRequest request) {
         Helper helper = new Helper();
         UserEntity entity = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("User with id: " + id + "not found"));
-        long differenceBetweenTotalUsedAndTotalFlow = entity.getTotalFlow() - entity.getTotalUsed();
-        // if all of total flow used this section add renew amount to total flow
-        // else  all total flow not complete used this section add renew amount to total used
-        if (differenceBetweenTotalUsedAndTotalFlow <= 0)
-            entity.setTotalFlow(entity.getTotalFlow() + helper.GBToByte(request.getTotalFlow()));
-        else
-            entity.setTotalUsed(entity.getTotalUsed() + helper.GBToByte(request.getTotalFlow()));
-
-        // Calculate the duration between the two LocalDateTime instances
-        Duration duration = Duration.between(entity.getStartDateTime(), LocalDateTime.now());
-        int days = (int) duration.toDays();
-
-        if (entity.getPeriodLength() <= days)
-            entity.setPeriodLength(entity.getPeriodLength() + request.getPeriodLength());
-        else
-            entity.setPeriodLength(days + request.getPeriodLength());
-
-        entity.setExpirationDateTime(entity.getStartDateTime().plusDays(entity.getPeriodLength()));
-        repository.save(entity);
-
-        UserRenewLogEntity userRenewLogEntity = UserRenewLogEntity.builder()
-                .userId(entity.getId())
-                .periodLength(request.getPeriodLength())
-                .totalFlow(request.getTotalFlow())
-                .build();
-        userRenewLogRepository.save(userRenewLogEntity);
-        return new UserDto(entity);
+        if (entity.getRole() == Role.SuperCustomer) {
+            entity.setPricePerGb(request.getPricePerGb());
+            if (request.getPeriodLength() != null && request.getPeriodLength() > 0)
+                if (entity.getExpirationDateTime() == null || entity.getExpirationDateTime().isBefore(LocalDateTime.now())) {
+                    entity.setExpirationDateTime(LocalDateTime.now().plusDays(request.getPeriodLength()));
+                } else if (entity.getExpirationDateTime().isAfter(LocalDateTime.now()))
+                    entity.setExpirationDateTime(entity.getExpirationDateTime().plusDays(request.getPeriodLength()));
+            if (request.getTotalFlow() != null) {
+                if (entity.getTotalFlow() == null)
+                    entity.setTotalFlow(helper.GBToByte(request.getTotalFlow()));
+                else
+                    entity.setTotalFlow(entity.getTotalFlow() + helper.GBToByte(request.getTotalFlow()));
+            }
+            createRenewLog(entity.getId(), request, UserLogType.RENEW);
+            repository.save(entity);
+        }
+//        long differenceBetweenTotalUsedAndTotalFlow = entity.getTotalFlow() - entity.getTotalUsed();
+//        // if all of total flow used this section add renew amount to total flow
+//        // else  all total flow not complete used this section add renew amount to total used
+//        if (differenceBetweenTotalUsedAndTotalFlow <= 0)
+//            entity.setTotalFlow(entity.getTotalFlow() + helper.GBToByte(request.getTotalFlow()));
+//        else
+//            entity.setTotalUsed(entity.getTotalUsed() + helper.GBToByte(request.getTotalFlow()));
+//
+//        // Calculate the duration between the two LocalDateTime instances
+//        Duration duration = Duration.between(entity.getStartDateTime(), LocalDateTime.now());
+//        int days = (int) duration.toDays();
+//
+//        if (entity.getPeriodLength() <= days)
+//            entity.setPeriodLength(entity.getPeriodLength() + request.getPeriodLength());
+//        else
+//            entity.setPeriodLength(days + request.getPeriodLength());
+//
+//        entity.setExpirationDateTime(entity.getStartDateTime().plusDays(entity.getPeriodLength()));
+//        repository.save(entity);
+//
+//        UserRenewLogEntity userRenewLogEntity = UserRenewLogEntity.builder()
+//                .userId(entity.getId())
+//                .periodLength(request.getPeriodLength())
+//                .totalFlow(request.getTotalFlow())
+//                .build();
+//        userRenewLogRepository.save(userRenewLogEntity);
+//        return new UserDto(entity);
     }
 
+    private void createRenewLog(Long userId, UserRequest request, UserLogType logType) {
+        UserRenewLogEntity userRenewLogEntity = UserRenewLogEntity.builder()
+                .userId(userId)
+                .totalFlow(request.getTotalFlow())
+                .periodLength(request.getPeriodLength())
+                .build();
+        userRenewLogRepository.save(userRenewLogEntity);
+
+    }
 
     public ResponseEntity<InputStreamResource> getUserReport(Long userId) throws FileNotFoundException {
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserId(userId);
@@ -213,7 +248,7 @@ public class UserService {
             csvWriter.append("\n");
 
 
-            Double sumOfPrices = 0D;
+            BigDecimal sumOfPrices = new BigDecimal(0);
             Helper helper = new Helper();
             // Write the data to the CSV file
             for (SubscriptionLogEntity log : logs) {
@@ -225,7 +260,7 @@ public class UserService {
                 csvWriter.append(" , ");
                 csvWriter.append(log.getPrice().toString());
                 csvWriter.append("\n");
-                sumOfPrices += log.getPrice();
+                sumOfPrices = sumOfPrices.add(BigDecimal.valueOf(log.getPrice()));
             }
             csvWriter.append("\n");
             csvWriter.append(sumOfPrices.toString());
@@ -243,4 +278,39 @@ public class UserService {
         }
     }
 
+    public UserSelfDetails getSelfDetails() throws Exception {
+        Helper helper = new Helper();
+        UserEntity entity = helper.getUserFromContext();
+        UserSelfDetails userSelfDetails = new UserSelfDetails();
+        userSelfDetails.setFirstName(entity.getFirstName());
+        userSelfDetails.setLastName(entity.getLastName());
+        userSelfDetails.setIsIndefiniteExpirationTime(entity.getIsIndefiniteExpirationTime());
+        userSelfDetails.setIsIndefiniteFlow(entity.getIsIndefiniteFlow());
+        userSelfDetails.setStartDateTime(entity.getStartDateTime());
+        userSelfDetails.setExpirationDateTime(entity.getExpirationDateTime());
+        userSelfDetails.setTotalFlow(helper.byteToGB(entity.getTotalFlow()));
+        userSelfDetails.setTotalUsed(helper.byteToGB(entity.getTotalUsed()));
+        List<SubscriptionLogEntity> subscriptionLogEntities = new ArrayList<>();
+        double payAmount = 0;
+
+        if (entity.getRole() == Role.SuperCustomer) {
+            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserId(entity.getId());
+            List<UserPaymentLogEntity> userPaymentLogEntities = userPaymentLogRepository.findAllByUserId(entity.getId());
+            for (UserPaymentLogEntity userPaymentLogEntity : userPaymentLogEntities
+            ) {
+                payAmount += userPaymentLogEntity.getPayAmount();
+            }
+        } else if (entity.getRole() == Role.Customer) {
+            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserIdAndMarkAsPaid(entity.getId(), false);
+
+        }
+        double debitAmount = 0;
+        for (SubscriptionLogEntity log : subscriptionLogEntities
+        ) {
+            debitAmount += log.getPrice();
+        }
+        debitAmount -= payAmount;
+        userSelfDetails.setDebtAmount((long) debitAmount);
+        return userSelfDetails;
+    }
 }

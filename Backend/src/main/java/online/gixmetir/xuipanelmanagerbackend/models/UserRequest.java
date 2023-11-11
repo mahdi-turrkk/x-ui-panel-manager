@@ -23,6 +23,8 @@ public class UserRequest {
     private Boolean isIndefiniteFlow;
     private Boolean isIndefiniteExpirationTime;
     private Integer periodLength;
+    private Double pricePerGb;
+
 
 
     public UserEntity toEntity() {
@@ -38,7 +40,8 @@ public class UserRequest {
                 .totalFlow(new Helper().GBToByte(this.totalFlow))
                 .isIndefiniteFlow(this.isIndefiniteFlow)
                 .isIndefiniteExpirationTime(this.isIndefiniteExpirationTime)
-                .periodLength(this.periodLength)
+//                .periodLength(this.periodLength)
+                .pricePerGb(pricePerGb)
                 .build();
     }
 
@@ -53,7 +56,8 @@ public class UserRequest {
         entity.setTotalFlow(new Helper().GBToByte(this.totalFlow));
         entity.setIsIndefiniteFlow(this.isIndefiniteFlow);
         entity.setIsIndefiniteExpirationTime(this.isIndefiniteExpirationTime);
-        entity.setPeriodLength(this.periodLength);
+//        entity.setPeriodLength(this.periodLength);
+        entity.setPricePerGb(this.pricePerGb);
         return entity;
     }
 }

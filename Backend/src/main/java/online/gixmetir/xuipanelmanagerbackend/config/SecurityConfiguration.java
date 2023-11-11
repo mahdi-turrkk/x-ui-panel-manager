@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.config;
 
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import online.gixmetir.xuipanelmanagerbackend.models.Role;
 import online.gixmetir.xuipanelmanagerbackend.security.filter.JwtAuthenticationFilter;
 import online.gixmetir.xuipanelmanagerbackend.services.app.AuthenticationService;
 import org.springframework.context.annotation.Bean;
@@ -64,15 +65,16 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers("/api/v1/users/change-password").hasAnyAuthority("Admin", "Customer")
-                                .requestMatchers("/api/v1/plans/get-all").hasAnyAuthority("Admin", "Customer")
-                                .requestMatchers("/api/v1/subscriptions/change-pay-status-for-subscription").hasAnyAuthority("Admin")
-                                .requestMatchers("/api/v1/subscriptions/change-pay-status-for-subscription-renew-log").hasAnyAuthority("Admin")
-                                .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority("Admin", "Customer")
-                                .requestMatchers("/api/v1/users/*").hasAnyAuthority("Admin")
-                                .requestMatchers("/api/v1/plans/*").hasAnyAuthority("Admin")
-                                .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority("Admin")
-                                .requestMatchers("api/v1/servers/*").hasAnyAuthority("Admin")
+                                .requestMatchers("/api/v1/users/change-password","/api/v1/users/self-details").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(),Role.SuperCustomer.name())
+                                .requestMatchers("/api/v1/plans/get-all").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(),Role.SuperCustomer.name())
+                                .requestMatchers("/api/v1/subscriptions/change-pay-status-for-subscription").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/subscriptions/change-pay-status-for-subscription-renew-log").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(),Role.SuperCustomer.name())
+                                .requestMatchers("/api/v1/users/*").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/plans/*").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("api/v1/servers/*").hasAnyAuthority(Role.Admin.name())
+                                .requestMatchers("/api/v1/user-payment-logs/*").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("v3/api-docs/**", "swagger-ui/*", "api/v1/authentication/*", "/api/v1/subscriptions/client/**").permitAll()
                                 .anyRequest().authenticated()
 

@@ -52,12 +52,16 @@ public class UserEntity implements UserDetails {
     private Long totalUsed;
     @Column(name = "is_indefinit_expiration_time")
     private Boolean isIndefiniteExpirationTime;
-    @Column(name = "period_length")
-    private Integer periodLength;
+//    @Column(name = "period_length")
+//    private Integer periodLength;
     @Column(name = "expiration_date_time")
     private LocalDateTime expirationDateTime;
     @Column(name = "start_date_time")
     private LocalDateTime startDateTime;
+    @Column(name = "price_per_gb")
+    private Double pricePerGb;
+    @Column(name = "payed_amount")
+    private Long payedAmount;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authentication_id", insertable = false, updatable = false)
     private AuthenticationEntity authentication;
@@ -67,7 +71,6 @@ public class UserEntity implements UserDetails {
     @LastModifiedDate
     @Column(name = "last_updated-date")
     private LocalDateTime lastUpdatedDate;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
