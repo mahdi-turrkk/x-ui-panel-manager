@@ -12,6 +12,7 @@ public interface SubscriptionRenewLogRepository extends JpaRepository<Subscripti
 
     List<SubscriptionLogEntity> findAllBySubscriptionId(Long id);
 
+    List<SubscriptionLogEntity> findAllBySubscriptionUserId(Long subscription_userId);
     List<SubscriptionLogEntity> findAllBySubscriptionUserIdAndMarkAsPaid(Long subscription_userId, Boolean markAsPaid);
 
 

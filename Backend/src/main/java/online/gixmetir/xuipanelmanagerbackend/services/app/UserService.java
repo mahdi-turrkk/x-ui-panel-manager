@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,8 +38,9 @@ public class UserService {
     private final UserRenewLogRepository userRenewLogRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionRenewLogRepository subscriptionLogRepository;
+    private final UserPaymentLogRepository userPaymentLogRepository;
 
-    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository, SubscriptionRenewLogRepository subscriptionLogRepository) {
+    public UserService(UserRepository repository, AuthenticationService authenticationService, PasswordEncoder encoder, JwtService jwtService, AuthenticationRepository authenticationRepository, UserRenewLogRepository userRenewLogRepository, SubscriptionRepository subscriptionRepository, SubscriptionRenewLogRepository subscriptionLogRepository, UserPaymentLogRepository userPaymentLogRepository) {
         this.repository = repository;
         this.authenticationService = authenticationService;
         this.encoder = encoder;
@@ -47,6 +49,7 @@ public class UserService {
         this.userRenewLogRepository = userRenewLogRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.subscriptionLogRepository = subscriptionLogRepository;
+        this.userPaymentLogRepository = userPaymentLogRepository;
     }
 
     public Page<UserDto> getAll(UserFilter filter, Pageable pageable) {
@@ -287,18 +290,27 @@ public class UserService {
         userSelfDetails.setExpirationDateTime(entity.getExpirationDateTime());
         userSelfDetails.setTotalFlow(helper.byteToGB(entity.getTotalFlow()));
         userSelfDetails.setTotalUsed(helper.byteToGB(entity.getTotalUsed()));
-//        if (entity.getRole() == Role.SuperCustomer) {
-//            Long debtAmount = (long) (helper.byteToGB(entity.getTotalUsed() == null ? 0 : entity.getTotalUsed()) * (entity.getPricePerGb() == null ? 0 : entity.getPricePerGb()) - (entity.getPayedAmount() == null ? 0 : entity.getPayedAmount()));
-//            userSelfDetails.setDebtAmount(debtAmount);
-//        } else if (entity.getRole() == Role.Customer) {
-        List<SubscriptionLogEntity> subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserIdAndMarkAsPaid(entity.getId(), false);
+        List<SubscriptionLogEntity> subscriptionLogEntities = new ArrayList<>();
+        double payAmount = 0;
+
+        if (entity.getRole() == Role.SuperCustomer) {
+            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserId(entity.getId());
+            List<UserPaymentLogEntity> userPaymentLogEntities = userPaymentLogRepository.findAllByUserId(entity.getId());
+            for (UserPaymentLogEntity userPaymentLogEntity : userPaymentLogEntities
+            ) {
+                payAmount += userPaymentLogEntity.getPayAmount();
+            }
+        } else if (entity.getRole() == Role.Customer) {
+            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserIdAndMarkAsPaid(entity.getId(), false);
+
+        }
         double debitAmount = 0;
         for (SubscriptionLogEntity log : subscriptionLogEntities
         ) {
             debitAmount += log.getPrice();
         }
+        debitAmount -= payAmount;
         userSelfDetails.setDebtAmount((long) debitAmount);
-//        }
         return userSelfDetails;
     }
 }
