@@ -122,10 +122,13 @@ public class SubscriptionService {
                 ClientEntity clientEntity = null;
                 ClientEntity clientEntityFromDb = clientRepository.findByInboundIdAndSubscriptionId(inbound.getId(), subscription.getId());
                 if (clientEntityFromDb != null) {
+                    // این جا متغیر flag را قرار دادم تا اگر وضعیت کانفیگ تغییر نکند درخواست اضافه ای به سرور ها ارسال نشود
+                    boolean flag = clientEntityFromDb.getEnable() == subscription.getStatus();
                     clientEntityFromDb.setEnable(subscription.getStatus());
                     clientEntity = clientEntityFromDb;
                     clientEntity.setSendToUser(true);
-                    clientEntitiesUpdateInPanel.add(clientEntity);
+                    if (!flag)
+                        clientEntitiesUpdateInPanel.add(clientEntity);
                 } else {
                     ClientModel clientModel = ClientModel.builder()
                             .id(UUID.randomUUID().toString())
@@ -146,8 +149,12 @@ public class SubscriptionService {
                 }
                 clientEntitiesToSaveInDb.add(clientEntity);
             }
-            panelService.addClient(clientModelsAddToPanel, new ServerDto(inbound.getServer()), inbound.getIdFromPanel());
-            panelService.updateClients(clientEntitiesUpdateInPanel);
+            if (!clientModelsAddToPanel.isEmpty()) {
+                panelService.addClient(clientModelsAddToPanel, new ServerDto(inbound.getServer()), inbound.getIdFromPanel());
+            }
+            if (!clientEntitiesUpdateInPanel.isEmpty()) {
+                panelService.updateClients(clientEntitiesUpdateInPanel);
+            }
         }
         clientRepository.saveAll(clientEntitiesToSaveInDb);
     }
