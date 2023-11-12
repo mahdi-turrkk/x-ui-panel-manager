@@ -53,10 +53,43 @@
             {{ lookupSubscription.totalFlow ? lookupSubscription.totalFlow : '0.00' }}&nbsp;&nbsp;&nbsp;GB
           </div>
           </div>
+          <div class="flex">{{ local.payStatus }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
+                                                                   :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+            {{ lookupSubscription.markAsPaid ? local.paid : local.paid }}
+          </div>
+          </div>
           <div class="flex">{{ local.status }}&nbsp;:&nbsp;<div class="font-normal"
                                                                 :class="{'mr-auto' : isRtl , 'ml-auto': !isRtl}">
-            {{ lookupSubscription.status ? local.active : local.inactive }}
+            <div
+                class="text-xs md:text-sm bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-min text-success relative mx-auto cursor-pointer"
+                v-if="showSubDetail && lookupSubscription.status" @mouseenter="showDeactivateSubscriptionTag = true"
+                @mouseleave="showDeactivateSubscriptionTag = false" @click="changeStatus(false)">{{ local.active }}
+              <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-error"
+                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeactivateSubscriptionTag">{{
+                  local.deactivate
+                }}
+                {{ local.subscription }}
+              </div>
+            </div>
+            <div
+                class="text-xs md:text-sm bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 px-4 w-min text-error relative mx-auto cursor-pointer"
+                v-if="showSubDetail && !lookupSubscription.status" @mouseenter="showActivateSubscriptionTag = true"
+                @mouseleave="showActivateSubscriptionTag = false" @click="changeStatus(true)">{{ local.inactive }}
+              <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
+                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showActivateSubscriptionTag">{{ local.activate }}
+                {{ local.subscription }}
+              </div>
+            </div>
           </div>
+          </div>
+          <div class="flex justify-end pt-4">
+            <button
+                class="text-xs md:text-base outline-none border-2 border-success rounded-xl bg-success bg-opacity-50 text-success px-4 py-1 flex space-x-1 items-center"
+                @click="emits('renewSub' , lookupSubscription)"
+            >
+              <i class="pi pi-refresh font-bold mx-1"></i>
+              {{local.renew}} {{local.subscription}}
+            </button>
           </div>
         </div>
         <div class="text-info-2 px-6 md:px-10 pb-14 text-center"
@@ -102,6 +135,23 @@ let lookupSubscription = reactive({
 
 let subLink = ref('')
 let showSubDetail = ref(false)
+let showDeactivateSubscriptionTag = ref(false)
+let showActivateSubscriptionTag = ref(false)
+
+const changeStatus = (payload) => {
+  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${lookupSubscription.id}&newStatus=${payload}`,
+      {},
+      {
+        headers: {
+          authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    lookupSubscription.status = payload
+  }).catch((error) => {
+    console.log(error)
+  })
+}
 
 const searchSubscription = () => {
   if (subLink.value) {
@@ -120,7 +170,7 @@ const searchSubscription = () => {
 
 
 const props = defineProps(['showDialog'])
-const emits = defineEmits(['closeDialog'])
+const emits = defineEmits(['closeDialog', 'renewSub'])
 
 watch(() => props.showDialog, () => {
   lookupSubscription = {}

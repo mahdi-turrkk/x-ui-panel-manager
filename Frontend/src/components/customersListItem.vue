@@ -71,6 +71,24 @@
                   {{ local.changePassword }}
                 </div>
               </div>
+              <div class="relative" v-if="customerType === 'SuperCustomer'">
+                <i class="pi pi-credit-card text-lg md:text-xl mx-1 text-success" @mouseenter="showAddPaymentTag = true"
+                   @mouseleave="showAddPaymentTag = false"
+                   @click="emits('openAddPaymentDialog' , customer)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showAddPaymentTag">
+                  {{ local.addPayment }}
+                </div>
+              </div>
+              <div class="relative" v-if="customerType === 'SuperCustomer'">
+                <i class="pi pi-refresh text-lg md:text-xl mx-1 text-success" @mouseenter="showRenewTag = true"
+                   @mouseleave="showRenewTag = false"
+                   @click="emits('openRenewCustomerDialog' , customer)"/>
+                <div class="absolute -top-6 bg-background-3 opacity-70 w-max rounded-xl px-2 py-1"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showRenewTag">
+                  {{ local.renew}} {{ local.superCustomer}}
+                </div>
+              </div>
               <div class="relative">
                 <i class="pi pi-trash text-lg md:text-xl mx-1 text-error" @mouseenter="showDeleteTag = true"
                             @mouseleave="showDeleteTag = false"
@@ -96,8 +114,8 @@
             :class="{'shadow-info-1 shadow-sm' : useDataStore().getDarkStatus}">
           <div class="w-0 hidden md:inline-block md:w-[10%] text-xs md:text-sm">{{ local.id }}</div>
           <div class="hidden md:inline-block md:w-[25%] text-center text-xs md:text-sm">{{ local.plan }}</div>
-          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.remaining }}</div>
-          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.payStatus }}</div>
+          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm" :class="{'w-[60%] md:w-[40%]' : customerType === 'SuperCustomer' , 'w-[30%] md:w-[20%]' : customerType !== 'SuperCustomer'}">{{ local.remaining }}</div>
+          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm" v-if="customerType !== 'SuperCustomer'">{{ local.payStatus }}</div>
           <div class="w-[30%] md:w-[15%] text-center text-xs md:text-sm">{{ local.status }}</div>
           <div class="w-[10%] text-center text-xs md:text-sm">{{ local.actions }}</div>
         </div>
@@ -112,19 +130,19 @@
         </div>
         <subscription-list-item v-for="subscription in subscriptions" :subscription="subscription"
                                 v-else-if="subscriptions.length > 0"
+                                :userType="customerType"
                                 @open-link-dialog="openLinkDialog"
                                 @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
                                 @change-subscription-pay-status="(payload) => {subscription.markAsPaid = payload}"
                                 @open-delete-confirmation-dialog="openDeleteConfirmationDialogSubscription"
                                 @change-subscription-status="(payload) => {subscription.status = payload}"/>
-        <div class="flex mt-6" v-if="!loading">
-          <div class="flex" v-for="i in pages" >
+        <div class="flex mt-6" v-if="!isLoading">
+          <div class="flex" v-for="i in subsPages" >
             <div
                 class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
                 :class="{'bg-opacity-50' : onboarding === i}" @click="onboarding = i">{{ i }}
             </div>
           </div>
-
         </div>
         <div class="flex mt-3">
           <div class="flex" v-for="i in subsPages" >
@@ -151,8 +169,8 @@ import 'primeicons/primeicons.css';
 import axios from "axios";
 import Loader from "./loader.vue";
 
-let props = defineProps(['onboarding', 'customer'])
-const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog'])
+let props = defineProps(['onboarding', 'customer' , 'customerType'])
+const emits = defineEmits(['setOnboarding', 'openEditCustomerDialog', 'openLinkDialog', 'changeCustomerStatus', 'openChangePasswordDialog', 'openDeleteConfirmationDialog', 'openDeleteConfirmationDialogSubscription' , 'openRenewHistoryDialog' , 'openRenewCustomerDialog' , 'openAddPaymentDialog'])
 
 const expansionText = ref(null)
 let onboardingSubsPage = ref(1)
@@ -175,6 +193,8 @@ let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
 let isLoading = ref(true)
 let showDownloadReportTag = ref(false)
+let showRenewTag = ref(false)
+let showAddPaymentTag = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'

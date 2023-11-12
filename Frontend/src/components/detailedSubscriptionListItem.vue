@@ -2,7 +2,7 @@
   <div class="flex space-x-2 items-center px-4 py-4 w-full bg-background-3 rounded-xl my-2 text-info-3 text-xs">
     <div class="w-[15%] md:w-[10%]">{{ subscription.id }}</div>
     <div class="hidden md:inline-block md:w-[20%] text-center">{{ subscription.title }}</div>
-    <div class="hidden md:flex md:w-[25%] justify-center" style="direction: ltr">
+    <div class="justify-center" :class="{'flex w-[33%] md:w-[40%]' : userType === 'SuperCustomer' , 'hidden md:flex md:w-[25%]' : userType !== 'SuperCustomer'}" style="direction: ltr">
       <div>
         {{ subscription.totalUsed ? (subscription.totalFlow-subscription.totalUsed).toFixed(2) : subscription.totalFlow }} GB
       </div>
@@ -11,7 +11,7 @@
         {{ subscription.expireDate ? subscription.expireDate.substring(0,10) : '' }}
       </div>
     </div>
-    <div class="w-[33%] md:w-[15%] text-center">
+    <div class="w-[33%] md:w-[15%] text-center" v-if="userType !== 'SuperCustomer'">
       <div
           class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-fit text-success relative mx-auto"
           :class="{'cursor-pointer' : userType !== 'Customer'}"
@@ -85,7 +85,7 @@
             {{ local.subscription }}
           </div>
         </div>
-        <div class="relative cursor-pointer" v-if="userType !=='Customer'">
+        <div class="relative cursor-pointer" v-if="userType ==='Admin'">
           <i class="pi pi-trash text-lg md:text-xl text-error mx-1" @mouseenter="showDeleteTag = true"
                       @mouseleave="showDeleteTag = false"
                       @click="emits('openDeleteConfirmationDialog' , subscription)"/>

@@ -11,16 +11,16 @@
         {{ subscription.periodLength + local.days }}
       </div>
     </div>
-    <div class="w-[30%] md:w-[20%] flex justify-center flex-col md:flex-row">
+    <div class="flex justify-center " :class="{'w-[60%] md:w-[40%]' : userType === 'SuperCustomer' , 'w-[30%] md:w-[20%] flex-col md:flex-row' : userType !== 'SuperCustomer'}">
       <div class="text-center">
         {{ subscription.totalUsed ? (subscription.totalFlow - subscription.totalUsed).toFixed(2) + 'GB' : subscription.totalFlow.toFixed(2) + 'GB' }}
       </div>
-      <div class="hidden md:inline-block">&nbsp;/&nbsp;</div>
+      <div :class="{'hidden md:inline-block' : userType !== 'SuperCustomer'}">&nbsp;/&nbsp;</div>
       <div class="text-center">
         {{ subscription.expireDate ? subscription.expireDate.substring(0,10) : '' }}
       </div>
     </div>
-    <div class="w-[30%] md:w-[20%]">
+    <div class="w-[30%] md:w-[20%]" v-if="userType !== 'SuperCustomer'">
       <div
           class="bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-fit text-success relative mx-auto cursor-pointer"
           v-if="subscription.markAsPaid" @mouseenter="showMarkAsNotPaidTag = true"
@@ -107,7 +107,7 @@ import axios from "axios";
 import 'primeicons/primeicons.css';
 
 
-const props = defineProps(['subscription'])
+const props = defineProps(['subscription' , 'userType'])
 const emits = defineEmits(['openLinkDialog', 'changeSubscriptionStatus', 'openDeleteConfirmationDialog', 'changeSubscriptionPayStatus' , 'openRenewHistoryDialog'])
 
 let isRtl = computed(() => {

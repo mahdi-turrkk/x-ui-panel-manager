@@ -3,8 +3,8 @@
     <div class="flex w-full items-center space-x-2 my-2 bg-background-3 rounded-xl text-info-3 font-bold px-4 py-4">
       <div class="w-[15%] md:w-[10%] text-sm md:text-base">{{ local.id }}</div>
       <div class="hidden md:inline-block md:w-[20%] text-center text-sm md:text-base">{{ local.title }}</div>
-      <div class="hidden md:inline-block md:w-[25%] text-center text-sm md:text-base">{{ local.remaining }}</div>
-      <div class="w-[33%] md:w-[15%] text-center text-sm md:text-base" style="direction: ltr">
+      <div class="text-center text-sm md:text-base" :class="{'hidden md:inline-block md:w-[25%]' : userType !== 'SuperCustomer' , 'w-[33%] md:w-[40%]' : userType === 'SuperCustomer'}">{{ local.remaining }}</div>
+      <div class="w-[33%] md:w-[15%] text-center text-sm md:text-base" v-if="userType !== 'SuperCustomer'" style="direction: ltr">
         {{ local.payStatus }}
       </div>
       <div class="w-[32%] md:w-[15%] text-center text-sm md:text-base">{{ local.status }}</div>

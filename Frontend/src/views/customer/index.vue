@@ -1,9 +1,11 @@
 <template>
   <div class="min-h-screen min-w-screen text-info-3">
-    <sub-lookup-dialog :show-dialog="showLookupDialog" @close-dialog="showLookupDialog = false"/>
+    <sub-lookup-dialog :show-dialog="showLookupDialog" @close-dialog="showLookupDialog = false" @renew-sub="(payload)=> {subscription = payload;subEditType='ReNew';showSubscriptionDialog=true}"/>
     <change-password-dialog :show-dialog="showChangePasswordDialog" @close-dialog="showChangePasswordDialog = false"
                             :isSelf="true"/>
-    <subscription-renew-history-dialog user-type="Customer" :show-dialog="showRenewHistoryDialog" @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
+    <subscription-renew-history-dialog user-type="Customer" :show-dialog="showRenewHistoryDialog"
+                                       @close-dialog="showRenewHistoryDialog = false" :subscription="subscription"/>
+    <user-detail-dialog :show-dialog="showUserDetailDialog" @close-dialog="showUserDetailDialog = false" :user-detail="userDetail"/>
     <div class="col-span-12 relative z-20 bg-background-3">
       <div class="px-4 py-4">
         <div class="flex items-center justify-between">
@@ -31,6 +33,14 @@
               <i class="pi pi-search text-xl text-info-3"/>
               <div class="absolute -bottom-6 bg-background-3 text-info-3 rounded-lg py-1 px-4 text-sm w-max"
                    v-if="showLookupTag">{{ local.subLookUp }}
+              </div>
+            </button>
+            <button @click="showUserDetailDialog = true"
+                    @mouseenter="showUserDetailTag = true" @mouseleave="showUserDetailTag = false"
+                    class="relative p-2 rounded-xl bg-primary-1 bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 lg:hidden">
+              <i class="pi pi-id-card text-xl text-info-3"/>
+              <div class="absolute -bottom-6 bg-background-3 text-info-3 rounded-lg py-1 px-4 text-sm w-max"
+                   v-if="showUserDetailTag">{{ local.userDetail }}
               </div>
             </button>
           </div>
@@ -79,8 +89,8 @@
                    :class="{'pr-4 pl-8' : isRtl , 'pl-4 pr-8' : !isRtl}" @keydown.enter="searchSubscription"
             />
             <i class="pi pi-search text-lg z-20 text-info-2 absolute top-3 cursor-pointer hover:text-info-1"
-                                   :class="{'left-2' : isRtl , 'right-2' : !isRtl}"
-                                   @click="searchSubscription"/>
+               :class="{'left-2' : isRtl , 'right-2' : !isRtl}"
+               @click="searchSubscription"/>
           </div>
           <div class="font-bold text-center flex flex-col space-y-2 px-6"
                v-if="showSubDetail">
@@ -114,10 +124,43 @@
               {{ lookupSubscription.totalFlow ? lookupSubscription.totalFlow : '0.00' }}&nbsp;&nbsp;&nbsp;GB
             </div>
             </div>
+            <div class="flex">{{ local.payStatus }}&nbsp;:&nbsp;<div class="font-normal" style="direction: ltr"
+                                                                     :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+              {{ lookupSubscription.markAsPaid ? local.paid : local.paid }}
+            </div>
+            </div>
             <div class="flex">{{ local.status }}&nbsp;:&nbsp;<div class="font-normal"
                                                                   :class="{'mr-auto' : isRtl , 'ml-auto': !isRtl}">
-              {{ lookupSubscription.status ? local.active : local.inactive }}
+              <div
+                  class="text-xs md:text-sm bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-min text-success relative mx-auto cursor-pointer"
+                  v-if="showSubDetail && lookupSubscription.status" @mouseenter="showDeactivateSubscriptionTag = true"
+                  @mouseleave="showDeactivateSubscriptionTag = false" @click="changeStatus(false)">{{ local.active }}
+                <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-error"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeactivateSubscriptionTag">{{
+                    local.deactivate
+                  }}
+                  {{ local.subscription }}
+                </div>
+              </div>
+              <div
+                  class="text-xs md:text-sm bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 px-4 w-min text-error relative mx-auto cursor-pointer"
+                  v-if="showSubDetail && !lookupSubscription.status" @mouseenter="showActivateSubscriptionTag = true"
+                  @mouseleave="showActivateSubscriptionTag = false" @click="changeStatus(true)">{{ local.inactive }}
+                <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showActivateSubscriptionTag">{{ local.activate }}
+                  {{ local.subscription }}
+                </div>
+              </div>
             </div>
+            </div>
+            <div class="flex justify-end pt-4">
+              <button
+                  class="outline-none border-2 border-success rounded-xl bg-success bg-opacity-50 text-success px-4 py-1 flex space-x-1 items-center text-sm"
+                  @click="subscription = lookupSubscription;subEditType='ReNew';showSubscriptionDialog=true"
+              >
+                <i class="pi pi-refresh font-bold mx-1"></i>
+                {{local.renew}} {{local.subscription}}
+              </button>
             </div>
           </div>
           <div class="text-info-2 px-6 pb-14 text-center"
@@ -126,10 +169,48 @@
             <div class="text-xs md:text-sm lg:text-base">{{ local.enterSubToSearch }}</div>
           </div>
         </div>
+        <div class="bg-background-3 text-info-3 rounded-xl px-4 py-4 text-xs md:text-lg flex flex-col space-y-4 mt-4">
+          <div class="flex font-bold text-sm md:text-lg text-center">{{ userDetail.firstName + " " + userDetail.lastName }}</div>
+          <div class="flex font-bold text-sm md:text-lg text-center">{{ local.debt }}&nbsp;:&nbsp;
+            <div
+                class="font-normal"
+                :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+              {{ userDetail.debtAmount + "0" }}&nbsp;&nbsp;﷼
+            </div>
+          </div>
+          <div class="flex font-bold text-sm md:text-lg text-center">{{ local.startDate }}&nbsp;:&nbsp;
+            <div
+                class="font-normal"
+                :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+              {{ userDetail.startDateTime.substring(0,10) }}
+            </div>
+          </div>
+          <div class="flex font-bold text-sm md:text-lg text-center" v-if="userDetail.expirationDateTime">{{ local.expireDate }}&nbsp;:&nbsp;
+            <div
+                class="font-normal"
+                :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+              {{ userDetail.expirationDateTime.substring(0,10) }}
+            </div>
+          </div>
+          <div class="flex font-bold text-sm md:text-lg text-center" v-if="userDetail.totalFlow">{{ local.remaining }}&nbsp;:&nbsp;
+            <div
+                class="font-normal" style="direction: ltr"
+                :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+              {{ userDetail.totalFlow - userDetail.totalUsed }} GB
+            </div>
+          </div>
+          <div class="flex font-bold text-sm md:text-lg text-center" v-if="!userDetail.totalFlow">{{ local.totalUsed }}&nbsp;:&nbsp;
+            <div
+                class="font-normal" style="direction: ltr"
+                :class="{'mr-auto' : isRtl , 'ml-auto' : !isRtl}">
+              {{ userDetail.totalUsed }} GB
+            </div>
+          </div>
+        </div>
       </div>
       <div class="lg:col-span-4 -mt-2">
         <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
-        <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
+        <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" :user-type="userType"
                              :subscription="subscription" :type="subEditType" @subs-added="addNewSubsToList"/>
         <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
           <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
@@ -140,11 +221,15 @@
             {{ local.add }} {{ local.subscription }}
           </button>
         </div>
-        <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog" user-type="Customer"
-                            @open-link-dialog="openLinkDialog" :is-loading="loading" @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
+        <subscriptions-list :subscriptions="subscriptions" @open-renew-subscription-dialog="openRenewSubscriptionDialog"
+                            :user-type="customerType"
+                            @open-link-dialog="openLinkDialog" :is-loading="loading"
+                            @open-renew-history-dialog="(payload) => {subscription = payload;showRenewHistoryDialog = true}"/>
         <div class="flex mt-3" v-if="!loading">
-          <div class="flex" v-for="i in pages" >
-            <div class="text-lg" v-if="(pages > 5) && ((i === onboarding-1 && i > 2) || (i === onboarding+2 && i !== pages))">...</div>
+          <div class="flex" v-for="i in pages">
+            <div class="text-lg"
+                 v-if="(pages > 5) && ((i === onboarding-1 && i > 2) || (i === onboarding+2 && i !== pages))">...
+            </div>
             <div
                 v-if="pages <= 5 || (i === 1 || i === pages || i-1 === onboarding || i+1 === onboarding || i === onboarding)"
                 class="w-8 h-8 rounded-xl bg-primary-1 bg-opacity-20 flex justify-center items-center mx-1 text-info-3 cursor-pointer transition-all duration-300"
@@ -169,6 +254,7 @@ import SubLookupDialog from "../../components/subLookupDialog.vue";
 import axios from "axios";
 import ChangePasswordDialog from "../../components/changePasswordDialog.vue";
 import SubscriptionRenewHistoryDialog from "../../components/subscriptionRenewHistoryDialog.vue";
+import UserDetailDialog from "../../components/userDetailDialog.vue";
 
 let isDark = computed(() => {
   return useDataStore().getDarkStatus
@@ -181,6 +267,7 @@ const changeThemeStatus = () => {
 }
 
 let showLangMenu = ref(false)
+let customerType = ref("")
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
@@ -208,6 +295,23 @@ let subscriptions = ref([])
 let subLink = ref('')
 let showSubDetail = ref(false)
 let showRenewHistoryDialog = ref(false)
+let showDeactivateSubscriptionTag = ref(false)
+let showActivateSubscriptionTag = ref(false)
+
+const changeStatus = (payload) => {
+  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${lookupSubscription.id}&newStatus=${payload}`,
+      {},
+      {
+        headers: {
+          authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    subscription.status = payload
+  }).catch((error) => {
+    console.log(error)
+  })
+}
 
 const searchSubscription = () => {
   if (subLink.value) {
@@ -232,6 +336,8 @@ let pages = ref(1)
 let onboarding = ref(1)
 let showSubscriptionDialog = ref(false)
 let showLinkDialog = ref(false)
+let showUserDetailDialog = ref(false)
+let showUserDetailTag = ref(false)
 const openRenewSubscriptionDialog = (payload) => {
   subscription = payload
   subEditType.value = 'ReNew'
@@ -245,6 +351,7 @@ const openLinkDialog = (payload) => {
 
 let showLookupTag = ref(false)
 let showLookupDialog = ref(false)
+let userType = ref("")
 
 let loading = ref(true)
 
@@ -263,6 +370,19 @@ const getSubscriptions = () => {
   })
 }
 
+let userDetail = reactive(
+    {
+      firstName : "",
+      lastName : "",
+      startDateTime : "",
+      expirationDateTime : "",
+      totalFlow : undefined,
+      isIndefiniteFlow : undefined,
+      debtAmount : undefined,
+      totalUsed : undefined
+    }
+)
+
 onMounted(() => {
   if (document.cookie) {
     let cookie = document.cookie.split('; ');
@@ -272,13 +392,12 @@ onMounted(() => {
       if (value[0] === 'flag') {
         lang[0] = value[1]
       } else if (value[0] === 'language') {
-        if(value[1].indexOf('[') !== -1){
-          lang = ['🇮🇷','fa' , 'rtl']
+        if (value[1].indexOf('[') !== -1) {
+          lang = ['🇮🇷', 'fa', 'rtl']
           document.cookie = `flag=${lang[0]}`
           document.cookie = `language=${lang[1]}`
           document.cookie = `direction=${lang[2]}`
-        }
-        else {
+        } else {
           lang[1] = value[1]
         }
       } else if (value[0] === 'direction') {
@@ -297,14 +416,33 @@ onMounted(() => {
           }
         }
     ).then((response) => {
-      if (response.data !== 'Customer')
+      customerType.value = response.data
+      if (response.data !== 'Customer' && response.data !== 'SuperCustomer'){
         router.push('/')
-      else getSubscriptions()
+      }
+      else {
+        userType.value = response.data
+        getSubscriptions()
+        getUserDetails()
+      }
     }).catch((error) => {
       router.push('/')
     })
   } else router.push('/')
 })
+const getUserDetails = ()=>{
+  axios.get(`${useDataStore().getServerAddress}/users/self-details`,
+      {
+        headers: {
+          Authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    Object.assign(userDetail , response.data)
+  }).catch((error) => {
+    router.push('/')
+  })
+}
 
 watch(() => onboarding.value, () => {
   subscriptions.value = []

@@ -1,5 +1,9 @@
 <template>
   <admin-layout>
+    <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
+                         :subscription="subscription" type="ReNew"/>
+    <delete-confirmation-dialog :show-dialog="showDeleteDialog" title="subscriptions" :data="subscription"
+                                @close-dialog="showDeleteDialog = false"/>
     <div class="w-full absolute top-3">
       <div class="w-fit bg-error text-white flex rounded-xl px-2 py-2 mx-auto" v-if="showErrorMessage">
         <i class="pi pi-times-circle text-xl"/>
@@ -64,10 +68,65 @@
             {{ subscription.totalFlow }}&nbsp;GB
           </div>
           </div>
+          <div class="flex">{{ local.payStatus }}&nbsp;:&nbsp;<div class="font-normal" :class="{'mr-auto' : isRtl , 'ml-auto': !isRtl}">
+            <div
+                class="text-xs md:text-sm bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-fit text-success relative mx-auto cursor-pointer"
+                v-if="showSubDetail && subscription.markAsPaid" @mouseenter="showMarkAsNotPaidTag = true"
+                @mouseleave="showMarkAsNotPaidTag = false" @click="changePayStatus(false)">{{ local.paid }}
+              <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-error"
+                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showMarkAsNotPaidTag">{{ local.markAsNotPaid }}
+              </div>
+            </div>
+            <div
+                class="text-xs md:text-sm bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 px-4 w-fit text-error relative mx-auto cursor-pointer"
+                v-if="showSubDetail && !subscription.markAsPaid" @mouseenter="showMarkAsPaidTag = true"
+                @mouseleave="showMarkAsPaidTag = false" @click="changePayStatus(true)">{{ local.notPaid }}
+              <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
+                   :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showMarkAsPaidTag">{{ local.markAsPaid }}
+              </div>
+            </div>
+          </div>
+          </div>
           <div class="flex">{{ local.status }}&nbsp;:&nbsp;<div class="font-normal"
                                                                 :class="{'mr-auto' : isRtl , 'ml-auto': !isRtl}">
-            {{ subscription.status ? local.active : local.inactive }}
+              <div
+                  class="text-xs md:text-sm bg-success bg-opacity-20 border-success border-2 rounded-xl text-center py-1 px-4 w-min text-success relative mx-auto cursor-pointer"
+                  v-if="showSubDetail && subscription.status" @mouseenter="showDeactivateSubscriptionTag = true"
+                  @mouseleave="showDeactivateSubscriptionTag = false" @click="changeStatus(false)">{{ local.active }}
+                <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-error"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showDeactivateSubscriptionTag">{{
+                    local.deactivate
+                  }}
+                  {{ local.subscription }}
+                </div>
+              </div>
+              <div
+                  class="text-xs md:text-sm bg-error bg-opacity-20 border-error border-2 rounded-xl text-center py-1 px-4 w-min text-error relative mx-auto cursor-pointer"
+                  v-if="showSubDetail && !subscription.status" @mouseenter="showActivateSubscriptionTag = true"
+                  @mouseleave="showActivateSubscriptionTag = false" @click="changeStatus(true)">{{ local.inactive }}
+                <div class="absolute -top-10 bg-background-3 w-max rounded-xl px-2 py-1 text-success"
+                     :class="{'-left-8' : !isRtl , '-right-8' : isRtl}" v-if="showActivateSubscriptionTag">{{ local.activate }}
+                  {{ local.subscription }}
+                </div>
+              </div>
           </div>
+          </div>
+          <div class="flex justify-end pt-4" v-if="showSubDetail">
+            <button
+                class="text-xs md:text-sm outline-none border-2 border-error rounded-xl bg-error bg-opacity-50 text-error px-3 py-1 flex space-x-1 items-center"
+                :class="{'ml-1' : isRtl , 'mr-1' : !isRtl}"
+                @click="showDeleteDialog=true"
+            >
+              <i class="pi pi-trash font-bold" :class="{'ml-1' : isRtl , 'mr-1' : !isRtl}"/>
+              {{local.delete}} {{local.subscription}}
+            </button>
+            <button
+                class="text-xs md:text-sm outline-none border-2 border-success rounded-xl bg-success bg-opacity-50 text-success px-3 py-1 flex space-x-1 items-center"
+                @click="showSubscriptionDialog=true"
+            >
+              <i class="pi pi-refresh font-bold" :class="{'ml-1' : isRtl , 'mr-1' : !isRtl}"/>
+              {{local.renew}} {{local.subscription}}
+            </button>
           </div>
           <div class="absolute top-0 bottom-0 right-0 left-0 text-info-2 px-6 md:px-10 pb-14"
                v-if="!showSubDetail">
@@ -139,6 +198,8 @@ import {computed, onMounted, reactive, ref} from "vue";
 import {useLocalization} from "../../../store/localizationStore.js";
 import axios from "axios";
 import {useDataStore} from "../../../store/dataStore.js";
+import SubscriptionDialog from "../../../components/subscriptionDialog.vue";
+import DeleteConfirmationDialog from "../../../components/deleteConfirmationDialog.vue";
 
 
 let local = computed(() => useLocalization().getLocal)
@@ -219,7 +280,42 @@ let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
 let successMessage = ref('')
 let errorMessage = ref('')
+let showSubscriptionDialog = ref(false)
+let showDeleteDialog = ref(false)
+let showDeactivateSubscriptionTag = ref(false)
+let showActivateSubscriptionTag = ref(false)
+let showMarkAsNotPaidTag = ref(false)
+let showMarkAsPaidTag = ref(false)
 
+const changeStatus = (payload) => {
+  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${subscription.id}&newStatus=${payload}`,
+      {},
+      {
+        headers: {
+          authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    subscription.status = payload
+  }).catch((error) => {
+    console.log(error)
+  })
+}
+
+const changePayStatus = (payload) => {
+  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-subscription?id=${subscription.id}&newPayStatus=${payload}`,
+      {},
+      {
+        headers: {
+          authorization: useDataStore().getToken
+        }
+      }
+  ).then((response) => {
+    subscription.markAsPaid = payload
+  }).catch((error) => {
+    console.log(error)
+  })
+}
 const uploadDb = (event) => {
   let dbFile = new FormData()
   dbFile.append('file', event.target.files[0], event.target.files[0].name)
