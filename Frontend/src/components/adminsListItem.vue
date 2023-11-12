@@ -102,7 +102,7 @@
                                 @open-renew-history-dialog="(payload) => {emits('openRenewHistoryDialog' , payload)}"
                                 @open-link-dialog="openLinkDialog" @change-subscription-pay-status="(payload) => {subscription.markAsPaid = payload}"
                                 @change-subscription-status="(payload) => {subscription.status = payload}" @open-delete-confirmation-dialog="(payload) => {emits('openDeleteSubConfirmationDialog' , payload)}"/>
-        <div class="flex mt-3">
+        <div class="flex mt-3" v-if="!isLoading">
           <div class="flex" v-for="i in subsPages" >
             <div class="text-lg" v-if="(subsPages > 5) && ((i === onboardingSubsPage-1 && i > 2) || (i === onboardingSubsPage+2 && i !== subsPages))">...</div>
             <div
