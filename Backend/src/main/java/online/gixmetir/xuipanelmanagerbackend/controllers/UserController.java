@@ -1,11 +1,13 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
+import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.filters.UserFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.ChangePasswordModel;
 import online.gixmetir.xuipanelmanagerbackend.models.UserDto;
 import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
 import online.gixmetir.xuipanelmanagerbackend.models.UserSelfDetails;
 import online.gixmetir.xuipanelmanagerbackend.services.app.UserService;
+import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,9 +59,17 @@ public class UserController {
         service.changePassword(changePasswordModel);
     }
 
+    @GetMapping("/download-self-report")
+    public ResponseEntity<InputStreamResource> downloadSelfReport() throws Exception {
+        UserEntity userEntity = new Helper().getUserFromContext();
+        return service.getUserReport(userEntity.getId());
+
+    }
+
     @GetMapping("/download-user-report")
     public ResponseEntity<InputStreamResource> downloadUserReport(@RequestParam Long userId) throws Exception {
         return service.getUserReport(userId);
+
     }
 
     @GetMapping("/self-details")

@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class PanelService {
@@ -58,13 +60,24 @@ public class PanelService {
         }
     }
 
-    public void updateClients(List<ClientEntity> clients) throws Exception {
-        for (ClientEntity entity : clients) {
-            ServerDto serverDto = new ServerDto(entity.getInbound().getServer());
-            String sessionKey = login(serverDto);
-            JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(new ClientModel(entity)), entity.getInbound().getIdFromPanel());
-            xuiClient.updateClient(URI.create(serverDto.getUrl()), sessionKey, entity.getUuid(), jsonObject.toString());
-        }
+    public void updateClients(List<ClientEntity> clients) {
+        Map<ServerEntity, List<ClientEntity>> clientsByServer =
+                clients.stream()
+                        .collect(Collectors.groupingBy(c -> c.getInbound().getServer()));
+        clientsByServer.forEach((server, listOfClients) -> {
+            ServerDto serverDto = new ServerDto(server);
+            String sessionKey = null;
+            try {
+                sessionKey = login(serverDto);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            for (ClientEntity clientEntity : listOfClients
+            ) {
+                JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(new ClientModel(clientEntity)), clientEntity.getInbound().getIdFromPanel());
+                xuiClient.updateClient(URI.create(serverDto.getUrl()), sessionKey, clientEntity.getUuid(), jsonObject.toString());
+            }
+        });
     }
 
     private static JSONObject convertListOfClientModelToJsonStructure(List<ClientModel> clients, Long inboundIdFromPanel) {
