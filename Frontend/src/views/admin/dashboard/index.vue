@@ -1,6 +1,6 @@
 <template>
   <admin-layout>
-    <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false"
+    <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" user-type="Admin"
                          :subscription="subscription" type="ReNew"/>
     <delete-confirmation-dialog :show-dialog="showDeleteDialog" title="subscriptions" :data="subscription"
                                 @close-dialog="showDeleteDialog = false"/>
