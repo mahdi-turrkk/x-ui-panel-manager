@@ -69,13 +69,13 @@ public class SyncService {
         List<ServerEntity> serverEntities = serverRepository.findAll();
         for (ServerEntity serverEntity : serverEntities) {
             String sessionKey = "";
-            if (!serverEntity.getIsDeleted())
+            if (serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted())
                 sessionKey = panelService.login(new ServerDto(serverEntity));
             List<InboundEntity> inbounds = inboundRepository.findByServerId(serverEntity.getId());
             for (InboundEntity inboundEntity : inbounds) {
                 List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
                 for (ClientEntity clientEntity : clientEntities) {
-                    if (!serverEntity.getIsDeleted()) {
+                    if (serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted()) {
                         ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
                         if (model != null) {
                             clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
