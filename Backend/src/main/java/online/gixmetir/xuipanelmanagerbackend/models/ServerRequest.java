@@ -14,6 +14,7 @@ public class ServerRequest {
     private String password;
     private Boolean generatable;
     private Boolean status;
+    private Boolean isDeleted;
 
     public ServerEntity toEntity() {
         return ServerEntity.builder()
@@ -21,6 +22,7 @@ public class ServerRequest {
                 .username(this.username)
                 .password(this.password)
                 .status(this.status)
+                .status(this.isDeleted)
                 .build();
     }
 
@@ -29,6 +31,7 @@ public class ServerRequest {
         entity.setUsername(this.getUsername());
         entity.setUrl(this.getUrl());
         entity.setStatus(this.getStatus());
+        entity.setIsDeleted(this.getIsDeleted());
         return entity;
     }
 }
