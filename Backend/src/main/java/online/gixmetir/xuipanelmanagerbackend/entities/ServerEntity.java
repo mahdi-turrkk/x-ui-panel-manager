@@ -25,5 +25,7 @@ public class ServerEntity {
 
     @Column(name = "status")
     private Boolean status;
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 
 }

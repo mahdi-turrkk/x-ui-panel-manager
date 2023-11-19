@@ -68,23 +68,27 @@ public class SyncService {
         });
         List<ServerEntity> serverEntities = serverRepository.findAll();
         for (ServerEntity serverEntity : serverEntities) {
-            String sessionKey = panelService.login(new ServerDto(serverEntity));
+            String sessionKey = "";
+            if (!serverEntity.getIsDeleted())
+                sessionKey = panelService.login(new ServerDto(serverEntity));
             List<InboundEntity> inbounds = inboundRepository.findByServerId(serverEntity.getId());
             for (InboundEntity inboundEntity : inbounds) {
                 List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
                 for (ClientEntity clientEntity : clientEntities) {
-                    ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
-                    if (model != null) {
-                        clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
-                        clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
-                        clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
-                        List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
-                        SubscriptionEntity subscriptionEntity = list.get(0);
-                        subscriptionEntity.setUpload(subscriptionEntity.getUpload() + clientEntity.getUp());
-                        subscriptionEntity.setDownload(subscriptionEntity.getDownload() + clientEntity.getDown());
-                        subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
-                        setExpirationDateToSubscription(subscriptionEntity);
+                    if (!serverEntity.getIsDeleted()) {
+                        ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
+                        if (model != null) {
+                            clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
+                            clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
+                            clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
+                        }
                     }
+                    List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
+                    SubscriptionEntity subscriptionEntity = list.get(0);
+                    subscriptionEntity.setUpload(subscriptionEntity.getUpload() + (clientEntity.getUp() == null ? 0 : clientEntity.getUp()));
+                    subscriptionEntity.setDownload(subscriptionEntity.getDownload() + (clientEntity.getDown() == null ? 0 : clientEntity.getDown()));
+                    subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
+                    setExpirationDateToSubscription(subscriptionEntity);
                 }
                 clientRepository.saveAll(clientEntities);
             }
