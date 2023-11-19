@@ -89,7 +89,7 @@ public class PanelService {
             clientObject.put("email", model.getEmail());
             clientObject.put("flow", model.getFlow());
             clientObject.put("limitIp", model.getLimitIp());
-            clientObject.put("alterId", "");
+            clientObject.put("alterId", 0);
             clientObject.put("totalGB", model.getTotalGb());
             clientObject.put("expiryTime", model.getExpiryTime());
             clientObject.put("enable", model.isEnable());
