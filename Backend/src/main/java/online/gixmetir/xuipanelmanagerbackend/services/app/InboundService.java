@@ -43,6 +43,7 @@ public class InboundService {
     public void loadAllInboundsFromPanels() throws Exception {
         List<ServerEntity> servers = serverRepository.findAll();
         for (ServerEntity server : servers) {
+            if (server.getIsDeleted()) continue;
             InboundModel[] inboundModels = panelService.loadAllInboundsFromXuiPanel(new ServerDto(server));
             for (InboundModel inbound : inboundModels) {
                 InboundEntity entity = inboundRepository.findByIdFromPanelAndServerId(inbound.getId(), server.getId()).orElse(null);
@@ -83,7 +84,7 @@ public class InboundService {
     public Page<InboundDto> getAll(InboundFilter filter, Pageable pageable) {
         int pageNumber = 0;
         int pageSize = Integer.MAX_VALUE;
-        Sort sort = Sort.by(Sort.Direction.ASC,"id");
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
         Pageable pageable1 = PageRequest.of(pageNumber, pageSize, sort);
 
         return inboundRepository.findAll(filter, pageable1).map(InboundDto::new);
