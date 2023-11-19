@@ -14,6 +14,7 @@ public class ServerDto {
     private String username;
     private String password;
     private Boolean status;
+    private Boolean isDeleted;
 
     public ServerDto(ServerEntity entity) {
         this.id = entity.getId();
@@ -21,5 +22,6 @@ public class ServerDto {
         this.password = entity.getPassword();
         this.username = entity.getUsername();
         this.status = entity.getStatus();
+        this.isDeleted = entity.getIsDeleted();
     }
 }
