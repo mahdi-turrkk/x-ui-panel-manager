@@ -43,7 +43,7 @@ public class InboundService {
     public void loadAllInboundsFromPanels() throws Exception {
         List<ServerEntity> servers = serverRepository.findAll();
         for (ServerEntity server : servers) {
-            if (server.getIsDeleted()) continue;
+            if (server.getIsDeleted() != null && server.getIsDeleted()) continue;
             InboundModel[] inboundModels = panelService.loadAllInboundsFromXuiPanel(new ServerDto(server));
             for (InboundModel inbound : inboundModels) {
                 InboundEntity entity = inboundRepository.findByIdFromPanelAndServerId(inbound.getId(), server.getId()).orElse(null);
@@ -53,6 +53,7 @@ public class InboundService {
                     updateInbound(inbound, entity);
                 }
             }
+
         }
 
     }
