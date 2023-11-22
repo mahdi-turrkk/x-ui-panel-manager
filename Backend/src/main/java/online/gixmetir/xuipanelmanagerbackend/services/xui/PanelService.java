@@ -110,6 +110,7 @@ public class PanelService {
     public void deleteClients(List<ClientEntity> clientEntities) throws Exception {
         for (ClientEntity client : clientEntities) {
             ServerEntity serverEntity = client.getInbound().getServer();
+            if (serverEntity.getIsDeleted() != null && serverEntity.getIsDeleted()) continue;
             String sessionKey = login(new ServerDto(serverEntity));
             ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverEntity.getUrl()), sessionKey, client.getInbound().getIdFromPanel(), client.getUuid());
             if (!Objects.requireNonNull(response.getBody()).getSuccess())
