@@ -4,13 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels.*;
+import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -160,13 +165,12 @@ public class ClientService {
         link += queryParams;
 
         if (!inbound.getRemark().isEmpty() || !client.getEmail().isEmpty()) {
-            link += "#" + URI.create(client.getEmail().replace(" ", "")).toASCIIString();
+            link += "#" + generateClientName(client);
         }
         return link;
     }
 
     private String generateVmessLink(ClientEntity client) throws IOException {
-
         InboundEntity inbound = client.getInbound();
         ServerEntity server = client.getInbound().getServer();
         Map<String, Object> obj = new HashMap<>();
@@ -300,7 +304,7 @@ public class ClientService {
             StringBuilder links = new StringBuilder();
             for (int i = 0; i < domains.size(); i++) {
 //                Map<String, Object> domain = (Map<String, Object>) domains.get(i);
-                obj.put("ps", client.getEmail() + " " + domains.get(i));
+                obj.put("ps", generateClientName(client));
                 obj.put("add", domains.get(i));
 
                 if (i > 0) {
@@ -315,12 +319,29 @@ public class ClientService {
             return links.toString();
         }
 
-        obj.put("ps", client.getEmail());
+        obj.put("ps", generateClientName(client));
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(obj);
 //        String jsonStr = json.marshalIndent(obj, "", " ");
         String s = "vmess://" + Base64.getEncoder().encodeToString(json.getBytes());
         return s;
+    }
+
+    private String generateClientName(ClientEntity clientEntity) {
+        SubscriptionEntity subscription = clientEntity.getSubscription();
+
+
+        long numOfDays = ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getExpireDate());
+
+        System.out.println(numOfDays);
+        Long remainingAmount = (subscription.getTotalFlow() == 0 ? 0 : subscription.getTotalFlow()) - (subscription.getTotalUsed() == null ? 0 : subscription.getTotalUsed());
+        double remainingAmountGB = new Helper().byteToGB(remainingAmount);
+        DecimalFormat df = new DecimalFormat("#.##");
+        String formatted = df.format(remainingAmountGB);
+
+        String name = clientEntity.getInbound().getRemark() + "-"+subscription.getTitle()+"-" + formatted + "-GB-" + numOfDays + "-Days";
+        return name;
+
     }
 }
 
