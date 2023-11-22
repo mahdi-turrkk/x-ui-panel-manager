@@ -67,15 +67,19 @@ public class PanelService {
         clientsByServer.forEach((server, listOfClients) -> {
             ServerDto serverDto = new ServerDto(server);
             String sessionKey = null;
-            try {
-                sessionKey = login(serverDto);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            for (ClientEntity clientEntity : listOfClients
-            ) {
-                JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(new ClientModel(clientEntity)), clientEntity.getInbound().getIdFromPanel());
-                xuiClient.updateClient(URI.create(serverDto.getUrl()), sessionKey, clientEntity.getUuid(), jsonObject.toString());
+            if (server.getIsDeleted() != null && !server.getIsDeleted() && server.getStatus() != null && server.getStatus()) {
+                try {
+                    sessionKey = login(serverDto);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                for (ClientEntity clientEntity : listOfClients
+                ) {
+                    if (clientEntity.getInbound().getGeneratable() != null && clientEntity.getInbound().getGeneratable()) {
+                        JSONObject jsonObject = convertListOfClientModelToJsonStructure(List.of(new ClientModel(clientEntity)), clientEntity.getInbound().getIdFromPanel());
+                        xuiClient.updateClient(URI.create(serverDto.getUrl()), sessionKey, clientEntity.getUuid(), jsonObject.toString());
+                    }
+                }
             }
         });
     }
