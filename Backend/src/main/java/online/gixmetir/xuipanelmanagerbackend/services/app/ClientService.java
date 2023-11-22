@@ -171,7 +171,11 @@ public class ClientService {
         ServerEntity server = client.getInbound().getServer();
         Map<String, Object> obj = new HashMap<>();
         obj.put("v", "2");
-        obj.put("add", server.getUrl());
+        if (inbound.getStreamSettingsObj().getTlsSettings().getServerName() != null && !inbound.getStreamSettingsObj().getTlsSettings().getServerName().isEmpty())
+            obj.put("add", inbound.getStreamSettingsObj().getTlsSettings().getServerName());
+        else
+            obj.put("add", server.getUrl());
+        obj.put("port", inbound.getPort());
         obj.put("port", inbound.getPort());
         obj.put("type", "none");
 
@@ -285,9 +289,9 @@ public class ClientService {
             }
 
 //            String serverName = (String) tlsSetting.get("serverName");
-            if (tlsSettingsInner.getServerName() != null) {
-                obj.put("add", tlsSettingsInner.getServerName());
-            }
+//            if (tlsSettingsInner.getServerName() != null) {
+//                obj.put("add", tlsSettingsInner.getServerName());
+//            }
         }
 
         obj.put("id", client.getUuid());
