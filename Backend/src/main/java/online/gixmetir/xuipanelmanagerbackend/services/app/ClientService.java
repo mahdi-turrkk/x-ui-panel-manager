@@ -330,16 +330,18 @@ public class ClientService {
     private String generateClientName(ClientEntity clientEntity) {
         SubscriptionEntity subscription = clientEntity.getSubscription();
 
-
-        long numOfDays = ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getExpireDate());
+        long numOfDays = 0;
+        if (subscription.getExpireDate() == null) {
+            numOfDays = subscription.getPeriodLength();
+        } else numOfDays = ChronoUnit.DAYS.between(LocalDateTime.now(), subscription.getExpireDate());
 
         System.out.println(numOfDays);
-        Long remainingAmount = (subscription.getTotalFlow() == 0 ? 0 : subscription.getTotalFlow()) - (subscription.getTotalUsed() == null ? 0 : subscription.getTotalUsed());
+        Long remainingAmount = (subscription.getTotalFlow() == null ? 0 : subscription.getTotalFlow()) - (subscription.getTotalUsed() == null ? 0 : subscription.getTotalUsed());
         double remainingAmountGB = new Helper().byteToGB(remainingAmount);
         DecimalFormat df = new DecimalFormat("#.##");
         String formatted = df.format(remainingAmountGB);
 
-        String name = clientEntity.getInbound().getRemark() + "-"+subscription.getTitle()+"-" + formatted + "-GB-" + numOfDays + "-Days";
+        String name = clientEntity.getInbound().getRemark() + "-" + subscription.getTitle() + "-" + formatted + "-GB-" + numOfDays + "-Days";
         return name;
 
     }
