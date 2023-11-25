@@ -1,9 +1,12 @@
 package online.gixmetir.xuipanelmanagerbackend.utils;
 
+import com.google.gson.Gson;
 import online.gixmetir.xuipanelmanagerbackend.entities.UserEntity;
 import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +18,7 @@ public class Helper {
         return items[0];
     }
 
-    public double  byteToGB(Long byteNumber) {
+    public double byteToGB(Long byteNumber) {
         if (byteNumber == null) return 0;
         return (double) byteNumber / 1024 / 1024 / 1024;
     }
@@ -51,23 +54,34 @@ public class Helper {
     }
 
     public String extractUuidFromConfig(String config) throws Exception {
+        if (config.contains("vless") || config.contains("Vless")) {
+            // Define a regular expression pattern to match UUID
+            // Define the regular expression pattern to match the UUID
+            Pattern pattern = Pattern.compile("vless://([a-f0-9-]+)@");
 
-        // Define a regular expression pattern to match UUID
-        // Define the regular expression pattern to match the UUID
-        Pattern pattern = Pattern.compile("vless://([a-f0-9-]+)@");
+            // Create a Matcher to find the pattern in the URI
+            Matcher matcher = pattern.matcher(config);
 
-        // Create a Matcher to find the pattern in the URI
-        Matcher matcher = pattern.matcher(config);
+            // Check if the pattern is found
+            if (matcher.find()) {
+                // Extract and print the UUID
+                String uuid = matcher.group(1);
+                return uuid;
+            } else {
+                System.out.println("UUID not found in the VLESS URI.");
+            }
+            throw new IllegalArgumentException("config is invalid");
+        } else if (config.contains("vmess") || config.contains("Vmess")) {
+            String encoded = config.split("://")[1];
+            String decoded = new String(Base64.getDecoder().decode(encoded));
+            Gson gson = new Gson();
+            HashMap map = gson.fromJson(decoded, HashMap.class);
 
-        // Check if the pattern is found
-        if (matcher.find()) {
-            // Extract and print the UUID
-            String uuid = matcher.group(1);
-            return uuid;
-        } else {
-            System.out.println("UUID not found in the VLESS URI.");
+            if (map.get("id") != null) return map.get("id").toString();
+            throw new IllegalArgumentException("config is invalid");
         }
-        throw new IllegalArgumentException("config is invalid");
+        return null;
+
     }
 
     public UserEntity getUserFromContext() throws Exception {
