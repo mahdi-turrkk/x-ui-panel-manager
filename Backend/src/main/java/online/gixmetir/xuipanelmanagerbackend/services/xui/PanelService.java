@@ -67,7 +67,7 @@ public class PanelService {
         clientsByServer.forEach((server, listOfClients) -> {
             ServerDto serverDto = new ServerDto(server);
             String sessionKey = null;
-            if (server.getIsDeleted() != null && !server.getIsDeleted() && server.getStatus() != null && server.getStatus()) {
+            if ((server.getIsDeleted() == null || !server.getIsDeleted()) && (server.getStatus() != null && server.getStatus())) {
                 try {
                     sessionKey = login(serverDto);
                 } catch (Exception e) {
