@@ -65,11 +65,11 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers("/api/v1/users/change-password","/api/v1/users/self-details").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(),Role.SuperCustomer.name())
-                                .requestMatchers("/api/v1/plans/get-all").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(),Role.SuperCustomer.name())
+                                .requestMatchers("/api/v1/users/change-password", "/api/v1/users/self-details").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(), Role.SuperCustomer.name())
+                                .requestMatchers("/api/v1/plans/get-all").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(), Role.SuperCustomer.name())
                                 .requestMatchers("/api/v1/subscriptions/change-pay-status-for-subscription").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("/api/v1/subscriptions/change-pay-status-for-subscription-renew-log").hasAnyAuthority(Role.Admin.name())
-                                .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(),Role.SuperCustomer.name())
+                                .requestMatchers("/api/v1/subscriptions/*").hasAnyAuthority(Role.Admin.name(), Role.Customer.name(), Role.SuperCustomer.name(), Role.Bot.name())
                                 .requestMatchers("/api/v1/users/*").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("/api/v1/plans/*").hasAnyAuthority(Role.Admin.name())
                                 .requestMatchers("/api/v1/inbounds/*").hasAnyAuthority(Role.Admin.name())
