@@ -293,7 +293,7 @@ public class SubscriptionService {
             entity = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Subscription with uuid: " + subLink + " non found"));
         }
         UserEntity userEntity = new Helper().getUserFromContext();
-        if (userEntity.getId() == entity.getUserId() || userEntity.getRole() == Role.Admin)
+        if (userEntity.getId() == entity.getUserId() || userEntity.getRole() == Role.Admin || userEntity.getRole() == Role.Bot)
             return new SubscriptionDto(entity);
         if (userEntity.getId() != entity.getUserId())
             throw new ForbiddenException("doesnt access to this method.");
