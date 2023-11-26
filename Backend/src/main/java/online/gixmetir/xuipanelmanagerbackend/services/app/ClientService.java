@@ -341,7 +341,7 @@ public class ClientService {
         DecimalFormat df = new DecimalFormat("#.##");
         String formatted = df.format(remainingAmountGB);
 
-        String name = clientEntity.getInbound().getRemark() + "-" + subscription.getTitle() + "-" + formatted + "-GB-" + numOfDays + "-Days";
+        String name = clientEntity.getInbound().getRemark() + "-" + subscription.getTitle() ;
         return name;
 
     }
