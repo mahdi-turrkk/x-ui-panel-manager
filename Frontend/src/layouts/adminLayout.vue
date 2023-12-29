@@ -203,9 +203,9 @@ onMounted(() => {
       else if (value[0] === 'language'){
         if(value[1].indexOf('[') !== -1){
           lang = ['🇮🇷','fa' , 'rtl']
-          document.cookie = `flag=${lang[0]}`
-          document.cookie = `language=${lang[1]}`
-          document.cookie = `direction=${lang[2]}`
+          document.cookie = `flag=${lang[0]};path=/`
+          document.cookie = `language=${lang[1]};path=/`
+          document.cookie = `direction=${lang[2]};path=/`
         }
         else {
           lang[1] = value[1]
@@ -251,16 +251,16 @@ let isDark = computed(() => {
 const changeThemeStatus = () => {
   showSettingMenu.value = false
   useDataStore().changeDarkStatus()
-  document.cookie = `isDark=${useDataStore().getDarkStatus}`
+  document.cookie = `isDark=${useDataStore().getDarkStatus};path=/`
 }
 
 let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  document.cookie = `flag=${payload[0]}`
-  document.cookie = `language=${payload[1]}`
-  document.cookie = `direction=${payload[2]}`
+  document.cookie = `flag=${payload[0]};path=/`
+  document.cookie = `language=${payload[1]};path=/`
+  document.cookie = `direction=${payload[2]};path=/`
 }
 
 let local = computed(() => {
@@ -272,7 +272,7 @@ let isRtl = computed(() => {
 })
 
 const logOut = () => {
-  document.cookie = `token=`
+  document.cookie = `token=;path=/`
   router.push('/')
 }
 

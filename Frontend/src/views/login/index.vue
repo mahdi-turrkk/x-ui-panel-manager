@@ -65,9 +65,9 @@ let showLangMenu = ref(false)
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  document.cookie = `flag=${payload[0]}`
-  document.cookie = `language=${payload[1]}`
-  document.cookie = `direction=${payload[2]}`
+  document.cookie = `flag=${payload[0]};path=/`
+  document.cookie = `language=${payload[1]};path=/`
+  document.cookie = `direction=${payload[2]};path=/`
 }
 
 let local = computed(() => {
@@ -93,11 +93,11 @@ const signIn = () => {
         }
     ).then((response) => {
       useDataStore().setToken(response.data.token)
-      document.cookie = `token=${response.data.token}`
-      document.cookie = `isDark=${useDataStore().getDarkStatus}`
-      document.cookie = `flag=${useLocalization().getFlag}`
-      document.cookie = `language=${useLocalization().getLanguage}`
-      document.cookie = `direction=${useLocalization().getDirection}`
+      document.cookie = `token=${response.data.token};path=/`
+      document.cookie = `isDark=${useDataStore().getDarkStatus};path=/`
+      document.cookie = `flag=${useLocalization().getFlag};path=/`
+      document.cookie = `language=${useLocalization().getLanguage};path=/`
+      document.cookie = `direction=${useLocalization().getDirection};path=/`
       if (response.data.role === 'Admin')
         router.push('/admin')
       else if (response.data.role === 'Customer' || response.data.role === 'SuperCustomer')
@@ -129,9 +129,9 @@ onMounted(() => {
       } else if (value[0] === 'language') {
         if(value[1].indexOf('[') !== -1){
           lang = ['🇮🇷','fa' , 'rtl']
-          document.cookie = `flag=${lang[0]}`
-          document.cookie = `language=${lang[1]}`
-          document.cookie = `direction=${lang[2]}`
+          document.cookie = `flag=${lang[0]};path=/`
+          document.cookie = `language=${lang[1]};path=/`
+          document.cookie = `direction=${lang[2]};path=/`
         }
         else {
           lang[1] = value[1]
