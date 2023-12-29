@@ -31,7 +31,8 @@
           <option value="" disabled selected>{{ local.totalFlow }}</option>
           <option v-for="totalFlow in totalFlows" class="my-4" :value="Number(totalFlow)">{{ totalFlow }} GB</option>
         </select>
-        <input type="number" :placeholder="local.totalFlow" v-model="totalFlow" v-else-if="userType === 'Admin' || userType === 'SuperCustomer'"
+        <input type="number" :placeholder="local.totalFlow" v-model="totalFlow"
+               v-else-if="userType === 'Admin' || userType === 'SuperCustomer'"
                class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
         <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
                :class="{'mt-0 opacity-100' : periodLength}">{{ local.periodLength }}</label>
@@ -42,7 +43,8 @@
             {{ local.days }}
           </option>
         </select>
-        <input type="number" :placeholder="local.periodLength" v-model="periodLength" v-else-if="userType === 'Admin' || userType === 'SuperCustomer'"
+        <input type="number" :placeholder="local.periodLength" v-model="periodLength"
+               v-else-if="userType === 'Admin' || userType === 'SuperCustomer'"
                class="z-20 w-full md:w-96  shadow-lg mb-4 rounded-xl px-4 py-2 bg-background-2 text-info-3 placeholder:text-info-2 outline-none border-background-2 border-2 focus:border-primary-1 transition-all duration-150"/>
         <label class="z-0 px-2 pb-3 -mt-[40px] opacity-0 transition-all duration-200"
                :class="{'mt-0 opacity-100' : number}" v-if="type === 'new'">{{ local.number }}</label>
@@ -52,10 +54,11 @@
       <div class="flex items-center mt-2"
            :class="{'justify-between' : periodLength && totalFlow , 'justify-end' : !periodLength || !totalFlow }">
         <div class="flex z-0 opacity-0 transition-all duration-200"
-             :class="{'opacity-100' : periodLength && totalFlow && number}" v-if="userType === 'Customer' && periodLength && totalFlow">
+             :class="{'opacity-100' : periodLength && totalFlow && number}"
+             v-if="userType === 'Customer' && periodLength && totalFlow">
           <div>{{ local.price }}&nbsp :</div>
           <div>
-            {{  plans.find((plan) => plan.totalFlow == totalFlow && plan.periodLength == periodLength).price * number }}
+            {{ plans.find((plan) => plan.totalFlow == totalFlow && plan.periodLength == periodLength).price * number }}
           </div>
         </div>
         <div class="flex">
@@ -101,15 +104,15 @@ let ipLimit = ref('')
 let title = ref('')
 let periodLength = ref('')
 let number = ref(1)
-const props = defineProps(['showDialog', 'subscription', 'type' , 'userType'])
+const props = defineProps(['showDialog', 'subscription', 'type', 'userType'])
 
 watch(() => props.subscription, () => {
-    subscriptionId.value = props.subscription.id
-    title.value = props.subscription.title
-    totalFlow.value = ''
-    ipLimit.value = props.subscription.ipLimit
-    title.value = props.subscription.title
-    periodLength.value = ''
+  subscriptionId.value = props.subscription.id
+  title.value = props.subscription.title
+  totalFlow.value = ''
+  ipLimit.value = props.subscription.ipLimit
+  title.value = props.subscription.title
+  periodLength.value = ''
 })
 
 const emits = defineEmits(['closeDialog', 'subsAdded'])
@@ -130,57 +133,65 @@ let plans = ref([])
 
 const saveSubscription = () => {
   if (totalFlow.value && periodLength.value && (number.value || props.type === 'ReNew')) {
-    if (props.type === 'ReNew') {
-      axios.put(`${useDataStore().serverAddress}/subscriptions/update?updateType=ReNew&id=${props.subscription.id}`,
-          {
-            totalFlow: totalFlow.value,
-            periodLength: periodLength.value
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
+    if (totalFlow.value < 0 || (periodLength.value <= 0 && props.type === 'new')|| (periodLength.value < 0 && props.type === 'ReNew') || (number.value <= 0 && props.type === 'new')) {
+      errorMessage = local.value.invalidFlowOrPeriod
+      showErrorMessage.value = true
+      setTimeout(() => {
+        showErrorMessage.value = false
+      }, 1000)
+    } else {
+      if (props.type === 'ReNew') {
+        axios.put(`${useDataStore().serverAddress}/subscriptions/update?updateType=ReNew&id=${props.subscription.id}`,
+            {
+              totalFlow: totalFlow.value,
+              periodLength: periodLength.value
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
             }
-          }
-      ).then((response) => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-          emits('closeDialog')
-        }, 1000)
-      }).catch((error) => {
-        errorMessage = local.value.errorSavingSubscription
-        showErrorMessage.value = true
-        setTimeout(() => {
-          showErrorMessage.value = false
-        }, 1000)
-      })
-    } else if (props.type === 'new') {
-      axios.post(`${useDataStore().serverAddress}/subscriptions/create`,
-          {
-            title: title.value,
-            totalFlow: totalFlow.value,
-            periodLength: periodLength.value,
-            numberSubscriptionsToGenerate: number.value
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
-            }
-          },
-      ).then((response) => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-          emits('closeDialog')
-        }, 1000)
-        emits('subsAdded')
-      }).catch((error) => {
-        errorMessage = local.value.errorSavingSubscription
-        showErrorMessage.value = true
-        setTimeout(() => {
-          showErrorMessage.value = false
-        }, 1000)
-      })
+        ).then((response) => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            emits('closeDialog')
+          }, 1000)
+        }).catch((error) => {
+          errorMessage = local.value.errorSavingSubscription
+          showErrorMessage.value = true
+          setTimeout(() => {
+            showErrorMessage.value = false
+          }, 1000)
+        })
+      } else if (props.type === 'new') {
+        axios.post(`${useDataStore().serverAddress}/subscriptions/create`,
+            {
+              title: title.value,
+              totalFlow: totalFlow.value,
+              periodLength: periodLength.value,
+              numberSubscriptionsToGenerate: number.value
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
+            },
+        ).then((response) => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            emits('closeDialog')
+          }, 1000)
+          emits('subsAdded')
+        }).catch((error) => {
+          errorMessage = local.value.errorSavingSubscription
+          showErrorMessage.value = true
+          setTimeout(() => {
+            showErrorMessage.value = false
+          }, 1000)
+        })
+      }
     }
   } else {
     errorMessage = local.value.errorFieldsOfSubscription

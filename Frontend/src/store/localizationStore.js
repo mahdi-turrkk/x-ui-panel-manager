@@ -137,7 +137,8 @@ export const useLocalization = defineStore('localize', {
                     payAmount: 'مقدار پرداختی (تومان)',
                     errorSavingPayment: 'مشکلی در ثبت پرداخت به وجود آمده.دوباره تلاش کنید.',
                     errorFieldsOfPayment: 'فیلد هارا به صورت درست پر کنید.',
-                    addPayment: 'افزودن پرداختی'
+                    addPayment: 'افزودن پرداختی',
+                    invalidFlowOrPeriod: 'مقدار فیلد حجم کل یا مدت را به صورت صحیح (اعداد مثبت) وارد کنید.',
                 },
                 en: {
                     username: 'Username',
@@ -269,7 +270,8 @@ export const useLocalization = defineStore('localize', {
                     payAmount: 'Pay Amount (Tomans)',
                     errorSavingPayment: 'Error occurred while saving payment.Try again.',
                     errorFieldsOfPayment: 'Fill the fields correctly.',
-                    addPayment: 'Add Payment'
+                    addPayment: 'Add Payment',
+                    invalidFlowOrPeriod: 'Fill the fields correctly. Flow and period must be positive numbers.',
                 },
             }
         }
