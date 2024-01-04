@@ -114,8 +114,8 @@
             :class="{'shadow-info-1 shadow-sm' : useDataStore().getDarkStatus}">
           <div class="w-0 hidden md:inline-block md:w-[10%] text-xs md:text-sm">{{ local.id }}</div>
           <div class="hidden md:inline-block md:w-[25%] text-center text-xs md:text-sm">{{ local.plan }}</div>
-          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm" :class="{'w-[60%] md:w-[40%]' : customerType === 'SuperCustomer' , 'w-[30%] md:w-[20%]' : customerType !== 'SuperCustomer'}">{{ local.remaining }}</div>
-          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm" v-if="customerType !== 'SuperCustomer'">{{ local.payStatus }}</div>
+          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.remaining }}</div>
+          <div class="w-[30%] md:w-[20%] text-center text-xs md:text-sm">{{ local.payStatus }}</div>
           <div class="w-[30%] md:w-[15%] text-center text-xs md:text-sm">{{ local.status }}</div>
           <div class="w-[10%] text-center text-xs md:text-sm">{{ local.actions }}</div>
         </div>
