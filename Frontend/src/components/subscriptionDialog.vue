@@ -55,10 +55,10 @@
            :class="{'justify-between' : periodLength && totalFlow , 'justify-end' : !periodLength || !totalFlow }">
         <div class="flex z-0 opacity-0 transition-all duration-200"
              :class="{'opacity-100' : periodLength && totalFlow && number}"
-             v-if="userType === 'Customer' && periodLength && totalFlow">
+             v-if="periodLength && totalFlow">
           <div>{{ local.price }}&nbsp :</div>
           <div>
-            {{ plans.find((plan) => plan.totalFlow == totalFlow && plan.periodLength == periodLength).price * number }}
+            {{ price }}
           </div>
         </div>
         <div class="flex">
@@ -104,7 +104,7 @@ let ipLimit = ref('')
 let title = ref('')
 let periodLength = ref('')
 let number = ref(1)
-const props = defineProps(['showDialog', 'subscription', 'type', 'userType'])
+const props = defineProps(['showDialog', 'subscription', 'type', 'userType' , 'pricePerGb'])
 
 watch(() => props.subscription, () => {
   subscriptionId.value = props.subscription.id
@@ -229,6 +229,14 @@ const getPlans = () => {
 watch(() => props.showDialog, () => {
   if (props.showDialog && props.userType === 'Customer') {
     getPlans()
+  }
+})
+
+let price = computed(() => {
+  if(props.userType === 'Customer')
+    return plans.value.find((plan) => plan.totalFlow == totalFlow.value && plan.periodLength == periodLength.value).price * number.value
+  else if(props.userType === 'SuperCustomer') {
+    return (Math.ceil((periodLength.value/30)-1)*10000 + props.pricePerGb*totalFlow.value) * number.value
   }
 })
 </script>

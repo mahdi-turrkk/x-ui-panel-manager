@@ -210,7 +210,7 @@
       </div>
       <div class="lg:col-span-4 -mt-2">
         <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
-        <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" :user-type="userType"
+        <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" :user-type="userType" :price-per-gb="userDetail.pricePerGb"
                              :subscription="subscription" :type="subEditType" @subs-added="addNewSubsToList"/>
         <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
           <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
@@ -379,7 +379,8 @@ let userDetail = reactive(
       totalFlow : undefined,
       isIndefiniteFlow : undefined,
       debtAmount : undefined,
-      totalUsed : undefined
+      totalUsed : undefined,
+      pricePerGb : undefined
     }
 )
 
