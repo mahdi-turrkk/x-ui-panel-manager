@@ -290,26 +290,27 @@ public class UserService {
         userSelfDetails.setExpirationDateTime(entity.getExpirationDateTime());
         userSelfDetails.setTotalFlow(helper.byteToGB(entity.getTotalFlow()));
         userSelfDetails.setTotalUsed(helper.byteToGB(entity.getTotalUsed()));
+        userSelfDetails.setPricePerGb(entity.getPricePerGb());
         List<SubscriptionLogEntity> subscriptionLogEntities = new ArrayList<>();
-        double payAmount = 0;
-
-        if (entity.getRole() == Role.SuperCustomer) {
-            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserId(entity.getId());
-            List<UserPaymentLogEntity> userPaymentLogEntities = userPaymentLogRepository.findAllByUserId(entity.getId());
-            for (UserPaymentLogEntity userPaymentLogEntity : userPaymentLogEntities
-            ) {
-                payAmount += userPaymentLogEntity.getPayAmount();
-            }
-        } else if (entity.getRole() == Role.Customer) {
-            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserIdAndMarkAsPaid(entity.getId(), false);
-
-        }
+//        double payAmount = 0;
+//
+//        if (entity.getRole() == Role.SuperCustomer) {
+//            subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserId(entity.getId());
+//            List<UserPaymentLogEntity> userPaymentLogEntities = userPaymentLogRepository.findAllByUserId(entity.getId());
+//            for (UserPaymentLogEntity userPaymentLogEntity : userPaymentLogEntities
+//            ) {
+//                payAmount += userPaymentLogEntity.getPayAmount();
+//            }
+//        } else if (entity.getRole() == Role.Customer) {
+//
+//        }
+        subscriptionLogEntities = subscriptionLogRepository.findAllBySubscriptionUserIdAndMarkAsPaid(entity.getId(), false);
         double debitAmount = 0;
         for (SubscriptionLogEntity log : subscriptionLogEntities
         ) {
             debitAmount += log.getPrice();
         }
-        debitAmount -= payAmount;
+//        debitAmount -= payAmount;
         userSelfDetails.setDebtAmount((long) debitAmount);
         return userSelfDetails;
     }

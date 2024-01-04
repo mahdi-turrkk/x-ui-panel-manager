@@ -196,6 +196,9 @@ public class SubscriptionService {
                 .markAsPaid(false)
                 .build();
 
+        double extraPrice = Math.ceil((double) request.getPeriodLength() / 30 - 1) * 10000;
+        logEntity.setPrice(logEntity.getPrice() + extraPrice);
+
         subscriptionReNewLogRepository.save(logEntity);
     }
 
