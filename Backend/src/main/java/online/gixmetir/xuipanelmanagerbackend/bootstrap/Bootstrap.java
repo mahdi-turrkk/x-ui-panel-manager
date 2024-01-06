@@ -35,7 +35,7 @@ public class Bootstrap implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (authenticationRepository.findByUsername("HUSYN.CF").orElse(null) != null) return;
+        if (authenticationRepository.findByUsername("ADMIN@ADMIN").orElse(null) != null) return;
 
         bootstrapServer();
         bootstrapUser();
@@ -59,12 +59,12 @@ public class Bootstrap implements ApplicationRunner {
     }
 
     private void bootstrapPlans() throws Exception {
-        PlanRequest planRequest = PlanRequest.builder()
-                .periodLength(30)
-                .totalFlow(30L)
-                .price(90000000D)
-                .build();
-        planService.create(planRequest);
+//        PlanRequest planRequest = PlanRequest.builder()
+//                .periodLength(30)
+//                .totalFlow(30L)
+//                .price(90000000D)
+//                .build();
+//        planService.create(planRequest);
     }
 
     private void bootstrapServer() throws Exception {
@@ -83,33 +83,20 @@ public class Bootstrap implements ApplicationRunner {
 
     private void bootstrapUser() throws Exception {
         UserRequest request = UserRequest.builder()
-                .firstName("Hossein")
-                .lastName("Shakeri")
+                .firstName("ADMIN")
+                .lastName("ADMIN")
                 .address("Tabriz")
                 .email("gixmetir@bk.ru")
-                .phoneNumber("09149570548")
-                .username("HUSYN.CF")
-                .password("6230064227HUSYN.CF")
+                .phoneNumber("0914444444")
+                .username("ADMIN@ADMIN")
+                .password("ADMIN@admin")
                 .role(Role.Admin)
                 .isIndefiniteFlow(true)
                 .isIndefiniteExpirationTime(true)
                 .enabled(true)
                 .build();
-        UserRequest request1 = UserRequest.builder()
-                .firstName("Mahdi")
-                .lastName("Cahvoshi")
-                .address("Tabriz")
-                .email("gixmetir@bk.ru")
-                .phoneNumber("09149570548")
-                .username("MAHDI")
-                .password("MAHDITURK")
-                .role(Role.Admin)
-                .isIndefiniteFlow(true)
-                .isIndefiniteExpirationTime(true)
-                .enabled(true)
-                .build();
+
         userService.create(request);
-        userService.create(request1);
     }
 
     private void bootstrapSubscription() throws Exception {
