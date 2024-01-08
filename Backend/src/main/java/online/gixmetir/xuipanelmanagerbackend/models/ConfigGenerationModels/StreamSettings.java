@@ -13,6 +13,7 @@ import lombok.*;
 public class StreamSettings {
     private String network;
     private String security;
+    private ExternalProxy[] externalProxy;
     private TlsSettings tlsSettings;
     private TcpSettings tcpSettings;
     private KcpSettings kcpSettings;
