@@ -17,4 +17,6 @@ public class TlsSettings {
     private String[] alpn;
     private TlsSettingsInner settings;
     private boolean rejectUnknownSni;
+//    private String allowInsecure;
+//    private String keyFile;
 }

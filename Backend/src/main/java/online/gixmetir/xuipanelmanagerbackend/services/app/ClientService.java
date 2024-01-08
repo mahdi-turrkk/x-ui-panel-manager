@@ -110,11 +110,15 @@ public class ClientService {
                 if (inboundStreamSettings.getTlsSettings().getSettings().isAllowInsecure()) {
                     values.put("allowInsecure", "1");
                 }
-                if (!inboundStreamSettings.getTlsSettings().getServerName().isEmpty()) {
+                if (inboundStreamSettings.getExternalProxy() != null && inboundStreamSettings.getExternalProxy().length > 0) {
+                    address = inboundStreamSettings.getExternalProxy()[0].getDest();
+                } else if (!inboundStreamSettings.getTlsSettings().getServerName().isEmpty()) {
                     address = inboundStreamSettings.getTlsSettings().getServerName();
                 }
-                if (!inboundStreamSettings.getTlsSettings().getSettings().getServerName().isEmpty()) {
+                if (inboundStreamSettings.getTlsSettings().getSettings().getServerName() != null && !inboundStreamSettings.getTlsSettings().getSettings().getServerName().isEmpty()) {
                     values.put("sni", inboundStreamSettings.getTlsSettings().getSettings().getServerName());
+                } else {
+                    values.put("sni", inboundStreamSettings.getTlsSettings().getServerName());
                 }
                 if (type.equals("tcp") && !client.getFlow().isEmpty()) {
                     values.put("flow", client.getFlow());
@@ -341,7 +345,7 @@ public class ClientService {
         DecimalFormat df = new DecimalFormat("#.##");
         String formatted = df.format(remainingAmountGB);
 
-        String name = clientEntity.getInbound().getRemark() + "-" + subscription.getTitle() ;
+        String name = clientEntity.getInbound().getRemark() + "-" + subscription.getTitle();
         return name;
 
     }

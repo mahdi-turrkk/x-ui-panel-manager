@@ -7,9 +7,9 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Certificate {
-    private String certificateFile;
-    private String keyFile;
-    private String ocspStapling;
-
+public class ExternalProxy {
+    private String forceTls;
+    private String dest;
+    private String port;
+    private String remark;
 }
