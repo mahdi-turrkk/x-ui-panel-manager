@@ -1,5 +1,6 @@
 package online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Builder
@@ -8,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Headers {
+    @JsonProperty("Host")
     private String host;
 
 }

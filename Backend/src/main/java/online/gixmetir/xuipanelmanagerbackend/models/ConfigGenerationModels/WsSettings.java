@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 public class WsSettings {
     private boolean connectionReuse;
+    private boolean acceptProxyProtocol;
     private String path;
     private Headers headers;
 }
