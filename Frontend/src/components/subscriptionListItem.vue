@@ -11,11 +11,12 @@
         {{ subscription.periodLength + local.days }}
       </div>
     </div>
-    <div class="flex justify-center w-[30%] md:w-[20%] flex-col md:flex-row">
+    <div class="flex justify-center w-[30%] md:w-[20%] flex-col md:flex-row" style="direction: ltr">
       <div class="text-center">
-        {{ subscription.totalUsed ? (subscription.totalFlow - subscription.totalUsed).toFixed(2) + 'GB' : subscription.totalFlow.toFixed(2) + 'GB' }}
+        {{ subscription.totalUsed ? (subscription.totalFlow - subscription.totalUsed).toFixed(2) : subscription.totalFlow.toFixed(2) }} GB
       </div>
-      <div class="text-center">
+      <div class="display-none">&nbsp;/&nbsp;</div>
+      <div class="hidden md:block">
         {{ subscription.expireDate ? subscription.expireDate.substring(0,10) : '' }}
       </div>
     </div>
