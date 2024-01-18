@@ -70,10 +70,10 @@ public class SubscriptionService {
             if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
                 double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
 
-                createLog(a, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE);
+                createLog(a, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE,userEntity);
             } else {
                 PlanEntity planEntity = getPriceOfSubscription((long) new Helper().byteToGB(a.getTotalFlow()), a.getPeriodLength());
-                createLog(a, request, planEntity, SubscriptionLogType.CREATE);
+                createLog(a, request, planEntity, SubscriptionLogType.CREATE,userEntity);
             }
 
         });
@@ -169,11 +169,11 @@ public class SubscriptionService {
 //            createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW);
             if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
                 double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
-                createLog(subscriptionEntityFromDb, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE);
+                createLog(subscriptionEntityFromDb, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE,userEntity);
             } else {
                 PlanEntity planEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
 
-                createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.CREATE);
+                createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.CREATE,userEntity);
             }
             subscriptionEntityFromDb.setMarkAsPaid(false);
         } else {
@@ -186,7 +186,7 @@ public class SubscriptionService {
         return new SubscriptionDto(subscriptionEntityFromDb);
     }
 
-    private void createLog(SubscriptionEntity subscriptionEntityFromDb, SubscriptionRequest request, PlanEntity planEntity, SubscriptionLogType logType) {
+    private void createLog(SubscriptionEntity subscriptionEntityFromDb, SubscriptionRequest request, PlanEntity planEntity, SubscriptionLogType logType, UserEntity user) {
         SubscriptionLogEntity logEntity = SubscriptionLogEntity.builder()
                 .subscriptionId(subscriptionEntityFromDb.getId())
                 .periodLength(request.getPeriodLength())
@@ -195,9 +195,10 @@ public class SubscriptionService {
                 .logType(logType)
                 .markAsPaid(false)
                 .build();
-
-        double extraPrice = Math.ceil((double) request.getPeriodLength() / 30 - 1) * 10000;
-        logEntity.setPrice(logEntity.getPrice() + extraPrice);
+        if (user.getRole() == Role.SuperCustomer) {
+            double extraPrice = Math.ceil((double) request.getPeriodLength() / 30 - 1) * 10000;
+            logEntity.setPrice(logEntity.getPrice() + extraPrice);
+        }
 
         subscriptionReNewLogRepository.save(logEntity);
     }
