@@ -12,6 +12,13 @@ public interface InboundRepository extends JpaRepository<InboundEntity, Long>, J
 
     List<InboundEntity> findByServerId(Long serverId);
 
+    List<InboundEntity> findByServerIdAndGeneratable(Long serverId, Boolean generatable);
+
     List<InboundEntity> findAllByGeneratable(Boolean generatable);
 
+    List<InboundEntity> findAllByServerId(Long id);
+
+    void deleteAllByServerIdAndIdFromPanelNotIn(Long serverId, List<Long> ids);
+
+    List<InboundEntity> findAllByServerIdAndIdFromPanelNotIn(Long id, List<Long> list);
 }

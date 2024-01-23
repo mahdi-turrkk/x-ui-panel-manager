@@ -3,6 +3,7 @@ package online.gixmetir.xuipanelmanagerbackend.services.xui;
 import online.gixmetir.xuipanelmanagerbackend.clients.XuiClient;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.*;
 import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
 import online.gixmetir.xuipanelmanagerbackend.exceptions.CustomException;
 import online.gixmetir.xuipanelmanagerbackend.exceptions.UsernameOrPasswordWrongException;
@@ -41,8 +42,8 @@ public class PanelService {
     }
 
 
-    public InboundModel[] loadAllInboundsFromXuiPanel(ServerDto serverDto) throws Exception {
-        String sessionKey = login(serverDto);
+    public InboundModel[] loadAllInboundsFromXuiPanel(ServerDto serverDto, String sessionKey) throws Exception {
+//        String sessionKey = login(serverDto);
         InboundsResponseModel model = xuiClient.getInbounds(URI.create(serverDto.getUrl()), sessionKey);
         if (model.getSuccess()) {
             return model.getObj();
@@ -108,22 +109,59 @@ public class PanelService {
     }
 
     public void deleteClients(List<ClientEntity> clientEntities) throws Exception {
-        for (ClientEntity client : clientEntities) {
-            ServerEntity serverEntity = client.getInbound().getServer();
-            if (serverEntity.getIsDeleted() != null && serverEntity.getIsDeleted()) continue;
-            String sessionKey = login(new ServerDto(serverEntity));
-            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverEntity.getUrl()), sessionKey, client.getInbound().getIdFromPanel(), client.getUuid());
-            if (!Objects.requireNonNull(response.getBody()).getSuccess())
-                throw new CustomException(response.getBody().getMsg());
-        }
+        Map<ServerEntity, List<ClientEntity>> clientsByServer =
+                clientEntities.stream()
+                        .collect(Collectors.groupingBy(c -> c.getInbound().getServer()));
+        clientsByServer.forEach((server, listOfClients) -> {
+            ServerDto serverDto = new ServerDto(server);
+            String sessionKey = null;
+            if ((server.getIsDeleted() == null || !server.getIsDeleted()) && server.getStatus()) {
+                try {
+                    sessionKey = login(serverDto);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                for (ClientEntity clientEntity : listOfClients
+                ) {
+                    if (clientEntity.getInbound().getGeneratable() != null && clientEntity.getInbound().getGeneratable()) {
+                        ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverDto.getUrl()), sessionKey, clientEntity.getInbound().getIdFromPanel(), clientEntity.getUuid());
+                        if (!Objects.requireNonNull(response.getBody()).getSuccess())
+                            throw new CustomException(response.getBody().getMsg());
+                    }
+                }
+            }
+        });
+    }
 
+    public void deleteInbound(InboundEntity inboundEntity) throws Exception {
+        ServerEntity serverEntity = inboundEntity.getServer();
+        if (serverEntity.getIsDeleted() != null && serverEntity.getIsDeleted()) return;
+        String sessionKey = login(new ServerDto(serverEntity));
+        ResponseEntity<ResponseModel> response = xuiClient.deleteInbound(URI.create(serverEntity.getUrl()), sessionKey, inboundEntity.getIdFromPanel());
+        if (!Objects.requireNonNull(response.getBody()).getSuccess())
+            throw new CustomException(response.getBody().getMsg());
     }
 
     public ClientStatsModel clientLog(ClientEntity clientEntity, String sessionKey) throws Exception {
         ResponseEntity<ClientLogResponseModel> response = xuiClient.getClientTraffic(URI.create(clientEntity.getInbound().getServer().getUrl()), sessionKey, clientEntity.getEmail());
-        if (response.getBody().getSuccess()) {
+        if (Objects.requireNonNull(response.getBody()).getSuccess()) {
             return response.getBody().getObj();
         } else
             throw new CustomException(response.getBody().getMsg());
+    }
+
+    public void createInbound(InboundModelRequest inboundModelRequest, ServerDto serverDto) throws Exception {
+        String sessionKey = login(serverDto);
+        ResponseEntity<InboundResponseModel> response = xuiClient.addInbound(URI.create(serverDto.getUrl()), sessionKey, inboundModelRequest);
+        if (!Objects.requireNonNull(response.getBody()).getSuccess())
+            throw new CustomException(response.getBody().getMsg());
+    }
+
+    public void resetInboundTraffic(long inboundId, ServerDto serverDto) throws Exception {
+        String sessionKey = login(serverDto);
+        ResponseEntity<ResponseModel> res = xuiClient.resetInboundTraffic(URI.create(serverDto.getUrl()), sessionKey, inboundId);
+        if (!Objects.requireNonNull(res.getBody()).getSuccess()) {
+            throw new CustomException(res.getBody().getMsg());
+        }
     }
 }

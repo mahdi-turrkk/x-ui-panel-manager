@@ -17,4 +17,8 @@ public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
     List<ClientEntity> findAllByInboundId(Long inboundId);
 
     Optional<ClientEntity> findByUuid(String uuid);
+
+    List<ClientEntity> findAllBySubscriptionIdIn(List<Long> list);
+
+    List<ClientEntity> findAllByInboundIdIn(List<Long> list);
 }

@@ -112,13 +112,17 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public void addOrUpdateClientsRelatedToSubscription(List<SubscriptionEntity> entities) throws Exception {
-        List<InboundEntity> inbounds = inboundRepository.findAllByGeneratable(true);
+    public void addOrUpdateClientsRelatedToSubscription(List<SubscriptionEntity> subEntities) throws Exception {
+        List<InboundEntity> inboundEntities = inboundRepository.findAllByGeneratable(true);
+        addOrUpdateClientsRelatedToSubscriptionCore(subEntities, inboundEntities);
+    }
+
+    public void addOrUpdateClientsRelatedToSubscriptionCore(List<SubscriptionEntity> subEntities, List<InboundEntity> inboundEntities) throws Exception {
         List<ClientEntity> clientEntitiesToSaveInDb = new ArrayList<>();
-        for (InboundEntity inbound : inbounds) {
+        for (InboundEntity inbound : inboundEntities) {
             List<ClientModel> clientModelsAddToPanel = new ArrayList<>();
             List<ClientEntity> clientEntitiesUpdateInPanel = new ArrayList<>();
-            for (SubscriptionEntity subscription : entities) {
+            for (SubscriptionEntity subscription : subEntities) {
                 ClientEntity clientEntity = null;
                 ClientEntity clientEntityFromDb = clientRepository.findByInboundIdAndSubscriptionId(inbound.getId(), subscription.getId());
                 if (clientEntityFromDb != null) {
@@ -159,14 +163,13 @@ public class SubscriptionService {
         clientRepository.saveAll(clientEntitiesToSaveInDb);
     }
 
-
+    @Transactional
     public SubscriptionDto update(Long id, SubscriptionRequest request, SubscriptionUpdateType updateType) throws Exception {
         SubscriptionEntity subscriptionEntityFromDb = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
         UserEntity userEntity = new Helper().getUserFromContext();
 
         if (Objects.requireNonNull(updateType) == SubscriptionUpdateType.ReNew) {
             reNewSubscription(subscriptionEntityFromDb, request);
-//            createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW);
             if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
                 double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
                 createLog(subscriptionEntityFromDb, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE,userEntity);
@@ -176,12 +179,12 @@ public class SubscriptionService {
                 createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.CREATE,userEntity);
             }
             subscriptionEntityFromDb.setMarkAsPaid(false);
+            addOrUpdateClientsRelatedToSubscription(List.of(subscriptionEntityFromDb));
         } else {
             request.toEntity(subscriptionEntityFromDb);
             // todo edit log for edited sub  and log type is create
 //            subscriptionEntityFromDb.setPrice(planEntity.getPrice());
         }
-
         subscriptionRepository.save(subscriptionEntityFromDb);
         return new SubscriptionDto(subscriptionEntityFromDb);
     }
@@ -195,11 +198,11 @@ public class SubscriptionService {
                 .logType(logType)
                 .markAsPaid(false)
                 .build();
+
         if (user.getRole() == Role.SuperCustomer) {
             double extraPrice = Math.ceil((double) request.getPeriodLength() / 30 - 1) * 10000;
             logEntity.setPrice(logEntity.getPrice() + extraPrice);
         }
-
         subscriptionReNewLogRepository.save(logEntity);
     }
 
@@ -243,7 +246,6 @@ public class SubscriptionService {
 
     }
 
-
     @Transactional
     public void delete(Long id) throws Exception {
         List<ClientEntity> clients = clientRepository.findAllBySubscriptionId(id);
@@ -280,7 +282,13 @@ public class SubscriptionService {
             throw new CustomException("اشتراک منقضی شده است نمیتوان دوباره آن را فعال کرد ");
         }
         entity.setStatus(newStatus);
-        addOrUpdateClientsRelatedToSubscription(List.of(entity));
+        //موقعی که اشتراک غیر فعال میشود کلاینت های مربوطه را از پنل ثنایی حذف میکند
+        if (!newStatus) {
+            List<ClientEntity> clients = clientRepository.findAllBySubscriptionId(id);
+            panelService.deleteClients(clients);
+            clientRepository.deleteAll(clients);
+        } else
+            addOrUpdateClientsRelatedToSubscription(List.of(entity));
         return new SubscriptionDto(entity);
     }
 
@@ -373,7 +381,6 @@ public class SubscriptionService {
         return subscriptionReNewLogRepository.findAll(filter, pageable).map(SubscriptionRenewDto::new);
     }
 
-
     public SubscriptionDto changePayStatusForSubscription(Boolean newPayStatus, Long id) {
         SubscriptionEntity subscriptionEntity = subscriptionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Subscription not found"));
         subscriptionEntity.setMarkAsPaid(newPayStatus);
@@ -385,28 +392,11 @@ public class SubscriptionService {
         return new SubscriptionDto(subscriptionEntity);
     }
 
-//    public void createRenewLogForAllSubscriptions() {
-//
-//
-//        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAll();
-//        List<SubscriptionLogEntity> subscriptionLogEntities = new ArrayList<>(List.of());
-//        subscriptionEntities.forEach(a -> {
-//            if (a.getId() == 7 || a.getId() == 34) {
-//
-//            } else {
-//                PlanEntity planEntity = getPriceOfSubscription(a.getTotalFlow(), a.getPeriodLength());
-//                SubscriptionLogEntity logEntity = SubscriptionLogEntity.builder()
-//                        .subscriptionId(a.getId())
-//                        .periodLength(a.getPeriodLength())
-//                        .totalFlow(a.getTotalFlow())
-//                        .price(planEntity.getPrice())
-//                        .logType(SubscriptionLogType.CREATE)
-//                        .markAsPaid(false)
-//                        .build();
-//                subscriptionLogEntities.add(logEntity);
-//            }
-//        });
-//        subscriptionReNewLogRepository.saveAll(subscriptionLogEntities);
-//    }
+    public void deleteRelatedClientsForSubscriptions(List<SubscriptionEntity> subscriptionEntities) throws Exception {
+        List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionIdIn(subscriptionEntities.stream().map(SubscriptionEntity::getId).toList());
+        panelService.deleteClients(clientEntities);
+        clientRepository.deleteAll(clientEntities);
+
+    }
 }
 

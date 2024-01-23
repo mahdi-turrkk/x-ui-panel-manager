@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientStatsModel;
+import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.repositories.*;
@@ -9,6 +10,7 @@ import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,17 +21,15 @@ public class SyncService {
     private final PanelService panelService;
     private final ClientRepository clientRepository;
     private final InboundRepository inboundRepository;
-    private final SubscriptionService subscriptionService;
     private final UserRepository userRepository;
 
-    public SyncService(SubscriptionRepository subscriptionRepository, ServerRepository serverRepository, PanelService panelService, ClientRepository clientRepository, InboundRepository inboundRepository, SubscriptionService subscriptionService, UserRepository userRepository) {
+    public SyncService(SubscriptionRepository subscriptionRepository, ServerRepository serverRepository, PanelService panelService, ClientRepository clientRepository, InboundRepository inboundRepository, UserRepository userRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.serverRepository = serverRepository;
 
         this.panelService = panelService;
         this.clientRepository = clientRepository;
         this.inboundRepository = inboundRepository;
-        this.subscriptionService = subscriptionService;
         this.userRepository = userRepository;
     }
 
@@ -45,7 +45,11 @@ public class SyncService {
         expiredUsers.forEach(a -> a.setEnabled(false));
         userRepository.saveAll(expiredUsers);
         // disable all subscriptions in panels
-        subscriptionService.addOrUpdateClientsRelatedToSubscription(expiredSubs);
+//        subscriptionService.addOrUpdateClientsRelatedToSubscription(expiredSubs);
+        // delete related client from x-ui panels and database
+        List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionIdIn(expiredSubs.stream().map(SubscriptionEntity::getId).toList());
+        panelService.deleteClients(clientEntities);
+        clientRepository.deleteAll(clientEntities);
         subscriptionRepository.saveAll(expiredSubs);
     }
 
@@ -60,37 +64,38 @@ public class SyncService {
     */
     @Transactional
     public void syncWithPanels() throws Exception {
-        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAll();
-        subscriptionEntities.forEach(a -> {
-            a.setUpload(0L);
-            a.setDownload(0L);
-            a.setTotalUsed(0L);
-        });
+        expiration();
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByStatus(true);
         List<ServerEntity> serverEntities = serverRepository.findAll();
         for (ServerEntity serverEntity : serverEntities) {
             String sessionKey = "";
-            if (serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted())
+            if (serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted() && serverEntity.getStatus())
                 sessionKey = panelService.login(new ServerDto(serverEntity));
-            List<InboundEntity> inbounds = inboundRepository.findByServerId(serverEntity.getId());
+            else continue;
+            List<InboundEntity> inbounds = inboundRepository.findByServerIdAndGeneratable(serverEntity.getId(), true);
+            //  get all clients from x-ui panel
+            List<InboundModel> inboundModels = List.of(panelService.loadAllInboundsFromXuiPanel(new ServerDto(serverEntity), sessionKey));
+            panelService.resetInboundTraffic(50L, new ServerDto(serverEntity));
             for (InboundEntity inboundEntity : inbounds) {
                 List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
+                InboundModel inboundModel = inboundModels.stream().filter(a -> a.getId().equals(inboundEntity.getIdFromPanel())).findFirst().orElse(null);
+                if (inboundModel == null) continue;
+
                 for (ClientEntity clientEntity : clientEntities) {
-                    if (serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted()) {
-                        ClientStatsModel model = panelService.clientLog(clientEntity, sessionKey);
-                        if (model != null) {
-                            clientEntity.setUp(Long.parseLong(model.getUp() == null ? "0" : model.getUp()));
-                            clientEntity.setDown(Long.parseLong(model.getDown() == null ? "0" : model.getDown()));
-                            clientEntity.setTotalUsed(clientEntity.getUp() + clientEntity.getDown());
-                        }
-                    }
+                    //  get all clients related to inbound from x-ui panel
+                    ClientStatsModel clientModel = Arrays.stream(inboundModel.getClientStats()).filter(a -> a.getEmail().equals(clientEntity.getEmail())).findFirst().orElse(null);
+                    if (clientModel == null) continue;
+
                     List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
                     SubscriptionEntity subscriptionEntity = list.get(0);
-                    subscriptionEntity.setUpload(subscriptionEntity.getUpload() + (clientEntity.getUp() == null ? 0 : clientEntity.getUp()));
-                    subscriptionEntity.setDownload(subscriptionEntity.getDownload() + (clientEntity.getDown() == null ? 0 : clientEntity.getDown()));
-                    subscriptionEntity.setTotalUsed(subscriptionEntity.getTotalUsed() + clientEntity.getTotalUsed());
+                    subscriptionEntity.setUpload((subscriptionEntity.getUpload() == null ? 0 : subscriptionEntity.getUpload()) + (Long.parseLong(clientModel.getUp() == null ? "0" : clientModel.getUp())));
+                    subscriptionEntity.setDownload((subscriptionEntity.getDownload() == null ? 0 : subscriptionEntity.getDownload()) + (Long.parseLong(clientModel.getDown() == null ? "0" : clientModel.getDown())));
+                    subscriptionEntity.setTotalUsed(subscriptionEntity.getUpload() + subscriptionEntity.getDownload());
                     setExpirationDateToSubscription(subscriptionEntity);
                 }
                 clientRepository.saveAll(clientEntities);
+                // reset all clients traffic related to inbound
+                panelService.resetInboundTraffic(inboundEntity.getId(), new ServerDto(serverEntity));
             }
         }
         subscriptionRepository.saveAll(subscriptionEntities);
