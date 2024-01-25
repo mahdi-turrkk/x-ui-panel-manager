@@ -137,20 +137,25 @@ let subLink = ref('')
 let showSubDetail = ref(false)
 let showDeactivateSubscriptionTag = ref(false)
 let showActivateSubscriptionTag = ref(false)
+let isStatusRequestInProgress = ref(false)
 
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${lookupSubscription.id}&newStatus=${payload}`,
-      {},
-      {
-        headers: {
-          authorization: useDataStore().getToken
+  if(!isStatusRequestInProgress.value) {
+    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${lookupSubscription.id}&newStatus=${payload}`,
+        {},
+        {
+          headers: {
+            authorization: useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    lookupSubscription.status = payload
-  }).catch((error) => {
-    console.log(error)
-  })
+    ).then((response) => {
+      lookupSubscription.status = payload
+      isStatusRequestInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isStatusRequestInProgress.value = false
+    })
+  }
 }
 
 const searchSubscription = () => {

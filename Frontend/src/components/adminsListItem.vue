@@ -162,6 +162,7 @@ let subscriptions = ref([])
 let onboardingSubsPage = ref(1)
 let subsPages = ref(1)
 let isLoading = ref(true)
+let isChangeInProgress = ref(false)
 
 
 onMounted(() => {
@@ -201,16 +202,23 @@ watch(() => onboardingSubsPage.value , () => {
   getSubscriptions()
 })
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.admin.id}&newStatus=${payload}` ,
-      {},
-      {
-        headers : {
-          authorization : useDataStore().getToken
+  if (!isChangeInProgress.value){
+    isChangeInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.admin.id}&newStatus=${payload}` ,
+        {},
+        {
+          headers : {
+            authorization : useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    emits('changeAdminStatus' , payload)
-  }).catch((error) => {console.log(error)})
+    ).then((response) => {
+      emits('changeAdminStatus' , payload)
+      isChangeInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isChangeInProgress.value = false
+    })
+  }
 }
 
 let showChangePasswordTag = ref(false)

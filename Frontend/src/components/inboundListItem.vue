@@ -50,20 +50,26 @@ let showActivateInboundTag = ref(false)
 let showDeactivateInboundTag = ref(false)
 let showActivateGeneratableTag = ref(false)
 let showDeactivateGeneratableTag = ref(false)
+let isStatusChangeInProgress = ref(false)
 
 const chanageGeneratable = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/inbounds/change-inbound-generatable?inboundId=${props.inbound.id}&generatable=${payload}`,
-      {},
-      {
-        headers: {
-          Authorization: useDataStore().getToken
+  if (!isStatusChangeInProgress.value){
+    isStatusChangeInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/inbounds/change-inbound-generatable?inboundId=${props.inbound.id}&generatable=${payload}`,
+        {},
+        {
+          headers: {
+            Authorization: useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    emits('changeGeneratable' , payload)
-  }).catch((error) => {
-    console.log(error)
-  })
+    ).then((response) => {
+      emits('changeGeneratable' , payload)
+      isStatusChangeInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isStatusChangeInProgress.value = false
+    })
+  }
 }
 
 </script>

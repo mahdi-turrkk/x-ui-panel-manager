@@ -139,6 +139,7 @@ export const useLocalization = defineStore('localize', {
                     errorFieldsOfPayment: 'فیلد هارا به صورت درست پر کنید.',
                     addPayment: 'افزودن پرداختی',
                     invalidFlowOrPeriod: 'مقدار فیلد حجم کل یا مدت را به صورت صحیح (اعداد مثبت) وارد کنید.',
+                    requestInProgress: 'درخواست در حال پردازش میباشد لطفا منتظر بمانید.'
                 },
                 en: {
                     username: 'Username',
@@ -272,6 +273,7 @@ export const useLocalization = defineStore('localize', {
                     errorFieldsOfPayment: 'Fill the fields correctly.',
                     addPayment: 'Add Payment',
                     invalidFlowOrPeriod: 'Fill the fields correctly. Flow and period must be positive numbers.',
+                    requestInProgress: 'Request in progress. Please wait.',
                 },
             }
         }
