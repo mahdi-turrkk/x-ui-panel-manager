@@ -77,6 +77,7 @@ const props = defineProps(['showDialog', 'type', 'plan'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isSaveInProgress = ref(false)
 
 const emits = defineEmits(['closeDialog', 'planAdded'])
 
@@ -104,71 +105,86 @@ watch(() => props.showDialog, () => {
 })
 
 const savePlan = () => {
-  if (price.value && totalFlow.value && periodLength.value) {
-    if (props.type === 'new') {
-      axios.post(`${useDataStore().getServerAddress}/plans/create`,
-          {
-            price: price.value,
-            totalFlow: totalFlow.value,
-            periodLength: periodLength.value,
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
-            }
-          }
-      ).then(() => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-          emptyFields()
-          emits('closeDialog')
-        }, 1000)
-        emits('planAdded')
-      })
-          .catch(() => {
-            errorMessage.value = local.value.errorSavingPlan
-            showErrorMessage.value = true
-            setTimeout(() => {
-              showErrorMessage.value = false
-            }, 2000)
-          })
-    }
-    else {
-      axios.put(`${useDataStore().getServerAddress}/plans/update?id=${props.plan.value.id}`,
-          {
-            price: price.value,
-            totalFlow: totalFlow.value,
-            periodLength: periodLength.value,
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
-            }
-          }
-      ).then(() => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-          emptyFields()
-          emits('closeDialog')
-        }, 1000)
-        emits('planAdded')
-      })
-          .catch(() => {
-            errorMessage.value = local.value.errorSavingPlan
-            showErrorMessage.value = true
-            setTimeout(() => {
-              showErrorMessage.value = false
-            }, 2000)
-          })
-    }
-  } else {
-    errorMessage.value = local.value.errorFieldsOfPlan
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
     showErrorMessage.value = true
     setTimeout(() => {
       showErrorMessage.value = false
-    }, 2000)
+    }, 1000)
+  }
+  else {
+    if (price.value && totalFlow.value && periodLength.value) {
+      if (props.type === 'new') {
+        isSaveInProgress.value = true
+        axios.post(`${useDataStore().getServerAddress}/plans/create`,
+            {
+              price: price.value,
+              totalFlow: totalFlow.value,
+              periodLength: periodLength.value,
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
+            }
+        ).then(() => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            emptyFields()
+            emits('closeDialog')
+            isSaveInProgress.value = false
+          }, 1000)
+          emits('planAdded')
+        })
+            .catch(() => {
+              errorMessage.value = local.value.errorSavingPlan
+              showErrorMessage.value = true
+              setTimeout(() => {
+                showErrorMessage.value = false
+                isSaveInProgress.value = false
+              }, 2000)
+            })
+      }
+      else {
+        isSaveInProgress.value = true
+        axios.put(`${useDataStore().getServerAddress}/plans/update?id=${props.plan.value.id}`,
+            {
+              price: price.value,
+              totalFlow: totalFlow.value,
+              periodLength: periodLength.value,
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
+            }
+        ).then(() => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            emptyFields()
+            emits('closeDialog')
+            isSaveInProgress.value = false
+          }, 1000)
+          emits('planAdded')
+        })
+            .catch(() => {
+              errorMessage.value = local.value.errorSavingPlan
+              showErrorMessage.value = true
+              setTimeout(() => {
+                showErrorMessage.value = false
+                isSaveInProgress.value = false
+              }, 2000)
+            })
+      }
+    } else {
+      errorMessage.value = local.value.errorFieldsOfPlan
+      showErrorMessage.value = true
+      setTimeout(() => {
+        showErrorMessage.value = false
+      }, 2000)
+    }
   }
 }
 </script>

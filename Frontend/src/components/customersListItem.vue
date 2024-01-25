@@ -187,6 +187,7 @@ let isLoading = ref(true)
 let showDownloadReportTag = ref(false)
 let showRenewTag = ref(false)
 let showAddPaymentTag = ref(false)
+let isRequestInProgress = ref(false)
 
 let isRtl = computed(() => {
   return useLocalization().getDirection === 'rtl'
@@ -236,18 +237,23 @@ watch(() => onboardingSubsPage.value, () => {
 })
 
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.customer.id}&newStatus=${payload}`,
-      {},
-      {
-        headers: {
-          authorization: useDataStore().getToken
+  if (!isRequestInProgress.value){
+    isRequestInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/users/change-status?id=${props.customer.id}&newStatus=${payload}`,
+        {},
+        {
+          headers: {
+            authorization: useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    emits('changeCustomerStatus', payload)
-  }).catch((error) => {
-    console.log(error)
-  })
+    ).then((response) => {
+      emits('changeCustomerStatus', payload)
+      isRequestInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isRequestInProgress.value = false
+    })
+  }
 }
 
 let showChangePasswordTag = ref(false)

@@ -104,6 +104,7 @@ let ipLimit = ref('')
 let title = ref('')
 let periodLength = ref('')
 let number = ref(1)
+let isSaveInProgress = ref(false)
 const props = defineProps(['showDialog', 'subscription', 'type', 'userType' , 'pricePerGb'])
 
 watch(() => props.subscription, () => {
@@ -132,73 +133,88 @@ let periodLengths = ref([])
 let plans = ref([])
 
 const saveSubscription = () => {
-  if (totalFlow.value && periodLength.value && (number.value || props.type === 'ReNew')) {
-    if (totalFlow.value < 0 || (periodLength.value <= 0 && props.type === 'new')|| (periodLength.value < 0 && props.type === 'ReNew') || (number.value <= 0 && props.type === 'new')) {
-      errorMessage = local.value.invalidFlowOrPeriod
-      showErrorMessage.value = true
-      setTimeout(() => {
-        showErrorMessage.value = false
-      }, 1000)
-    } else {
-      if (props.type === 'ReNew') {
-        axios.put(`${useDataStore().serverAddress}/subscriptions/update?updateType=ReNew&id=${props.subscription.id}`,
-            {
-              totalFlow: totalFlow.value,
-              periodLength: periodLength.value
-            },
-            {
-              headers: {
-                Authorization: useDataStore().getToken
-              }
-            }
-        ).then((response) => {
-          showSuccessMessage.value = true
-          setTimeout(() => {
-            showSuccessMessage.value = false
-            emits('closeDialog')
-          }, 1000)
-        }).catch((error) => {
-          errorMessage = local.value.errorSavingSubscription
-          showErrorMessage.value = true
-          setTimeout(() => {
-            showErrorMessage.value = false
-          }, 1000)
-        })
-      } else if (props.type === 'new') {
-        axios.post(`${useDataStore().serverAddress}/subscriptions/create`,
-            {
-              title: title.value,
-              totalFlow: totalFlow.value,
-              periodLength: periodLength.value,
-              numberSubscriptionsToGenerate: number.value
-            },
-            {
-              headers: {
-                Authorization: useDataStore().getToken
-              }
-            },
-        ).then((response) => {
-          showSuccessMessage.value = true
-          setTimeout(() => {
-            showSuccessMessage.value = false
-            emits('closeDialog')
-          }, 1000)
-          emits('subsAdded')
-        }).catch((error) => {
-          errorMessage = local.value.errorSavingSubscription
-          showErrorMessage.value = true
-          setTimeout(() => {
-            showErrorMessage.value = false
-          }, 1000)
-        })
-      }
-    }
-  } else {
-    errorMessage = local.value.errorFieldsOfSubscription
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
     showErrorMessage.value = true
     setTimeout(() => {
       showErrorMessage.value = false
     }, 1000)
+  }
+  else {
+    if (totalFlow.value && periodLength.value && (number.value || props.type === 'ReNew')) {
+      if (totalFlow.value < 0 || (periodLength.value <= 0 && props.type === 'new')|| (periodLength.value < 0 && props.type === 'ReNew') || (number.value <= 0 && props.type === 'new')) {
+        errorMessage = local.value.invalidFlowOrPeriod
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+        }, 1000)
+      } else {
+        if (props.type === 'ReNew') {
+          isSaveInProgress.value = true
+          axios.put(`${useDataStore().serverAddress}/subscriptions/update?updateType=ReNew&id=${props.subscription.id}`,
+              {
+                totalFlow: totalFlow.value,
+                periodLength: periodLength.value
+              },
+              {
+                headers: {
+                  Authorization: useDataStore().getToken
+                }
+              }
+          ).then((response) => {
+            showSuccessMessage.value = true
+            setTimeout(() => {
+              showSuccessMessage.value = false
+              emits('closeDialog')
+              isSaveInProgress.value = false
+            }, 1000)
+          }).catch((error) => {
+            errorMessage = local.value.errorSavingSubscription
+            showErrorMessage.value = true
+            setTimeout(() => {
+              showErrorMessage.value = false
+            }, 1000)
+            isSaveInProgress.value = false
+          })
+        } else if (props.type === 'new') {
+          isSaveInProgress.value = true
+          axios.post(`${useDataStore().serverAddress}/subscriptions/create`,
+              {
+                title: title.value,
+                totalFlow: totalFlow.value,
+                periodLength: periodLength.value,
+                numberSubscriptionsToGenerate: number.value
+              },
+              {
+                headers: {
+                  Authorization: useDataStore().getToken
+                }
+              },
+          ).then((response) => {
+            showSuccessMessage.value = true
+            setTimeout(() => {
+              showSuccessMessage.value = false
+              emits('closeDialog')
+              isSaveInProgress.value = false
+            }, 1000)
+            emits('subsAdded')
+          }).catch((error) => {
+            errorMessage = local.value.errorSavingSubscription
+            showErrorMessage.value = true
+            setTimeout(() => {
+              showErrorMessage.value = false
+            }, 1000)
+            isSaveInProgress.value = false
+          })
+        }
+      }
+    } else {
+      errorMessage = local.value.errorFieldsOfSubscription
+      showErrorMessage.value = true
+      setTimeout(() => {
+        showErrorMessage.value = false
+      }, 1000)
+    }
   }
 }
 

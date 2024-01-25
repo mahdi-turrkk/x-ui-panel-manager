@@ -123,35 +123,47 @@ let showMarkAsPaidTag = ref(false)
 let showMarkAsNotPaidTag = ref(false)
 let showUrlTag = ref(false)
 let showRenewHistoryTag = ref(false)
+let isPayRequestInProgress = ref(false)
+let isStatusRequestInProgress = ref(false)
 
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${props.subscription.id}&newStatus=${payload}`,
-      {},
-      {
-        headers: {
-          authorization: useDataStore().getToken
+  if(!isStatusRequestInProgress.value){
+    isStatusRequestInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${props.subscription.id}&newStatus=${payload}`,
+        {},
+        {
+          headers: {
+            authorization: useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    emits('changeSubscriptionStatus', payload)
-  }).catch((error) => {
-    console.log(error)
-  })
+    ).then((response) => {
+      emits('changeSubscriptionStatus', payload)
+      isStatusRequestInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isStatusRequestInProgress.value = false
+    })
+  }
 }
 
 const changePayStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-subscription?id=${props.subscription.id}&newPayStatus=${payload}`,
-      {},
-      {
-        headers: {
-          authorization: useDataStore().getToken
+  if(!isPayRequestInProgress.value) {
+    isPayRequestInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-subscription?id=${props.subscription.id}&newPayStatus=${payload}`,
+        {},
+        {
+          headers: {
+            authorization: useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    emits('changeSubscriptionPayStatus', payload)
-  }).catch((error) => {
-    console.log(error)
-  })
+    ).then((response) => {
+      emits('changeSubscriptionPayStatus', payload)
+      isPayRequestInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isPayRequestInProgress.value = false
+    })
+  }
 }
 
 

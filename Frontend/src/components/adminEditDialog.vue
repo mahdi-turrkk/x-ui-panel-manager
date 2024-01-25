@@ -88,6 +88,7 @@ const props = defineProps(['showDialog', 'admin'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isSaveInProgress = ref(false)
 
 watch(() => props.admin, (newVal) => {
   adminId.value = props.admin.id
@@ -110,47 +111,60 @@ const backdropClicked = (data) => {
 }
 
 const saveAdmin = () => {
-  if (firstName.value && lastName.value && phoneNumber.value && address.value && password.value) {
-    axios.put(`${useDataStore().getServerAddress}/users/update?id=${adminId}`,
-        {
-          firstName: firstName.value,
-          lastName: lastName.value,
-          email: email.value,
-          phoneNumber: phoneNumber.value,
-          address: address.value,
-          role: 'Admin',
-          username: username.value,
-          enabled: props.admin.enabled,
-          totalFlow: 0,
-          periodLength: 0,
-          isIndefiniteExpirationTime: true,
-          isIndefiniteFlow: true
-        },
-        {
-          headers: {
-            Authorization: useDataStore().getToken
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (firstName.value && lastName.value && phoneNumber.value && address.value && password.value) {
+      isSaveInProgress.value = true
+      axios.put(`${useDataStore().getServerAddress}/users/update?id=${adminId}`,
+          {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            email: email.value,
+            phoneNumber: phoneNumber.value,
+            address: address.value,
+            role: 'Admin',
+            username: username.value,
+            enabled: props.admin.enabled,
+            totalFlow: 0,
+            periodLength: 0,
+            isIndefiniteExpirationTime: true,
+            isIndefiniteFlow: true
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then(() => {
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-        emits('closeDialog')
-      }, 1000)
-    }).catch(() => {
-      errorMessage.value = local.value.errorSavingAdmin
+      ).then(() => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+          emits('closeDialog')
+          isSaveInProgress.value = false
+        }, 1000)
+      }).catch(() => {
+        errorMessage.value = local.value.errorSavingAdmin
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+          isSaveInProgress.value = false
+        }, 2000)
+      })
+    } else {
+      errorMessage.value = local.value.errorFieldsOfAdmin
       showErrorMessage.value = true
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
-    })
-  } else {
-    errorMessage.value = local.value.errorFieldsOfAdmin
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    }, 2000)
+    }
   }
+
 }
 
 

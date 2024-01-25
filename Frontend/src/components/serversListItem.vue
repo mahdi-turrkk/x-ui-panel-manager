@@ -152,6 +152,7 @@ let showEditTag = ref(false)
 let showAddTag = ref(false)
 let showActivateTag = ref(false)
 let showDeactivateTag = ref(false)
+let isStatusRequestInProgress = ref(false)
 
 
 let isRtl = computed(() => {
@@ -175,23 +176,28 @@ onMounted(() => {
 })
 
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/servers/change-status?newStatus=${payload}&id=${props.server.id}`,
-      {},
-      {
-        headers: {
-          Authorization: useDataStore().getToken
+  if (!isStatusRequestInProgress.value){
+    isStatusRequestInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/servers/change-status?newStatus=${payload}&id=${props.server.id}`,
+        {},
+        {
+          headers: {
+            Authorization: useDataStore().getToken
+          }
         }
+    ).then((response) => {
+      emits('changeServerStatus', payload)
+      if (!payload) {
+        inbounds.value.forEach((inbound) => {
+          inbound.generatable = payload
+        })
       }
-  ).then((response) => {
-    emits('changeServerStatus', payload)
-    if (!payload) {
-      inbounds.value.forEach((inbound) => {
-        inbound.generatable = payload
-      })
-    }
-  }).catch((error) => {
-    alert(error)
-  })
+      isStatusRequestInProgress.value = false
+    }).catch((error) => {
+      alert(error)
+      isStatusRequestInProgress.value = false
+    })
+  }
 }
 
 let showMenu = ref(false)
