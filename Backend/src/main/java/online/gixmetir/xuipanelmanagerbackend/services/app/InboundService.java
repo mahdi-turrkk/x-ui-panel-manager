@@ -2,9 +2,11 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.persistence.EntityNotFoundException;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModel;
+import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModelRequest;
 import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.filters.InboundFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.InboundDto;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -41,10 +44,11 @@ public class InboundService {
     }
 
     public void loadAllInboundsFromPanels() throws Exception {
-        List<ServerEntity> servers = serverRepository.findAll();
+        List<ServerEntity> servers = serverRepository.findAllByStatus(true);
         for (ServerEntity server : servers) {
             if ((server.getIsDeleted() != null && server.getIsDeleted()) || !server.getStatus()) continue;
-            InboundModel[] inboundModels = panelService.loadAllInboundsFromXuiPanel(new ServerDto(server));
+            String sessionKey = panelService.login(new ServerDto(server));
+            InboundModel[] inboundModels = panelService.loadAllInboundsFromXuiPanel(new ServerDto(server), sessionKey);
             for (InboundModel inbound : inboundModels) {
                 InboundEntity entity = inboundRepository.findByIdFromPanelAndServerId(inbound.getId(), server.getId()).orElse(null);
                 if (entity == null) {
@@ -53,21 +57,31 @@ public class InboundService {
                     updateInbound(inbound, entity);
                 }
             }
-
+            List<InboundEntity> inboundEntities = inboundRepository.findAllByServerIdAndIdFromPanelNotIn(server.getId(), Arrays.stream(inboundModels).map(InboundModel::getId).toList());
+            List<ClientEntity> clientEntities = clientRepository.findAllByInboundIdIn(inboundEntities.stream().map(InboundEntity::getId).toList());
+//            clientRepository.deleteAllByInboundIdIn(inboundEntities.stream().map(InboundEntity::getId).toList());
+            clientRepository.deleteAll(clientEntities);
+            inboundRepository.deleteAll(inboundEntities);
         }
-
     }
 
     public void changeInboundGeneratable(Long id, Boolean generatable) throws Exception {
-        InboundEntity entity = inboundRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Inbound with id: " + id + "not found"));
-        entity.setGeneratable(generatable);
-        inboundRepository.save(entity);
+        InboundEntity inbound = inboundRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Inbound with id: " + id + "not found"));
+        inbound.setGeneratable(generatable);
+        inboundRepository.save(inbound);
         if (generatable) {
-            subscriptionService.addOrUpdateClientsRelatedToSubscription(subscriptionRepository.findAll());
+            List<SubscriptionEntity> enableSubs = subscriptionRepository.findAllByStatus(true);
+            subscriptionService.addOrUpdateClientsRelatedToSubscriptionCore(enableSubs, List.of(inbound));
         } else {
-            List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(entity.getId());
-            clientEntities.forEach(a -> a.setSendToUser(false));
-            clientRepository.saveAll(clientEntities);
+
+            panelService.deleteInbound(inbound);
+            InboundModelRequest inboundModelRequest = new InboundModelRequest();
+            inboundModelRequest.toRequest(inbound);
+            inboundModelRequest.setEnable(true);
+//            inbound.getSe
+            inboundModelRequest.setSettings("{\"clients\": [],\"decryption\": \"none\",\"fallbacks\": []}");
+            panelService.createInbound(inboundModelRequest, new ServerDto(inbound.getServer()));
+            loadAllInboundsFromPanels();
         }
     }
 

@@ -1,14 +1,12 @@
 package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
+import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.exceptions.DuplicateException;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerDto;
 import online.gixmetir.xuipanelmanagerbackend.models.ServerRequest;
-import online.gixmetir.xuipanelmanagerbackend.repositories.ClientRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.SubscriptionRepository;
@@ -74,6 +72,7 @@ public class ServerService {
     }
 
     public void syncSubscriptionsWithServers() throws Exception {
-        subscriptionService.addOrUpdateClientsRelatedToSubscription(subscriptionRepository.findAll());
+        List<SubscriptionEntity> enableSubs = subscriptionRepository.findAllByStatus(true);
+        subscriptionService.addOrUpdateClientsRelatedToSubscription(enableSubs);
     }
 }
