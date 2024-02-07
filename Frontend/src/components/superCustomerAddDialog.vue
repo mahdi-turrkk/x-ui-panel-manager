@@ -113,6 +113,7 @@ const props = defineProps(['showDialog'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isSaveInProgress = ref(false)
 
 const emits = defineEmits(['closeDialog', 'userAdded'])
 
@@ -140,58 +141,70 @@ const backdropClicked = (data) => {
 }
 
 const saveCustomer = () => {
-  if (firstName.value && lastName.value && username.value && phoneNumber.value && address.value && password.value && pricePerUse) {
-    if (!periodLength.value || Number(periodLength.value) == 0) {
-      periodLength.value = 0
-      isIndefiniteExpirationTime.value = true
-    }
-    if (!totalFlow.value || Number(totalFlow.value) == 0) {
-      totalFlow.value = 0
-      isIndefiniteFlow.value = true
-    }
-    axios.post(`${useDataStore().getServerAddress}/users/create`,
-        {
-          firstName: firstName.value,
-          lastName: lastName.value,
-          email: email.value,
-          phoneNumber: phoneNumber.value,
-          address: address.value,
-          role: 'SuperCustomer',
-          password: password.value,
-          username: username.value,
-          enabled: true,
-          totalFlow: totalFlow.value,
-          periodLength: periodLength.value,
-          isIndefiniteFlow: isIndefiniteFlow.value,
-          isIndefiniteExpirationTime: isIndefiniteExpirationTime.value,
-          pricePerGb: pricePerUse.value
-        },
-        {
-          headers: {
-            Authorization: useDataStore().getToken
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (firstName.value && lastName.value && username.value && phoneNumber.value && address.value && password.value && pricePerUse) {
+      if (!periodLength.value || Number(periodLength.value) == 0) {
+        periodLength.value = 0
+        isIndefiniteExpirationTime.value = true
+      }
+      if (!totalFlow.value || Number(totalFlow.value) == 0) {
+        totalFlow.value = 0
+        isIndefiniteFlow.value = true
+      }
+      isSaveInProgress.value = true
+      axios.post(`${useDataStore().getServerAddress}/users/create`,
+          {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            email: email.value,
+            phoneNumber: phoneNumber.value,
+            address: address.value,
+            role: 'SuperCustomer',
+            password: password.value,
+            username: username.value,
+            enabled: true,
+            totalFlow: totalFlow.value,
+            periodLength: periodLength.value,
+            isIndefiniteFlow: isIndefiniteFlow.value,
+            isIndefiniteExpirationTime: isIndefiniteExpirationTime.value,
+            pricePerGb: pricePerUse.value
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then(() => {
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-        emptyFields()
-        emits('closeDialog')
-      }, 1000)
-      emits('userAdded')
-    }).catch(() => {
-      errorMessage.value = local.value.errorSavingCustomer
+      ).then(() => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+          emptyFields()
+          emits('closeDialog')
+          isSaveInProgress.value = false
+        }, 1000)
+        emits('userAdded')
+      }).catch(() => {
+        errorMessage.value = local.value.errorSavingCustomer
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+          isSaveInProgress.value = false
+        }, 2000)
+      })
+    } else {
+      errorMessage.value = local.value.errorFieldsOfCustomer
       showErrorMessage.value = true
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
-    })
-  } else {
-    errorMessage.value = local.value.errorFieldsOfCustomer
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    }, 2000)
+    }
   }
 }
 </script>

@@ -71,6 +71,7 @@ const props = defineProps(['showDialog', 'userId', 'isSelf'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isRequestInProgress = ref(false)
 
 const emits = defineEmits(['closeDialog'])
 
@@ -88,71 +89,86 @@ const backdropClicked = (data) => {
 }
 
 const changePassword = () => {
-  if (props.isSelf) {
-    if (newPassword.value && oldPassword.value) {
-      axios.put(`${useDataStore().getServerAddress}/users/change-password`,
-          {
-            oldPassword: oldPassword.value,
-            newPassword: newPassword.value
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
+  if (isRequestInProgress.value){
+    errorMessage = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (props.isSelf) {
+      if (newPassword.value && oldPassword.value) {
+        isRequestInProgress.value = true
+        axios.put(`${useDataStore().getServerAddress}/users/change-password`,
+            {
+              oldPassword: oldPassword.value,
+              newPassword: newPassword.value
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
             }
-          }
-      ).then(() => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-          emptyFields()
-          emits('closeDialog')
-        }, 1000)
-      }).catch(() => {
-        errorMessage.value = local.value.errorChangingPassword
+        ).then(() => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            emptyFields()
+            emits('closeDialog')
+            isRequestInProgress.value = false
+          }, 1000)
+        }).catch(() => {
+          errorMessage.value = local.value.errorChangingPassword
+          showErrorMessage.value = true
+          setTimeout(() => {
+            showErrorMessage.value = false
+            isRequestInProgress.value = false
+          }, 2000)
+        })
+      } else {
+        errorMessage.value = local.value.errorFieldsOfPassword
         showErrorMessage.value = true
         setTimeout(() => {
           showErrorMessage.value = false
         }, 2000)
-      })
+      }
     } else {
-      errorMessage.value = local.value.errorFieldsOfPassword
-      showErrorMessage.value = true
-      setTimeout(() => {
-        showErrorMessage.value = false
-      }, 2000)
-    }
-  } else {
-    if (newPassword.value) {
-      axios.put(`${useDataStore().getServerAddress}/users/change-password`,
-          {
-            userId: props.userId,
-            newPassword: newPassword.value
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
+      if (newPassword.value) {
+        isRequestInProgress.value = true
+        axios.put(`${useDataStore().getServerAddress}/users/change-password`,
+            {
+              userId: props.userId,
+              newPassword: newPassword.value
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
             }
-          }
-      ).then(() => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-          emptyFields()
-          emits('closeDialog')
-        }, 1000)
-      }).catch(() => {
-        errorMessage.value = local.value.errorChangingPassword
+        ).then(() => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            emptyFields()
+            emits('closeDialog')
+            isRequestInProgress.value = false
+          }, 1000)
+        }).catch(() => {
+          errorMessage.value = local.value.errorChangingPassword
+          showErrorMessage.value = true
+          setTimeout(() => {
+            showErrorMessage.value = false
+            isRequestInProgress.value = false
+          }, 2000)
+        })
+      } else {
+        errorMessage.value = local.value.errorFieldsOfPassword
         showErrorMessage.value = true
         setTimeout(() => {
           showErrorMessage.value = false
         }, 2000)
-      })
-    } else {
-      errorMessage.value = local.value.errorFieldsOfPassword
-      showErrorMessage.value = true
-      setTimeout(() => {
-        showErrorMessage.value = false
-      }, 2000)
+      }
     }
   }
 }

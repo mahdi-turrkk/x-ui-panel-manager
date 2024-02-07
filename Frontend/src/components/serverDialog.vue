@@ -94,71 +94,87 @@ const backdropClicked = (data) => {
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
 let errorMessage = ref('')
+let isSaveInProgress = ref(false)
 
 const saveServer = () => {
-  if (serverUrl.value && serverUsername.value && serverPassword.value) {
-    if (serverId.value) {
-      axios.put(`${useDataStore().getServerAddress}/servers/update?id=${serverId.value}`,
-          {
-            url: serverUrl.value,
-            username: serverUsername.value,
-            password: serverPassword.value,
-            generatable: props.server.generatable,
-            status: props.server.status
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
-            }
-          }
-      ).then((response) => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-        }, 1000)
-        emits('closeDialog')
-        emits('serverSubmitted')
-      }).catch((error) => {
-        errorMessage.value = useLocalization().errorSavingServer
-        showErrorMessage.value = true
-        setTimeout(() => {
-          showErrorMessage.value = false
-        }, 2000)
-      })
-    } else {
-      axios.post(`${useDataStore().getServerAddress}/servers/create`,
-          {
-            url: serverUrl.value,
-            username: serverUsername.value,
-            password: serverPassword.value,
-            generatable: true
-          },
-          {
-            headers: {
-              Authorization: useDataStore().getToken
-            }
-          }
-      ).then((response) => {
-        showSuccessMessage.value = true
-        setTimeout(() => {
-          showSuccessMessage.value = false
-        }, 1000)
-        emits('closeDialog')
-        emits('serverSubmitted')
-      }).catch((error) => {
-        errorMessage.value = useLocalization().errorSavingServer
-        showErrorMessage.value = true
-        setTimeout(() => {
-          showErrorMessage.value = false
-        }, 2000)
-      })
-    }
-  } else {
-    errorMessage.value = useLocalization().errorFieldsOfServer
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
     showErrorMessage.value = true
     setTimeout(() => {
       showErrorMessage.value = false
-    }, 2000)
+    }, 1000)
+  }
+  else {
+    if (serverUrl.value && serverUsername.value && serverPassword.value) {
+      if (serverId.value) {
+        isSaveInProgress.value = true
+        axios.put(`${useDataStore().getServerAddress}/servers/update?id=${serverId.value}`,
+            {
+              url: serverUrl.value,
+              username: serverUsername.value,
+              password: serverPassword.value,
+              generatable: props.server.generatable,
+              status: props.server.status
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
+            }
+        ).then((response) => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            isSaveInProgress.value = false
+          }, 1000)
+          emits('closeDialog')
+          emits('serverSubmitted')
+        }).catch((error) => {
+          errorMessage.value = useLocalization().errorSavingServer
+          showErrorMessage.value = true
+          setTimeout(() => {
+            showErrorMessage.value = false
+            isSaveInProgress.value = false
+          }, 2000)
+        })
+      } else {
+        isSaveInProgress.value = true
+        axios.post(`${useDataStore().getServerAddress}/servers/create`,
+            {
+              url: serverUrl.value,
+              username: serverUsername.value,
+              password: serverPassword.value,
+              generatable: true
+            },
+            {
+              headers: {
+                Authorization: useDataStore().getToken
+              }
+            }
+        ).then((response) => {
+          showSuccessMessage.value = true
+          setTimeout(() => {
+            showSuccessMessage.value = false
+            isSaveInProgress.value = false
+          }, 1000)
+          emits('closeDialog')
+          emits('serverSubmitted')
+        }).catch((error) => {
+          errorMessage.value = useLocalization().errorSavingServer
+          showErrorMessage.value = true
+          setTimeout(() => {
+            showErrorMessage.value = false
+            isSaveInProgress.value = false
+          }, 2000)
+        })
+      }
+    } else {
+      errorMessage.value = useLocalization().errorFieldsOfServer
+      showErrorMessage.value = true
+      setTimeout(() => {
+        showErrorMessage.value = false
+      }, 2000)
+    }
   }
 }
 </script>

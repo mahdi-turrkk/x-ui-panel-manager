@@ -65,6 +65,7 @@ const props = defineProps(['showDialog' , 'user'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isPaymentInProgress = ref(false)
 
 const emits = defineEmits(['closeDialog'])
 
@@ -81,37 +82,49 @@ const backdropClicked = (data) => {
 }
 
 const addPayment = () => {
-  if (payAmount.value) {
-    axios.post(`${useDataStore().getServerAddress}/user-payment-logs/create`,
-        {
-          userId: props.user.id,
-          payAmount: payAmount.value,
-        },
-        {
-          headers: {
-            Authorization: useDataStore().getToken
+  if (isPaymentInProgress.value){
+    errorMessage.value = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (payAmount.value) {
+      isPaymentInProgress.value = true
+      axios.post(`${useDataStore().getServerAddress}/user-payment-logs/create`,
+          {
+            userId: props.user.id,
+            payAmount: payAmount.value,
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then(() => {
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-        emptyFields()
-        emits('closeDialog')
-      }, 1000)
-    }).catch(() => {
-      errorMessage.value = local.value.errorSavingPayment
+      ).then(() => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+          emptyFields()
+          emits('closeDialog')
+          isPaymentInProgress.value = false
+        }, 1000)
+      }).catch(() => {
+        errorMessage.value = local.value.errorSavingPayment
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+        }, 2000)
+        isPaymentInProgress.value = false
+      })
+    } else {
+      errorMessage.value = local.value.errorFieldsOfPayment
       showErrorMessage.value = true
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
-    })
-  } else {
-    errorMessage.value = local.value.errorFieldsOfPayment
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    }, 2000)
+    }
   }
 }
 

@@ -100,7 +100,7 @@
 
 <script setup>
 import {useLocalization} from "../store/localizationStore.js";
-import {computed, ref} from "vue";
+import {computed, ref, resolveDirective} from "vue";
 import axios from "axios";
 import {useDataStore} from "../store/dataStore.js";
 import {useRoute} from "vue-router";
@@ -121,21 +121,28 @@ let showActivateSubscriptionTag = ref(false)
 let showDeactivateSubscriptionTag = ref(false)
 let showUrlTag = ref(false)
 let showRenewTag = ref(false)
+let isPayRequestInProgress = ref(false)
+let isStatusRequestInProgress = ref(false)
 
 
 const changeStatus = (payload) => {
-  axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${props.subscription.id}&newStatus=${payload}`,
-      {},
-      {
-        headers: {
-          Authorization: useDataStore().getToken
+  if(!isStatusRequestInProgress.value){
+    isStatusRequestInProgress.value = true
+    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-status?id=${props.subscription.id}&newStatus=${payload}`,
+        {},
+        {
+          headers: {
+            Authorization: useDataStore().getToken
+          }
         }
-      }
-  ).then((response) => {
-    emits('changeSubscriptionStatus' , payload)
-  }).catch((error) => {
-    console.log(error)
-  })
+    ).then((response) => {
+      emits('changeSubscriptionStatus' , payload)
+      isStatusRequestInProgress.value = false
+    }).catch((error) => {
+      console.log(error)
+      isStatusRequestInProgress.value = false
+    })
+  }
 }
 
 let showMenu = ref(false)
@@ -145,19 +152,24 @@ let showMarkAsNotPaidTag = ref(false)
 let showMarkAsPaidTag = ref(false)
 
 const changePayStatus = (status) => {
-  if(props.userType === 'Admin'){
-    axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-subscription?id=${props.subscription.id}&newPayStatus=${status}`,
-        {},
-        {
-          headers: {
-            authorization: useDataStore().getToken
+  if(!isPayRequestInProgress.value) {
+    isPayRequestInProgress.value = true
+    if(props.userType === 'Admin'){
+      axios.put(`${useDataStore().getServerAddress}/subscriptions/change-pay-status-for-subscription?id=${props.subscription.id}&newPayStatus=${status}`,
+          {},
+          {
+            headers: {
+              authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then((response) => {
-      emits('changeSubscriptionPayStatus', status)
-    }).catch((error) => {
-      console.log(error)
-    })
+      ).then((response) => {
+        emits('changeSubscriptionPayStatus', status)
+        isPayRequestInProgress.value = false
+      }).catch((error) => {
+        console.log(error)
+        isPayRequestInProgress.value = false
+      })
+    }
   }
 }
 

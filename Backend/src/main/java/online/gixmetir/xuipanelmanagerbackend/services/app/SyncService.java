@@ -93,7 +93,7 @@ public class SyncService {
                 }
                 clientRepository.saveAll(clientEntities);
                 // reset all clients traffic related to inbound
-                panelService.resetInboundTraffic(inboundEntity.getId(), new ServerDto(serverEntity));
+                panelService.resetInboundTraffic(inboundEntity.getIdFromPanel(), new ServerDto(serverEntity));
             }
         }
         subscriptionRepository.saveAll(subscriptionEntities);

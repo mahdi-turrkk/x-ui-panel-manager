@@ -95,6 +95,7 @@ const props = defineProps(['showDialog'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isSaveInProgress = ref(false)
 
 const emits = defineEmits(['closeDialog', 'userAdded'])
 
@@ -117,50 +118,63 @@ const backdropClicked = (data) => {
 }
 
 const saveAdmin = () => {
-  if (firstName.value && lastName.value && username.value && phoneNumber.value && address.value && password.value) {
-    axios.post(`${useDataStore().getServerAddress}/users/create`,
-        {
-          firstName: firstName.value,
-          lastName: lastName.value,
-          email: email.value,
-          phoneNumber: phoneNumber.value,
-          address: address.value,
-          role: 'Admin',
-          password: password.value,
-          username: username.value,
-          enabled: true,
-          totalFlow: 0,
-          periodLength: 0,
-          isIndefiniteExpirationTime: true,
-          isIndefiniteFlow: true
-        },
-        {
-          headers: {
-            Authorization: useDataStore().getToken
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (firstName.value && lastName.value && username.value && phoneNumber.value && address.value && password.value) {
+      isSaveInProgress.value = true
+      axios.post(`${useDataStore().getServerAddress}/users/create`,
+          {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            email: email.value,
+            phoneNumber: phoneNumber.value,
+            address: address.value,
+            role: 'Admin',
+            password: password.value,
+            username: username.value,
+            enabled: true,
+            totalFlow: 0,
+            periodLength: 0,
+            isIndefiniteExpirationTime: true,
+            isIndefiniteFlow: true
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then(() => {
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-        emptyFields()
-        emits('closeDialog')
-      }, 1000)
-      emits('userAdded')
-    }).catch(() => {
-      errorMessage.value = local.value.errorSavingAdmin
+      ).then(() => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+          emptyFields()
+          emits('closeDialog')
+          isSaveInProgress.value = false
+        }, 1000)
+        emits('userAdded')
+      }).catch(() => {
+        errorMessage.value = local.value.errorSavingAdmin
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+          isSaveInProgress.value = false
+        }, 2000)
+      })
+    } else {
+      errorMessage.value = local.value.errorFieldsOfAdmin
       showErrorMessage.value = true
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
-    })
-  } else {
-    errorMessage.value = local.value.errorFieldsOfAdmin
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    }, 2000)
+    }
   }
+
 }
 
 </script>

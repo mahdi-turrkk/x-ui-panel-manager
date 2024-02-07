@@ -100,6 +100,7 @@ const props = defineProps(['showDialog', 'customer'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isSaveInProgress = ref(false)
 
 watch(() => props.customer, (newVal) => {
   customerId.value = props.customer.id
@@ -125,54 +126,66 @@ const backdropClicked = (data) => {
 }
 
 const saveCustomer = () => {
-  if (firstName.value && lastName.value && phoneNumber.value && address.value) {
-    if (!periodLength.value || Number(periodLength.value) == 0) {
-      periodLength.value = 0
-      isIndefiniteExpirationTime.value = true
-    }
-    if (!totalFlow.value || Number(totalFlow.value) == 0) {
-      totalFlow.value = 0
-      isIndefiniteFlow.value = true
-    }
-    axios.put(`${useDataStore().getServerAddress}/users/update?id=${customerId.value}`,
-        {
-          firstName: firstName.value,
-          lastName: lastName.value,
-          email: email.value,
-          phoneNumber: phoneNumber.value,
-          address: address.value,
-          role: 'Customer',
-          username: username.value,
-          enabled: props.customer.enabled,
-          totalFlow: totalFlow.value,
-          periodLength: periodLength.value,
-          isIndefiniteFlow: isIndefiniteFlow.value,
-          isIndefiniteExpirationTime: isIndefiniteExpirationTime.value
-        },
-        {
-          headers: {
-            Authorization: useDataStore().getToken
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (firstName.value && lastName.value && phoneNumber.value && address.value) {
+      if (!periodLength.value || Number(periodLength.value) == 0) {
+        periodLength.value = 0
+        isIndefiniteExpirationTime.value = true
+      }
+      if (!totalFlow.value || Number(totalFlow.value) == 0) {
+        totalFlow.value = 0
+        isIndefiniteFlow.value = true
+      }
+      isSaveInProgress.value = true
+      axios.put(`${useDataStore().getServerAddress}/users/update?id=${customerId.value}`,
+          {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            email: email.value,
+            phoneNumber: phoneNumber.value,
+            address: address.value,
+            role: 'Customer',
+            username: username.value,
+            enabled: props.customer.enabled,
+            totalFlow: totalFlow.value,
+            periodLength: periodLength.value,
+            isIndefiniteFlow: isIndefiniteFlow.value,
+            isIndefiniteExpirationTime: isIndefiniteExpirationTime.value
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then(() => {
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-        emits('closeDialog')
-      }, 1000)
-    }).catch(() => {
-      errorMessage.value = local.value.errorSavingCustomer
+      ).then(() => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+          emits('closeDialog')
+          isSaveInProgress.value  = false
+        }, 1000)
+      }).catch(() => {
+        errorMessage.value = local.value.errorSavingCustomer
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+          isSaveInProgress.value = false
+        }, 2000)
+      })
+    } else {
+      errorMessage.value = local.value.errorFieldsOfCustomer
       showErrorMessage.value = true
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
-    })
-  } else {
-    errorMessage.value = local.value.errorFieldsOfCustomer
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    }, 2000)
+    }
   }
 }
 </script>

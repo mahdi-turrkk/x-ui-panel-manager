@@ -210,7 +210,7 @@
       </div>
       <div class="lg:col-span-4 -mt-2">
         <subscription-link-dialog @close-dialog="showLinkDialog = false" :show-dialog="showLinkDialog" :link="link"/>
-        <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" :user-type="userType"
+        <subscription-dialog :show-dialog="showSubscriptionDialog" @close-dialog="showSubscriptionDialog = false" :user-type="userType" :price-per-gb="userDetail.pricePerGb"
                              :subscription="subscription" :type="subEditType" @subs-added="addNewSubsToList"/>
         <div class=" rounded-xl w-full py-3 px-4 flex justify-between items-center">
           <div class="text-info-3 font-bold text-lg">{{ local.subscriptions }}</div>
@@ -263,7 +263,7 @@ let isDark = computed(() => {
 const changeThemeStatus = () => {
   showSettingMenu.value = false
   useDataStore().changeDarkStatus()
-  document.cookie = `isDark=${useDataStore().getDarkStatus}`
+  document.cookie = `isDark=${useDataStore().getDarkStatus};path=/`
 }
 
 let showLangMenu = ref(false)
@@ -271,9 +271,9 @@ let customerType = ref("")
 let changeLanguage = (payload) => {
   showLangMenu.value = false
   useLocalization().changeLanguage(payload)
-  document.cookie = `flag=${payload[0]}`
-  document.cookie = `language=${payload[1]}`
-  document.cookie = `direction=${payload[2]}`
+  document.cookie = `flag=${payload[0]};path=/`
+  document.cookie = `language=${payload[1]};path=/`
+  document.cookie = `direction=${payload[2]};path=/`
 }
 
 let local = computed(() => useLocalization().getLocal)
@@ -379,7 +379,8 @@ let userDetail = reactive(
       totalFlow : undefined,
       isIndefiniteFlow : undefined,
       debtAmount : undefined,
-      totalUsed : undefined
+      totalUsed : undefined,
+      pricePerGb : undefined
     }
 )
 
@@ -394,9 +395,9 @@ onMounted(() => {
       } else if (value[0] === 'language') {
         if (value[1].indexOf('[') !== -1) {
           lang = ['🇮🇷', 'fa', 'rtl']
-          document.cookie = `flag=${lang[0]}`
-          document.cookie = `language=${lang[1]}`
-          document.cookie = `direction=${lang[2]}`
+          document.cookie = `flag=${lang[0]};path=/`
+          document.cookie = `language=${lang[1]};path=/`
+          document.cookie = `direction=${lang[2]};path=/`
         } else {
           lang[1] = value[1]
         }
@@ -450,7 +451,7 @@ watch(() => onboarding.value, () => {
 })
 
 const logOut = () => {
-  document.cookie = `token=`
+  document.cookie = `token=;path=/`
   router.push('/')
 }
 

@@ -77,6 +77,7 @@ const props = defineProps(['showDialog', 'customer'])
 let errorMessage = ref('')
 let showErrorMessage = ref(false)
 let showSuccessMessage = ref(false)
+let isSaveInProgress = ref(false)
 
 watch(() => props.showDialog, (newVal) => {
   if(props.showDialog){
@@ -97,43 +98,55 @@ const backdropClicked = (data) => {
 }
 
 const saveCustomer = () => {
-  if (pricePerUse.value) {
-    if (!periodLength.value) {
-      periodLength.value = 0
-    }
-    if (!totalFlow.value) {
-      totalFlow.value = 0
-    }
-    axios.put(`${useDataStore().getServerAddress}/users/renew?id=${customerId.value}`,
-        {
-          totalFlow: totalFlow.value,
-          periodLength: periodLength.value,
-          pricePerGb: pricePerUse.value
-        },
-        {
-          headers: {
-            Authorization: useDataStore().getToken
+  if (isSaveInProgress.value){
+    errorMessage = local.value.requestInProgress
+    showErrorMessage.value = true
+    setTimeout(() => {
+      showErrorMessage.value = false
+    }, 1000)
+  }
+  else {
+    if (pricePerUse.value) {
+      if (!periodLength.value) {
+        periodLength.value = 0
+      }
+      if (!totalFlow.value) {
+        totalFlow.value = 0
+      }
+      isSaveInProgress.value = true
+      axios.put(`${useDataStore().getServerAddress}/users/renew?id=${customerId.value}`,
+          {
+            totalFlow: totalFlow.value,
+            periodLength: periodLength.value,
+            pricePerGb: pricePerUse.value
+          },
+          {
+            headers: {
+              Authorization: useDataStore().getToken
+            }
           }
-        }
-    ).then(() => {
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-        emits('closeDialog')
-      }, 1000)
-    }).catch(() => {
-      errorMessage.value = local.value.errorSavingCustomer
+      ).then(() => {
+        showSuccessMessage.value = true
+        setTimeout(() => {
+          showSuccessMessage.value = false
+          emits('closeDialog')
+          isSaveInProgress.value = false
+        }, 1000)
+      }).catch(() => {
+        errorMessage.value = local.value.errorSavingCustomer
+        showErrorMessage.value = true
+        setTimeout(() => {
+          showErrorMessage.value = false
+          isSaveInProgress.value = false
+        }, 2000)
+      })
+    } else {
+      errorMessage.value = local.value.errorFieldsOfCustomer
       showErrorMessage.value = true
       setTimeout(() => {
         showErrorMessage.value = false
       }, 2000)
-    })
-  } else {
-    errorMessage.value = local.value.errorFieldsOfCustomer
-    showErrorMessage.value = true
-    setTimeout(() => {
-      showErrorMessage.value = false
-    }, 2000)
+    }
   }
 }
 </script>
