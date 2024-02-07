@@ -87,6 +87,7 @@ public class SyncService {
                     if (clientModel == null) continue;
 
                     List<SubscriptionEntity> list = subscriptionEntities.stream().filter(a -> Objects.equals(a.getId(), clientEntity.getSubscriptionId())).toList();
+                    if (list.isEmpty()) continue;
                     SubscriptionEntity subscriptionEntity = list.get(0);
                     subscriptionEntity.setUpload((subscriptionEntity.getUpload() == null ? 0 : subscriptionEntity.getUpload()) + (Long.parseLong(clientModel.getUp() == null ? "0" : clientModel.getUp())));
                     subscriptionEntity.setDownload((subscriptionEntity.getDownload() == null ? 0 : subscriptionEntity.getDownload()) + (Long.parseLong(clientModel.getDown() == null ? "0" : clientModel.getDown())));
