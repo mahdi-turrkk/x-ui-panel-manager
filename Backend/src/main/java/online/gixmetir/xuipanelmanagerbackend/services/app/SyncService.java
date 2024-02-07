@@ -64,7 +64,6 @@ public class SyncService {
     */
     @Transactional
     public void syncWithPanels() throws Exception {
-
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByStatus(true);
         List<ServerEntity> serverEntities = serverRepository.findAll();
         for (ServerEntity serverEntity : serverEntities) {
@@ -75,7 +74,6 @@ public class SyncService {
             List<InboundEntity> inbounds = inboundRepository.findByServerIdAndGeneratable(serverEntity.getId(), true);
             //  get all clients from x-ui panel
             List<InboundModel> inboundModels = List.of(panelService.loadAllInboundsFromXuiPanel(new ServerDto(serverEntity), sessionKey));
-            //panelService.resetInboundTraffic(50L, new ServerDto(serverEntity));
             for (InboundEntity inboundEntity : inbounds) {
                 List<ClientEntity> clientEntities = clientRepository.findAllByInboundId(inboundEntity.getId());
                 InboundModel inboundModel = inboundModels.stream().filter(a -> a.getId().equals(inboundEntity.getIdFromPanel())).findFirst().orElse(null);
