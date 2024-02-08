@@ -124,9 +124,15 @@ public class PanelService {
                 for (ClientEntity clientEntity : listOfClients
                 ) {
                     if (clientEntity.getInbound().getGeneratable() != null && clientEntity.getInbound().getGeneratable()) {
-                        ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverDto.getUrl()), sessionKey, clientEntity.getInbound().getIdFromPanel(), clientEntity.getUuid());
-                        if (!Objects.requireNonNull(response.getBody()).getSuccess())
-                            throw new CustomException(response.getBody().getMsg());
+                        try {
+                            ResponseEntity<ResponseModel> response = xuiClient.deleteClient(URI.create(serverDto.getUrl()), sessionKey, clientEntity.getInbound().getIdFromPanel(), clientEntity.getUuid());
+                            if (!Objects.requireNonNull(response.getBody()).getSuccess()) {
+                                throw new CustomException(response.getBody().getMsg());
+                            }
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                        System.out.println(clientEntity.getId());
                     }
                 }
             }

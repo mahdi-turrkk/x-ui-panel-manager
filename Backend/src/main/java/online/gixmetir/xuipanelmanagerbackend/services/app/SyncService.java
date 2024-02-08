@@ -113,4 +113,12 @@ public class SyncService {
             entity.setExpireDate(LocalDateTime.now().plusDays(entity.getPeriodLength()));
         }
     }
+
+    public void removeExpiredSubs() throws Exception {
+        List<SubscriptionEntity> expiredSubs = subscriptionRepository.findAllByStatus(false);
+        List<Long> subIds = expiredSubs.stream().map(SubscriptionEntity::getId).toList();
+        List<ClientEntity> clients = clientRepository.findAllBySubscriptionIdIn(subIds);
+        panelService.deleteClients(clients);
+        clientRepository.deleteAll(clients);
+    }
 }
