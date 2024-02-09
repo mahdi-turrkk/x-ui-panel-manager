@@ -17,11 +17,11 @@ import java.util.List;
 
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
-    private final SyncService syncWithPanels;
+    private final SyncService syncService;
 
     public SubscriptionController(SubscriptionService subscriptionService, SyncService syncWithPanels) {
         this.subscriptionService = subscriptionService;
-        this.syncWithPanels = syncWithPanels;
+        this.syncService = syncWithPanels;
     }
 
     @PostMapping("/create")
@@ -78,8 +78,9 @@ public class SubscriptionController {
 
     @GetMapping("/sync")
     public void sync() throws Exception {
-        syncWithPanels.syncWithPanels();
-        syncWithPanels.expiration();
+        syncService.removeExpiredSubs();
+        syncService.syncWithPanels();
+        syncService.expiration();
     }
 
     @GetMapping("/summary")

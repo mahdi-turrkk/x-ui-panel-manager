@@ -12,4 +12,5 @@ public class SummaryModel {
     private double totalDownload;
     private double totalSold;
     private double totalLastMonthSold;
+    private double totalLastMonthRenew;
 }

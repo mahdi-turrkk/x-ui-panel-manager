@@ -70,10 +70,10 @@ public class SubscriptionService {
             if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
                 double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
 
-                createLog(a, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE,userEntity);
+                createLog(a, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE, userEntity);
             } else {
                 PlanEntity planEntity = getPriceOfSubscription((long) new Helper().byteToGB(a.getTotalFlow()), a.getPeriodLength());
-                createLog(a, request, planEntity, SubscriptionLogType.CREATE,userEntity);
+                createLog(a, request, planEntity, SubscriptionLogType.CREATE, userEntity);
             }
 
         });
@@ -172,11 +172,11 @@ public class SubscriptionService {
             reNewSubscription(subscriptionEntityFromDb, request);
             if (userEntity.getRole() == Role.SuperCustomer || userEntity.getRole() == Role.Admin) {
                 double price = userEntity.getPricePerGb() == null ? 0 : userEntity.getPricePerGb();
-                createLog(subscriptionEntityFromDb, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.CREATE,userEntity);
+                createLog(subscriptionEntityFromDb, request, PlanEntity.builder().price(price * request.getTotalFlow()).build(), SubscriptionLogType.RENEW, userEntity);
             } else {
                 PlanEntity planEntity = getPriceOfSubscription(request.getTotalFlow(), request.getPeriodLength());
 
-                createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.CREATE,userEntity);
+                createLog(subscriptionEntityFromDb, request, planEntity, SubscriptionLogType.RENEW, userEntity);
             }
             subscriptionEntityFromDb.setMarkAsPaid(false);
             addOrUpdateClientsRelatedToSubscription(List.of(subscriptionEntityFromDb));
@@ -359,6 +359,8 @@ public class SubscriptionService {
         model.setTotalUpload(helper.byteToGB(subscriptionRepository.getTotalUpload()));
         model.setTotalSold(subscriptionRepository.getNumberOfAllSubscriptions());
         model.setTotalLastMonthSold(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth(startOfMonth));
+        model.setTotalLastMonthRenew(subscriptionReNewLogRepository.getNumberOfRenewLastMonth(startOfMonth, SubscriptionLogType.RENEW));
+
         return model;
     }
 
