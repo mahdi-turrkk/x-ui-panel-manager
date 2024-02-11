@@ -23,6 +23,7 @@ public class ClientService {
     private static final boolean APPLY_FRAGMENT = true;
 
     public String generateClientString(ClientEntity client, long days, double remainingFlow, String device) throws IOException {
+        System.out.println(device);
         String link = "";
         switch (client.getInbound().getProtocol()) {
             case "vmess":

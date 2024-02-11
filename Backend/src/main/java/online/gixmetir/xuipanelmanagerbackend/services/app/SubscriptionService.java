@@ -351,6 +351,7 @@ public class SubscriptionService {
 
     private String getDevice(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
+        System.out.println(userAgent);
         if (userAgent.contains("Android")) {
             return "Android";
         } else if (userAgent.contains("iPhone")) {
