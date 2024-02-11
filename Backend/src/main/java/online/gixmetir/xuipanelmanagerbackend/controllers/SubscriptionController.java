@@ -1,5 +1,6 @@
 package online.gixmetir.xuipanelmanagerbackend.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionRenewLogFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
@@ -50,8 +51,8 @@ public class SubscriptionController {
     }
 
     @GetMapping("/client/{uuid}")
-    public ResponseEntity<String> getSubscriptionData(@PathVariable String uuid) throws Exception {
-        return subscriptionService.getSubscriptionData(uuid);
+    public ResponseEntity<String> getSubscriptionData(@PathVariable String uuid, HttpServletRequest request) throws Exception {
+        return subscriptionService.getSubscriptionData(uuid, request);
     }
 
     @PutMapping("/change-status")

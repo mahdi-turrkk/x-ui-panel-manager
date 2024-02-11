@@ -20,15 +20,16 @@ import java.util.*;
 
 @Service
 public class ClientService {
+    private static final boolean APPLY_FRAGMENT = true;
 
-    public String generateClientString(ClientEntity client, long days, double remainingFlow) throws IOException {
+    public String generateClientString(ClientEntity client, long days, double remainingFlow, String device) throws IOException {
         String link = "";
         switch (client.getInbound().getProtocol()) {
             case "vmess":
-                link = generateVmessLink(client);
+                link = generateVmessLink(client, device);
                 break;
             case "vless":
-                link = generateVlessLink(client);
+                link = generateVlessLink(client, device);
                 break;
             case "trojan":
                 //todo
@@ -46,7 +47,7 @@ public class ClientService {
         return link;
     }
 
-    private String generateVlessLink(ClientEntity client) throws IOException {
+    private String generateVlessLink(ClientEntity client, String device) throws IOException {
         Map<String, String> values = new HashMap<>();
         String uuid = String.valueOf(client.getUuid());
         InboundEntity inbound = client.getInbound();
@@ -81,6 +82,9 @@ public class ClientService {
                 values.put("path", ws.getPath());
                 if (!ws.getHeaders().getHost().isEmpty()) {
                     values.put("host", ws.getHeaders().getHost());
+                }
+                if (APPLY_FRAGMENT && (device.equals("iPhone") || device.equals("iPad"))) {
+                    values.put("fragment", "10-20,10-20,tlshello");
                 }
             }
             case "http" -> {
@@ -174,7 +178,7 @@ public class ClientService {
         return link;
     }
 
-    private String generateVmessLink(ClientEntity client) throws IOException {
+    private String generateVmessLink(ClientEntity client, String device) throws IOException {
         InboundEntity inbound = client.getInbound();
         ServerEntity server = client.getInbound().getServer();
         Map<String, Object> obj = new HashMap<>();
@@ -186,74 +190,54 @@ public class ClientService {
         obj.put("port", inbound.getPort());
         obj.put("port", inbound.getPort());
         obj.put("type", "none");
-
-        Map<String, Object> stream = new HashMap<>();
-//        Json.unmarshal(inbound.getStreamSettings().getBytes(), stream);
-
         String network = inbound.getStreamSettingsObj().getNetwork();
         obj.put("net", network);
 
         switch (network) {
             case "tcp":
                 TcpSettings tcpSettings = inbound.getStreamSettingsObj().getTcpSettings();
-//                Map<String, Object> tcp = (Map<String, Object>) stream.get("tcpSettings");
-//                Map<String, Object> header = (Map<String, Object>) tcp.get("header");
+
                 String typeStr = tcpSettings.getHeader().getType();
                 obj.put("type", typeStr);
 
                 if (typeStr.equals("http")) {
-//                    Map<String, Object> request = (Map<String, Object>) header.get("request");
-//                    List<Object> requestPath = (List<Object>) request.get("path");
-//                    obj.put("path", requestPath.get(0));
+
                     TcpRequest request = tcpSettings.getHeader().getRequest();
                     obj.put("path", request.getPath());
                     obj.put("host", request.getHeaders().getHost());
-
-//                    Map<String, Object> request = (Map<String, Object>) header.get("request");
-//                    List<Object> requestPath = (List<Object>) request.get("path");
-//                    obj.put("path", requestPath.get(0));
-//
-//                    Map<String, Object> headers = (Map<String, Object>) request.get("headers");
-//                    obj.put("host", searchHost(headers));
                 }
                 break;
 
             case "kcp":
                 KcpSettings kcpSettings = inbound.getStreamSettingsObj().getKcpSettings();
-//                Map<String, Object> kcp = (Map<String, Object>) stream.get("kcpSettings");
-//                Map<String, Object> kcpHeader = (Map<String, Object>) kcp.get("header");
                 obj.put("type", kcpSettings.getHeader().getType());
                 obj.put("path", kcpSettings.getSeed());
                 break;
 
             case "ws":
                 WsSettings wsSettings = inbound.getStreamSettingsObj().getWsSettings();
-//                Map<String, Object> ws = (Map<String, Object>) stream.get("wsSettings");
                 obj.put("path", wsSettings.getPath());
-//                Map<String, Object> wsHeaders = (Map<String, Object>) ws.get("headers");
                 obj.put("host", wsSettings.getHeaders().getHost());
+                if (APPLY_FRAGMENT && (device.equals("iPhone") || device.equals("iPad"))) {
+                    obj.put("fragment", "10-20,10-20,tlshello");
+                }
                 break;
 
             case "http":
                 HttpSettings httpSettings = inbound.getStreamSettingsObj().getHttpSettings();
                 obj.put("net", "h2");
-//                Map<String, Object> http = (Map<String, Object>) stream.get("httpSettings");
                 obj.put("path", httpSettings.getPath());
-//                obj.put("host", searchHost(http));
                 obj.put("host", httpSettings.getHost().get(0) != null ? httpSettings.getHost().get(0) : "");
                 break;
 
             case "quic":
                 QuicSettings quicSettings = inbound.getStreamSettingsObj().getQuicSettings();
-//                Map<String, Object> quic = (Map<String, Object>) stream.get("quicSettings");
-//                Map<String, Object> quicHeader = (Map<String, Object>) quic.get("header");
                 obj.put("type", quicSettings.getHeader().getType());
                 obj.put("host", quicSettings.getSecurity());
                 obj.put("path", quicSettings.getKey());
                 break;
 
             case "grpc":
-//                Map<String, Object> grpc = (Map<String, Object>) stream.get("grpcSettings");
                 GrpcSettings grpcSettings = inbound.getStreamSettingsObj().getGrpcSettings();
                 obj.put("path", grpcSettings.getServiceName());
                 if (grpcSettings.isMultiMode()) {
@@ -261,26 +245,17 @@ public class ClientService {
                 }
                 break;
         }
-
-//        String security = (String) stream.get("security");
         String security = inbound.getStreamSettingsObj().getSecurity();
-
         List<String> domains = new ArrayList<>();
         obj.put("tls", security);
-
         if (security.equals("tls")) {
             TlsSettings tlsSettings = inbound.getStreamSettingsObj().getTlsSettings();
-//            Map<String, Object> tlsSetting = (Map<String, Object>) stream.get("tlsSettings");
-//            List<Object> alpns = (List<Object>) tlsSetting.get("alpn");
             List<String> alpns = Arrays.stream(tlsSettings.getAlpn()).toList();
-
-
             if (!alpns.isEmpty()) {
                 List<String> alpn = new ArrayList<>(alpns);
                 obj.put("alpn", String.join(",", alpn));
             }
             TlsSettingsInner tlsSettingsInner = tlsSettings.getSettings();
-//            Map<String, Object> tlsSettings = (Map<String, Object>) searchKey(tlsSetting, "settings");
             if (tlsSettingsInner != null) {
                 if (tlsSettingsInner.getServerName() != null) {
                     obj.put("sni", tlsSettingsInner.getServerName());
@@ -295,38 +270,26 @@ public class ClientService {
                     domains = Arrays.stream(tlsSettingsInner.getDomains()).toList();
                 }
             }
-
-//            String serverName = (String) tlsSetting.get("serverName");
-//            if (tlsSettingsInner.getServerName() != null) {
-//                obj.put("add", tlsSettingsInner.getServerName());
-//            }
         }
 
         obj.put("id", client.getUuid());
-
         if (!domains.isEmpty()) {
             StringBuilder links = new StringBuilder();
             for (int i = 0; i < domains.size(); i++) {
-//                Map<String, Object> domain = (Map<String, Object>) domains.get(i);
                 obj.put("ps", generateClientName(client));
                 obj.put("add", domains.get(i));
-
                 if (i > 0) {
                     links.append("\n");
                 }
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(obj);
-//                String jsonStr = Json.marshalIndent(obj, "", " ");
                 links.append("vmess://").append(Base64.getEncoder().encodeToString(json.getBytes()));
             }
-
             return links.toString();
         }
-
         obj.put("ps", generateClientName(client));
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(obj);
-//        String jsonStr = json.marshalIndent(obj, "", " ");
         String s = "vmess://" + Base64.getEncoder().encodeToString(json.getBytes());
         return s;
     }
