@@ -1,6 +1,7 @@
 package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.ClientModel;
 import online.gixmetir.xuipanelmanagerbackend.entities.*;
@@ -312,7 +313,8 @@ public class SubscriptionService {
         throw new IllegalArgumentException("link is invalid.");
     }
 
-    public ResponseEntity<String> getSubscriptionData(String uuid) throws Exception {
+    public ResponseEntity<String> getSubscriptionData(String uuid, HttpServletRequest request) throws Exception {
+        String device = getDevice(request);
         SubscriptionEntity subscription = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new Exception("subscription not found"));
         List<ClientEntity> entities = clientRepository.findAllBySubscriptionIdAndSendToUser(subscription.getId(), true);
         StringBuilder configs = new StringBuilder();
@@ -325,7 +327,7 @@ public class SubscriptionService {
             days = subscription.getPeriodLength();
 
         for (ClientEntity entity : entities) {
-            configs.append(clientService.generateClientString(entity, days, remainingFlow)).append("\r\n");
+            configs.append(clientService.generateClientString(entity, days, remainingFlow, device)).append("\r\n");
         }
         HttpHeaders headers = new HttpHeaders();
         String header = "";
@@ -345,6 +347,24 @@ public class SubscriptionService {
                 headers, HttpStatus.OK);
 
         return responseEntity;
+    }
+
+    private String getDevice(HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent.contains("Android")) {
+            return "Android";
+        } else if (userAgent.contains("iPhone")) {
+            return "iPhone";
+        } else if (userAgent.contains("iPad")) {
+            return "iPad";
+        } else if (userAgent.contains("Windows")) {
+            return "Windows";
+        } else if (userAgent.contains("Mac")) {
+            return "Mac";
+        } else if (userAgent.contains("Linux")) {
+            return "Linux";
+        }
+        return "Other";
     }
 
     public SummaryModel getSummary() {
