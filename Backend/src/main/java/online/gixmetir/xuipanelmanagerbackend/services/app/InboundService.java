@@ -2,7 +2,6 @@ package online.gixmetir.xuipanelmanagerbackend.services.app;
 
 import jakarta.persistence.EntityNotFoundException;
 import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModel;
-import online.gixmetir.xuipanelmanagerbackend.clients.models.InboundModelRequest;
 import online.gixmetir.xuipanelmanagerbackend.entities.ClientEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.InboundEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
@@ -73,15 +72,17 @@ public class InboundService {
             List<SubscriptionEntity> enableSubs = subscriptionRepository.findAllByStatus(true);
             subscriptionService.addOrUpdateClientsRelatedToSubscriptionCore(enableSubs, List.of(inbound));
         } else {
-
-            panelService.deleteInbound(inbound);
-            InboundModelRequest inboundModelRequest = new InboundModelRequest();
-            inboundModelRequest.toRequest(inbound);
-            inboundModelRequest.setEnable(true);
-//            inbound.getSe
-            inboundModelRequest.setSettings("{\"clients\": [],\"decryption\": \"none\",\"fallbacks\": []}");
-            panelService.createInbound(inboundModelRequest, new ServerDto(inbound.getServer()));
-            loadAllInboundsFromPanels();
+            List<ClientEntity> clients = clientRepository.findAllByInboundId(inbound.getId());
+            panelService.deleteClients(clients);
+            clientRepository.deleteAll(clients);
+//            panelService.deleteInbound(inbound);
+//            InboundModelRequest inboundModelRequest = new InboundModelRequest();
+//            inboundModelRequest.toRequest(inbound);
+//            inboundModelRequest.setEnable(true);
+////            inbound.getSe
+//            inboundModelRequest.setSettings("{\"clients\": [],\"decryption\": \"none\",\"fallbacks\": []}");
+//            panelService.createInbound(inboundModelRequest, new ServerDto(inbound.getServer()));
+//            loadAllInboundsFromPanels();
         }
     }
 

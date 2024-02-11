@@ -11,4 +11,6 @@ import java.util.List;
 public class Sniffing {
     private boolean enabled;
     private List<String> destOverride;
+    public boolean routeOnly;
+
 }
