@@ -89,7 +89,7 @@ public class ClientService {
                 if (!ws.getHeaders().getHost().isEmpty()) {
                     values.put("host", ws.getHeaders().getHost());
                 }
-                if (APPLY_FRAGMENT && generateFragmentLink) {
+                if (APPLY_FRAGMENT) {
                     values.put("fragment", "10-20,10-20,tlshello");
                 }
             }
@@ -233,7 +233,7 @@ public class ClientService {
                 WsSettings wsSettings = inbound.getStreamSettingsObj().getWsSettings();
                 obj.put("path", wsSettings.getPath());
                 obj.put("host", wsSettings.getHeaders().getHost());
-                if (APPLY_FRAGMENT && generateFragmentLink) {
+                if (APPLY_FRAGMENT) {
                     obj.put("fragment", "10-20,10-20,tlshello");
                 }
                 break;
