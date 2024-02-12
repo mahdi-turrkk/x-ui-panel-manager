@@ -7,6 +7,7 @@ import online.gixmetir.xuipanelmanagerbackend.entities.ServerEntity;
 import online.gixmetir.xuipanelmanagerbackend.entities.SubscriptionEntity;
 import online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels.*;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,17 +21,18 @@ import java.util.*;
 
 @Service
 public class ClientService {
+    @Value("${app.url}")
+    private String appUrl;
     private static final boolean APPLY_FRAGMENT = true;
 
-    public String generateClientString(ClientEntity client, long days, double remainingFlow, String device) throws IOException {
-        System.out.println(device);
+    public String generateClientString(ClientEntity client, long days, double remainingFlow, boolean generateFragmentLink) throws IOException {
         String link = "";
         switch (client.getInbound().getProtocol()) {
             case "vmess":
-                link = generateVmessLink(client, device);
+                link = generateVmessLink(client, generateFragmentLink);
                 break;
             case "vless":
-                link = generateVlessLink(client, device);
+                link = generateVlessLink(client, generateFragmentLink);
                 break;
             case "trojan":
                 //todo
@@ -48,7 +50,10 @@ public class ClientService {
         return link;
     }
 
-    private String generateVlessLink(ClientEntity client, String device) throws IOException {
+    private String generateVlessLink(ClientEntity client, boolean generateFragmentLink) throws IOException {
+        if (generateFragmentLink) {
+            return generateFragmentLink(client);
+        }
         Map<String, String> values = new HashMap<>();
         String uuid = String.valueOf(client.getUuid());
         InboundEntity inbound = client.getInbound();
@@ -84,7 +89,7 @@ public class ClientService {
                 if (!ws.getHeaders().getHost().isEmpty()) {
                     values.put("host", ws.getHeaders().getHost());
                 }
-                if (APPLY_FRAGMENT /*&& (device.equals("iPhone") || device.equals("iPad"))*/) {
+                if (APPLY_FRAGMENT && generateFragmentLink) {
                     values.put("fragment", "10-20,10-20,tlshello");
                 }
             }
@@ -106,7 +111,7 @@ public class ClientService {
                 }
             }
         }
-
+        String sni = "";
         switch (inboundStreamSettings.getSecurity()) {
             case "tls" -> {
                 values.put("security", "tls");
@@ -121,9 +126,11 @@ public class ClientService {
                     address = inboundStreamSettings.getTlsSettings().getServerName();
                 }
                 if (inboundStreamSettings.getTlsSettings().getSettings().getServerName() != null && !inboundStreamSettings.getTlsSettings().getSettings().getServerName().isEmpty()) {
-                    values.put("sni", inboundStreamSettings.getTlsSettings().getSettings().getServerName());
+                    sni = inboundStreamSettings.getTlsSettings().getSettings().getServerName();
+                    values.put("sni", sni);
                 } else {
-                    values.put("sni", inboundStreamSettings.getTlsSettings().getServerName());
+                    sni = inboundStreamSettings.getTlsSettings().getServerName();
+                    values.put("sni", sni);
                 }
                 if (type.equals("tcp") && !client.getFlow().isEmpty()) {
                     values.put("flow", client.getFlow());
@@ -179,7 +186,14 @@ public class ClientService {
         return link;
     }
 
-    private String generateVmessLink(ClientEntity client, String device) throws IOException {
+    private String generateFragmentLink(ClientEntity client) {
+        return appUrl + "/api/v1/subscriptions/frag/" + client.getUuid();
+    }
+
+    private String generateVmessLink(ClientEntity client, boolean generateFragmentLink) throws IOException {
+        if (generateFragmentLink) {
+            return generateFragmentLink(client);
+        }
         InboundEntity inbound = client.getInbound();
         ServerEntity server = client.getInbound().getServer();
         Map<String, Object> obj = new HashMap<>();
@@ -219,7 +233,7 @@ public class ClientService {
                 WsSettings wsSettings = inbound.getStreamSettingsObj().getWsSettings();
                 obj.put("path", wsSettings.getPath());
                 obj.put("host", wsSettings.getHeaders().getHost());
-                if (APPLY_FRAGMENT ) {
+                if (APPLY_FRAGMENT && generateFragmentLink) {
                     obj.put("fragment", "10-20,10-20,tlshello");
                 }
                 break;

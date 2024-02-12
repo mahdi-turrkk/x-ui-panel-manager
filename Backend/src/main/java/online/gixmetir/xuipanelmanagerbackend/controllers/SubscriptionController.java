@@ -9,6 +9,7 @@ import online.gixmetir.xuipanelmanagerbackend.services.app.SyncService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,9 +51,14 @@ public class SubscriptionController {
         return subscriptionService.getAllSubscriptionLogList(filter, pageable);
     }
 
-    @GetMapping("/client/{uuid}")
-    public ResponseEntity<String> getSubscriptionData(@PathVariable String uuid, HttpServletRequest request) throws Exception {
+    @GetMapping(path = "/client/{uuid}")
+    public ResponseEntity<String> getSubscriptionData(@PathVariable String uuid, HttpServletRequest request, Model model) throws Exception {
         return subscriptionService.getSubscriptionData(uuid, request);
+    }
+
+    @GetMapping("/frag/{uuid}")
+    public ResponseEntity<Object> getFragData(@PathVariable String uuid, HttpServletRequest request) throws Exception {
+        return subscriptionService.getFragData(uuid, request);
     }
 
     @PutMapping("/change-status")
@@ -74,8 +80,6 @@ public class SubscriptionController {
     public SubscriptionDto report(@RequestParam String subLink) throws Exception {
         return subscriptionService.report(subLink);
     }
-
-
 
     @GetMapping("/sync")
     public void sync() throws Exception {
