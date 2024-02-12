@@ -15,6 +15,7 @@ import online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -40,6 +41,8 @@ public class SubscriptionService {
     private final ClientService clientService;
     private final UserRepository userRepository;
     private PlanRepository planRepository;
+    @Value("${app.url}")
+    private String appUrl;
 
     public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository, PlanRepository planRepository) {
         this.subscriptionRepository = repository;
@@ -330,7 +333,9 @@ public class SubscriptionService {
             days = ChronoUnit.DAYS.between(subscription.getExpireDate(), LocalDateTime.now());
         else
             days = subscription.getPeriodLength();
-
+        if (generateFragmentLink) {
+            configs.append(appUrl).append("/api/v1/subscriptions/client/").append(subscription.getUuid()).append("\r\n");
+        }
         for (ClientEntity entity : entities) {
             configs.append(clientService.generateClientString(entity, days, remainingFlow, generateFragmentLink)).append("\r\n");
         }
