@@ -69,7 +69,7 @@ public class SyncService {
         List<ServerEntity> serverEntities = serverRepository.findAll();
         for (ServerEntity serverEntity : serverEntities) {
             String sessionKey = "";
-            if (serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted() && serverEntity.getStatus())
+            if ((serverEntity.getIsDeleted() == null || !serverEntity.getIsDeleted()) && serverEntity.getStatus())
                 sessionKey = panelService.login(new ServerDto(serverEntity));
             else continue;
             List<InboundEntity> inbounds = inboundRepository.findByServerIdAndGeneratable(serverEntity.getId(), true);
