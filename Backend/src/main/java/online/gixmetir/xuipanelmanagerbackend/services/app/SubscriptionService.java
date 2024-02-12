@@ -320,7 +320,7 @@ public class SubscriptionService {
         throw new IllegalArgumentException("link is invalid.");
     }
 
-    public ResponseEntity<String> getSubscriptionData(String uuid, HttpServletRequest request) throws Exception {
+    public String getSubscriptionData(String uuid, HttpServletRequest request) throws Exception {
         boolean generateFragmentLink = validateDevice(request);
 
         SubscriptionEntity subscription = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new Exception("subscription not found"));
@@ -351,8 +351,32 @@ public class SubscriptionService {
             header += "expire=" + subscription.getExpireDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Subscription-Userinfo", header);
-        return new ResponseEntity<>(configs.toString(), headers, HttpStatus.OK);
+        if (generateFragmentLink) {
+            return generateQrcode(configs);
+        } else {
+            return configs.toString();
+        }
+    }
 
+    private String generateQrcode(StringBuilder stringBuilder) {
+        StringBuilder htmlBuilder = new StringBuilder();
+
+        htmlBuilder.append("<html><head><title>QR code</title>");
+        htmlBuilder.append("<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js\"></script>");
+        htmlBuilder.append("</head><body>");
+        htmlBuilder.append("<div style=\"height: 100dvh;width: 100vw;display: flex;justify-content: center;align-items: center\">");
+        htmlBuilder.append("<img id='barcodeImage' src=\"https://api.qrserver.com/v1/create-qr-code/?data=").append(stringBuilder.toString().replace("\r\n", "%0A")).append("&amp;size=500x500\" alt=\"qr code\" width=\"300\" height=\"300\"/>");
+        htmlBuilder.append("</div>");
+        htmlBuilder.append("</body>");
+        htmlBuilder.append("<script>");
+        htmlBuilder.append("document.querySelector(\"#barcodeImage\").addEventListener('click' , (e)=>{e.preventDefault();copyUrl()});");
+        htmlBuilder.append("const copyUrl = () => {let urlToCopy = \"").append(stringBuilder.toString().replace("\r\n","\\n")).append("\";");
+        htmlBuilder.append("navigator.clipboard.writeText(urlToCopy).then(() => {alert('URL copied successfully!');}).catch(err => {alert('Failed to copy URL: ', err);});};");
+        htmlBuilder.append("</script></html>");
+
+
+
+        return htmlBuilder.toString();
     }
 
     private boolean validateDevice(HttpServletRequest request) {
