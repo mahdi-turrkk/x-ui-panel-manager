@@ -383,7 +383,7 @@ public class SubscriptionService {
         String userAgent = request.getHeader("User-Agent");
         System.out.println(userAgent);
         userAgent = userAgent.toLowerCase();
-        return !(userAgent.contains("iphone") || userAgent.contains("ios") || userAgent.contains("streisand") || userAgent.contains("v2box") || userAgent.contains("v2rayng"));
+        return !(userAgent.contains("iphone") || userAgent.contains("ios") || userAgent.contains("streisand") || userAgent.contains("v2box") || userAgent.contains("v2rayng")|| userAgent.contains("nekoray")|| userAgent.contains("v2rayn"));
     }
 
 
