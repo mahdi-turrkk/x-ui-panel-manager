@@ -139,7 +139,14 @@ export const useLocalization = defineStore('localize', {
                     errorFieldsOfPayment: 'فیلد هارا به صورت درست پر کنید.',
                     addPayment: 'افزودن پرداختی',
                     invalidFlowOrPeriod: 'مقدار فیلد حجم کل یا مدت را به صورت صحیح (اعداد مثبت) وارد کنید.',
-                    requestInProgress: 'درخواست در حال پردازش میباشد لطفا منتظر بمانید.'
+                    requestInProgress: 'درخواست در حال پردازش میباشد لطفا منتظر بمانید.',
+                    clientsSetting: 'تنظیمات مخاطبین',
+                    clients: 'مخاطبین',
+                    fragment: 'فرگمنت',
+                    fragmentLength: "طول فرگمنت",
+                    fragmentInterval: 'بازه فرگمنت',
+                    sendToClient: 'ارسال به مخاطب',
+                    errorOccurredWhileSavingOsSetting: 'مشکلی پیش آمده.دوباره تلاش کنید.'
                 },
                 en: {
                     username: 'Username',
@@ -274,6 +281,13 @@ export const useLocalization = defineStore('localize', {
                     addPayment: 'Add Payment',
                     invalidFlowOrPeriod: 'Fill the fields correctly. Flow and period must be positive numbers.',
                     requestInProgress: 'Request in progress. Please wait.',
+                    clientsSetting: 'Clients Setting',
+                    clients: 'Clients',
+                    fragment: 'Fragment',
+                    fragmentLength: "Fragment Length",
+                    fragmentInterval: 'Fragment Interval',
+                    sendToClient: 'Send to Client',
+                    errorOccurredWhileSavingOsSetting: 'Error occurred while saving os setting.Try again.',
                 },
             }
         }
