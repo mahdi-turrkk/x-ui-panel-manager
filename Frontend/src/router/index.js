@@ -8,6 +8,7 @@ import adminSuperCustomersPage from '../views/admin/superCustomers/index.vue'
 import adminsListPage from '../views/admin/admins/index.vue'
 import plansListPage from '../views/admin/plans/index.vue'
 import customersPage from '../views/customer/index.vue'
+import clientsSettingPage from '../views/admin/clientsSetting/index.vue'
 
 
 const routes = [
@@ -45,6 +46,10 @@ const routes = [
             {
                 path: 'plans',
                 component: plansListPage
+            },
+            {
+                path: 'clientsSetting',
+                component: clientsSettingPage
             },
         ]
     },
