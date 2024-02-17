@@ -2,6 +2,7 @@ package online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels;
 
 
 import lombok.*;
+import online.gixmetir.xuipanelmanagerbackend.models.DeviceValidationModel;
 
 import java.util.List;
 
@@ -16,8 +17,11 @@ public class FragmentConfiguration {
     public List<Outbound> outbounds;
     public Routing routing;
 
-    public FragmentConfiguration(String protocol,int port,String address,String uuid,String path,String sni,String network) {
+    public FragmentConfiguration(String protocol, int port, String address, String uuid, String path, String sni, String network, DeviceValidationModel deviceValidationModel) {
 //        FragmentConfiguration configuration = new FragmentConfiguration();
+        boolean applyFragment = false;
+        if (deviceValidationModel != null)
+            applyFragment = deviceValidationModel.isApplyFragment();
         this.log = Log.builder()
                 .access("")
                 .error("")
@@ -113,11 +117,14 @@ public class FragmentConfiguration {
                         .protocol("freedom")
                         .settings(OutboundSettings.builder()
                                 .domainStrategy("AsIs")
-                                .fragment(FragmentModel.builder()
-                                        .packets("tlshello")
-                                        .interval("10-20")
-                                        .length("10-20")
-                                        .build())
+                                .fragment(applyFragment ?
+                                        FragmentModel.builder()
+                                                .packets(deviceValidationModel.getPackets())
+                                                .interval(deviceValidationModel.getFragmentInterval())
+                                                .length(deviceValidationModel.getFragmentLength())
+                                                .build()
+                                        : null
+                                )
                                 .build())
                         .streamSettings(StreamSettings1.builder()
                                 .sockopt(SocketOptions.builder()

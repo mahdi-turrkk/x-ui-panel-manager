@@ -1,6 +1,5 @@
 package online.gixmetir.xuipanelmanagerbackend.services.app;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -11,7 +10,6 @@ import online.gixmetir.xuipanelmanagerbackend.exceptions.ForbiddenException;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionFilter;
 import online.gixmetir.xuipanelmanagerbackend.filters.SubscriptionRenewLogFilter;
 import online.gixmetir.xuipanelmanagerbackend.models.*;
-import online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.*;
 import online.gixmetir.xuipanelmanagerbackend.services.xui.PanelService;
 import online.gixmetir.xuipanelmanagerbackend.utils.Helper;
@@ -25,10 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -43,8 +39,9 @@ public class SubscriptionService {
     private PlanRepository planRepository;
     @Value("${app.url}")
     private String appUrl;
+    private final OsSettingRepository osSettingRepository;
 
-    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository, PlanRepository planRepository) {
+    public SubscriptionService(SubscriptionRepository repository, InboundRepository inboundRepository, PanelService panelService, ClientRepository clientRepository, SubscriptionRenewLogRepository subscriptionReNewLogRepository, ClientService clientService, UserRepository userRepository, PlanRepository planRepository, OsSettingRepository osSettingRepository) {
         this.subscriptionRepository = repository;
         this.inboundRepository = inboundRepository;
         this.panelService = panelService;
@@ -53,6 +50,7 @@ public class SubscriptionService {
         this.clientService = clientService;
         this.userRepository = userRepository;
         this.planRepository = planRepository;
+        this.osSettingRepository = osSettingRepository;
     }
 
     @Transactional
@@ -320,25 +318,32 @@ public class SubscriptionService {
         throw new IllegalArgumentException("link is invalid.");
     }
 
-    public String getSubscriptionData(String uuid, HttpServletRequest request) throws Exception {
-        boolean generateFragmentLink = validateDevice(request);
-
+    public Object getSubscriptionData(String uuid, HttpServletRequest request) throws Exception {
+        DeviceValidationModel deviceValidationModel = validateDevice(request);
         SubscriptionEntity subscription = subscriptionRepository.findByUuid(uuid).orElseThrow(() -> new Exception("subscription not found"));
         List<ClientEntity> entities = clientRepository.findAllBySubscriptionIdAndSendToUser(subscription.getId(), true);
         StringBuilder configs = new StringBuilder();
-        Helper helper = new Helper();
-        double remainingFlow = helper.byteToGB((subscription.getTotalFlow() == null ? 0 : subscription.getTotalFlow()) - (subscription.getTotalUsed() == null ? 0 : subscription.getTotalUsed()));
-        long days = 0;
-        if (subscription.getExpireDate() != null)
-            days = ChronoUnit.DAYS.between(subscription.getExpireDate(), LocalDateTime.now());
-        else
-            days = subscription.getPeriodLength();
-        if (generateFragmentLink) {
+        Object jsonConfigs = null;
+
+        if (deviceValidationModel == null) {
             configs.append(appUrl).append("/api/v1/subscriptions/client/").append(subscription.getUuid()).append("\r\n");
+            for (ClientEntity entity : entities) {
+                configs.append(clientService.generateFragmentLink(entity)).append("\r\n");
+            }
+        } else {
+            if (deviceValidationModel.isGenerateV2rayLink()) {
+                for (ClientEntity entity : entities) {
+                    configs.append(clientService.generateClientString(entity, deviceValidationModel)).append("\r\n");
+                }
+            } else if (deviceValidationModel.isGenerateJson()) {
+                List<Object> objects = new ArrayList<>();
+                for (ClientEntity entity : entities) {
+                    objects.add(clientService.generateClientJson(entity, deviceValidationModel));
+                }
+                jsonConfigs = objects;
+            }
         }
-        for (ClientEntity entity : entities) {
-            configs.append(clientService.generateClientString(entity, days, remainingFlow, generateFragmentLink)).append("\r\n");
-        }
+
         HttpHeaders headers = new HttpHeaders();
         String header = "";
         if (subscription.getUpload() != null)
@@ -351,11 +356,13 @@ public class SubscriptionService {
             header += "expire=" + subscription.getExpireDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Subscription-Userinfo", header);
-        if (generateFragmentLink) {
+        if (jsonConfigs != null) return jsonConfigs;
+        if (deviceValidationModel == null) {
             return generateQrcode(configs);
         } else {
             return configs.toString();
         }
+
     }
 
     private String generateQrcode(StringBuilder stringBuilder) {
@@ -370,37 +377,58 @@ public class SubscriptionService {
         htmlBuilder.append("</body>");
         htmlBuilder.append("<script>");
         htmlBuilder.append("document.querySelector(\"#barcodeImage\").addEventListener('click' , (e)=>{e.preventDefault();copyUrl()});");
-        htmlBuilder.append("const copyUrl = () => {let urlToCopy = \"").append(stringBuilder.toString().replace("\r\n","\\n")).append("\";");
+        htmlBuilder.append("const copyUrl = () => {let urlToCopy = \"").append(stringBuilder.toString().replace("\r\n", "\\n")).append("\";");
         htmlBuilder.append("navigator.clipboard.writeText(urlToCopy).then(() => {alert('URL copied successfully!');}).catch(err => {alert('Failed to copy URL: ', err);});};");
         htmlBuilder.append("</script></html>");
-
 
 
         return htmlBuilder.toString();
     }
 
-    private boolean validateDevice(HttpServletRequest request) {
+    private DeviceValidationModel validateDevice(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
         System.out.println(userAgent);
         userAgent = userAgent.toLowerCase();
-        return !(userAgent.contains("iphone") || userAgent.contains("ios") || userAgent.contains("streisand") || userAgent.contains("v2box") || userAgent.contains("v2rayng")|| userAgent.contains("nekoray")|| userAgent.contains("v2rayn"));
+        List<OsSettingEntity> osSettingEntities = osSettingRepository.findAll();
+        for (OsSettingEntity osSetting : osSettingEntities) {
+            List<String> agents = Arrays.stream(osSetting.getClients().split(",")).toList();
+            for (String agent : agents) {
+                if (userAgent.contains(agent)) {
+                    DeviceValidationModel deviceValidationModel = new DeviceValidationModel();
+                    deviceValidationModel.setApplyFragment(osSetting.getApplyFragment());
+                    deviceValidationModel.setFragmentInterval(osSetting.getFragmentInterval());
+                    deviceValidationModel.setFragmentLength(osSetting.getFragmentLength());
+                    deviceValidationModel.setGenerateJson(osSetting.getGenerateJson());
+                    deviceValidationModel.setGenerateV2rayLink(osSetting.getGenerateV2rayLink());
+                    deviceValidationModel.setPackets(osSetting.getPackets());
+                    if (agent.equals("v2rayng")) {
+                        String version = userAgent.split("/")[1];
+                        String[] segments = version.split("\\.");
+                        if (!(Integer.parseInt(segments[1]) >= 8 && Integer.parseInt(segments[2]) >= 16)) {
+                            deviceValidationModel.setGenerateJson(false);
+                            deviceValidationModel.setGenerateV2rayLink(true);
+                        }
+                    }
+                    return deviceValidationModel;
+                }
+            }
+
+        }
+        return null;
+//            return !(userAgent.contains("iphone") || userAgent.contains("ios") || userAgent.contains("streisand") || userAgent.contains("v2box") || userAgent.contains("v2rayng") || userAgent.contains("nekoray") || userAgent.contains("v2rayn"));
     }
 
 
     public SummaryModel getSummary() {
         SummaryModel model = new SummaryModel();
         Helper helper = new Helper();
-
         LocalDateTime currentDateTime = LocalDateTime.now(ZoneOffset.UTC);
         LocalDateTime startOfMonth = currentDateTime.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-
-
         model.setTotalDownload(helper.byteToGB(subscriptionRepository.getTotalDownload()));
         model.setTotalUpload(helper.byteToGB(subscriptionRepository.getTotalUpload()));
         model.setTotalSold(subscriptionRepository.getNumberOfAllSubscriptions());
         model.setTotalLastMonthSold(subscriptionRepository.getNumberOfSubscriptionsCreatedLastMonth(startOfMonth));
         model.setTotalLastMonthRenew(subscriptionReNewLogRepository.getNumberOfRenewLastMonth(startOfMonth, SubscriptionLogType.RENEW));
-
         return model;
     }
 
@@ -438,88 +466,26 @@ public class SubscriptionService {
         List<ClientEntity> clientEntities = clientRepository.findAllBySubscriptionIdIn(subscriptionEntities.stream().map(SubscriptionEntity::getId).toList());
         panelService.deleteClients(clientEntities);
         clientRepository.deleteAll(clientEntities);
-
     }
 
     public ResponseEntity<Object> getFragData(String uuid, HttpServletRequest request) throws IOException {
-//        boolean generateFragment = validateDevice(request);
+        DeviceValidationModel deviceValidationModel = validateDevice(request);
         ClientEntity client = clientRepository.findByUuid(uuid).orElseThrow(() -> new EntityNotFoundException("Client not found"));
         if (client.getInbound().getStreamSettingsObj().getNetwork().equals("ws")) {
             InboundEntity inbound = client.getInbound();
             switch (inbound.getProtocol()) {
+                // get device validation model from setting
                 case "vless":
-                    return new ResponseEntity<>(createVlessFragObj(client), HttpStatus.OK);
+                    return new ResponseEntity<>(clientService.createVlessJsonObj(client, deviceValidationModel), HttpStatus.OK);
                 case "vmess":
-                    return new ResponseEntity<>(createVmessFragObj(client), HttpStatus.OK);
+                    return new ResponseEntity<>(clientService.createVmessJsonObj(client, deviceValidationModel), HttpStatus.OK);
             }
-
         } else {
-            return new ResponseEntity<>(clientService.generateClientString(client, 0, 0, false), HttpStatus.OK);
+            return new ResponseEntity<>(clientService.generateClientString(client, deviceValidationModel), HttpStatus.OK);
         }
         return null;
     }
 
-    private FragmentConfiguration createVmessFragObj(ClientEntity client) throws IOException {
-        InboundEntity inbound = client.getInbound();
-        ServerEntity server = client.getInbound().getServer();
-        String address;
-        if (inbound.getStreamSettingsObj().getTlsSettings().getServerName() != null && !inbound.getStreamSettingsObj().getTlsSettings().getServerName().isEmpty())
-            address = inbound.getStreamSettingsObj().getTlsSettings().getServerName();
-        else
-            address = server.getUrl();
-        String security = inbound.getStreamSettingsObj().getSecurity();
-        List<String> domains = new ArrayList<>();
-        String sni = "";
-        if (security.equals("tls")) {
-            TlsSettings tlsSettings = inbound.getStreamSettingsObj().getTlsSettings();
-            TlsSettingsInner tlsSettingsInner = tlsSettings.getSettings();
-            if (tlsSettingsInner != null) {
-                if (tlsSettingsInner.getServerName() != null) {
-                    sni = tlsSettingsInner.getServerName();
-                }
-                if (tlsSettingsInner.getDomains() != null) {
-                    domains = Arrays.stream(tlsSettingsInner.getDomains()).toList();
-                }
-            }
-        }
-        if (!domains.isEmpty()) {
-            for (String domain : domains) {
-                address = domain;
-            }
-        }
 
-        return new FragmentConfiguration("vmess", Integer.parseInt(inbound.getPort()),
-                address, client.getUuid(), inbound.getStreamSettingsObj().getWsSettings().getPath(), sni, "ws");
-    }
-
-    private FragmentConfiguration createVlessFragObj(ClientEntity client) throws IOException {
-
-        String uuid = String.valueOf(client.getUuid());
-        InboundEntity inbound = client.getInbound();
-        String address = URI.create(inbound.getServer().getUrl()).getHost();
-        if (inbound.getListen() != null && !inbound.getListen().equals("0.0.0.0")) {
-            address = inbound.getListen();
-        }
-        StreamSettings inboundStreamSettings = inbound.getStreamSettingsObj();
-
-        String sni = "";
-        if (inboundStreamSettings.getSecurity().equals("tls")) {
-            if (inboundStreamSettings.getExternalProxy() != null && inboundStreamSettings.getExternalProxy().length > 0) {
-                address = inboundStreamSettings.getExternalProxy()[0].getDest();
-            } else if (!inboundStreamSettings.getTlsSettings().getServerName().isEmpty()) {
-                address = inboundStreamSettings.getTlsSettings().getServerName();
-            }
-            if (inboundStreamSettings.getTlsSettings().getSettings().getServerName() != null && !inboundStreamSettings.getTlsSettings().getSettings().getServerName().isEmpty()) {
-                sni = inboundStreamSettings.getTlsSettings().getSettings().getServerName();
-            } else {
-                sni = inboundStreamSettings.getTlsSettings().getServerName();
-            }
-        }
-//        if (inboundStreamSettings.getNetwork().equals("ws")) {
-        return new FragmentConfiguration("vless", Integer.parseInt(inbound.getPort()),
-                address, uuid, inboundStreamSettings.getWsSettings().getPath(), sni, "ws");
-//        }
-//        return null;
-    }
 }
 
