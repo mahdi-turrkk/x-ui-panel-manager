@@ -1,15 +1,16 @@
 package online.gixmetir.xuipanelmanagerbackend.bootstrap;
 
-import online.gixmetir.xuipanelmanagerbackend.models.PlanRequest;
-import online.gixmetir.xuipanelmanagerbackend.models.Role;
-import online.gixmetir.xuipanelmanagerbackend.models.UserRequest;
+import online.gixmetir.xuipanelmanagerbackend.models.*;
 import online.gixmetir.xuipanelmanagerbackend.repositories.AuthenticationRepository;
+import online.gixmetir.xuipanelmanagerbackend.repositories.GlobalSettingRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.InboundRepository;
 import online.gixmetir.xuipanelmanagerbackend.repositories.ServerRepository;
 import online.gixmetir.xuipanelmanagerbackend.services.app.*;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class Bootstrap implements ApplicationRunner {
@@ -21,8 +22,10 @@ public class Bootstrap implements ApplicationRunner {
     private final SubscriptionService subscriptionService;
     private final InboundRepository inboundRepository;
     private final PlanService planService;
+    private final GlobalSettingService globalSettingService;
+    private final GlobalSettingRepository globalSettingRepository;
 
-    public Bootstrap(UserService userService, AuthenticationRepository authenticationRepository, ServerService serverService, ServerRepository serverRepository, InboundService inboundService, SubscriptionService subscriptionService, InboundRepository inboundRepository, PlanService planService) {
+    public Bootstrap(UserService userService, AuthenticationRepository authenticationRepository, ServerService serverService, ServerRepository serverRepository, InboundService inboundService, SubscriptionService subscriptionService, InboundRepository inboundRepository, PlanService planService, GlobalSettingService globalSettingService, GlobalSettingRepository globalSettingRepository) {
         this.userService = userService;
         this.authenticationRepository = authenticationRepository;
         this.serverService = serverService;
@@ -31,10 +34,13 @@ public class Bootstrap implements ApplicationRunner {
         this.subscriptionService = subscriptionService;
         this.inboundRepository = inboundRepository;
         this.planService = planService;
+        this.globalSettingService = globalSettingService;
+        this.globalSettingRepository = globalSettingRepository;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        bootstrapSetting();
         if (authenticationRepository.findByUsername("ADMIN@ADMIN").orElse(null) != null) return;
 
         bootstrapServer();
@@ -107,5 +113,56 @@ public class Bootstrap implements ApplicationRunner {
 //                .title("test")
 //                .totalFlow(20L)
 //                .build());
+    }
+
+    private void bootstrapSetting() {
+        if (!globalSettingRepository.findAll().isEmpty()) return;
+        GlobalSettingRequest request = GlobalSettingRequest.builder()
+                .subscriptionUrl("https://panel.gixmetir.online:5001/")
+                .osSettingRequests(List.of(
+                                OsSettingRequest.builder()
+                                        .os(OS.ANDROID)
+                                        .clients("v2rayng")
+                                        .applyFragment(false)
+                                        .fragmentInterval("10-20")
+                                        .fragmentLength("10-20")
+                                        .packets("tlshello")
+                                        .generateJson(false)
+                                        .generateV2rayLink(true)
+                                        .build(),
+                                OsSettingRequest.builder()
+                                        .os(OS.IOS)
+                                        .clients("streisand,v2box")
+                                        .applyFragment(true)
+                                        .fragmentInterval("10-20")
+                                        .fragmentLength("10-20")
+                                        .packets("tlshello")
+                                        .generateJson(false)
+                                        .generateV2rayLink(true)
+                                        .build(),
+                                OsSettingRequest.builder()
+                                        .os(OS.WINDOWS)
+                                        .clients("v2rayn,nekoray")
+                                        .applyFragment(false)
+                                        .fragmentInterval("10-20")
+                                        .fragmentLength("10-20")
+                                        .packets("tlshello")
+                                        .generateJson(false)
+                                        .generateV2rayLink(true)
+                                        .build(),
+                                OsSettingRequest.builder()
+                                        .os(OS.LINUX)
+                                        .clients("nekoray")
+                                        .applyFragment(false)
+                                        .fragmentInterval("10-20")
+                                        .packets("tlshello")
+                                        .fragmentLength("10-20")
+                                        .generateJson(false)
+                                        .generateV2rayLink(true)
+                                        .build()
+                        )
+                )
+                .build();
+        globalSettingService.save(request);
     }
 }

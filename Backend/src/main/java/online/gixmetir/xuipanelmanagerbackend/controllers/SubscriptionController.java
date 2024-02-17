@@ -53,7 +53,7 @@ public class SubscriptionController {
 
     @GetMapping(path = "/client/{uuid}")
     @ResponseBody
-    public String getSubscriptionData(@PathVariable String uuid, HttpServletRequest request, Model model) throws Exception {
+    public Object getSubscriptionData(@PathVariable String uuid, HttpServletRequest request, Model model) throws Exception {
         return subscriptionService.getSubscriptionData(uuid, request);
     }
 
