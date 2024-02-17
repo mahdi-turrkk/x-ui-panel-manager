@@ -376,7 +376,8 @@ public class ClientService {
             }
         }
         String path = "";
-        switch (client.getInbound().getStreamSettingsObj().getNetwork()) {
+        String network = client.getInbound().getStreamSettingsObj().getNetwork();
+        switch (network) {
             case "tcp":
                 TcpSettings tcpSettings = inbound.getStreamSettingsObj().getTcpSettings();
                 String typeStr = tcpSettings.getHeader().getType();
@@ -411,7 +412,7 @@ public class ClientService {
                 break;
         }
         return new FragmentConfiguration("vmess", Integer.parseInt(inbound.getPort()),
-                address, client.getUuid(), path, sni, "ws", deviceValidationModel);
+                address, client.getUuid(), path, sni, network, deviceValidationModel);
     }
 
     public FragmentConfiguration createVlessJsonObj(ClientEntity client, DeviceValidationModel deviceValidationModel) throws IOException {
@@ -440,7 +441,8 @@ public class ClientService {
 
 
         String path = "";
-        switch (inboundStreamSettings.getNetwork()) {
+        String network = inboundStreamSettings.getNetwork();
+        switch (network) {
             case "tcp" -> {
                 TcpSettings tcp = inboundStreamSettings.getTcpSettings();
                 if (tcp.getHeader().getType().equals("http")) {
@@ -460,7 +462,7 @@ public class ClientService {
 
         }
         return new FragmentConfiguration("vless", Integer.parseInt(inbound.getPort()),
-                address, uuid, path, sni, "ws", deviceValidationModel);
+                address, uuid, path, sni, network, deviceValidationModel);
 
     }
 }
