@@ -83,6 +83,17 @@ public class FragmentConfiguration {
                                                 ))
                                                 .build()
                                 ))
+                                .servers(List.of(
+                                        OutBoundServer.builder()
+                                                .address(address)
+                                                .level(1)
+                                                .flow("")
+                                                .method("chacha20-poly1305")
+                                                .ota(false)
+                                                .password(uuid)
+                                                .port(port)
+                                                .build()
+                                ))
                                 .build())
                         .streamSettings(StreamSettings1.builder()
                                 .network(network)
@@ -100,6 +111,12 @@ public class FragmentConfiguration {
                                                 .Host(sni)
                                                 .build())
                                         .build())
+                                .grpcSettings(
+                                        GrpcSettings1.builder()
+                                                .multiMode(false)
+                                                .serviceName("")
+                                                .build()
+                                )
                                 .sockopt(SocketOptions.builder()
                                         .dialerProxy("fragment")
                                         .tcpKeepAliveIdle(100)
@@ -110,6 +127,8 @@ public class FragmentConfiguration {
                         .mux(Mux.builder()
                                 .enabled(false)
                                 .concurrency(-1)
+                                .xudpConcurrency(-1)
+                                .xudpProxyUDP443("reject")
                                 .build())
                         .build(),
                 Outbound.builder()
@@ -253,7 +272,23 @@ class OutboundSettings {
     public String domainStrategy;
     public FragmentModel fragment;
     public Response response;
+    public List<OutBoundServer> servers;
 
+}
+
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+class OutBoundServer {
+    public String address;
+    public int level;
+    public String flow;
+    public String method;
+    public boolean ota;
+    public String password;
+    public int port;
 }
 
 @Builder
@@ -312,6 +347,7 @@ class StreamSettings1 {
     public String security;
     public TlsSettings1 tlsSettings;
     public WsSettings1 wsSettings;
+    public GrpcSettings1 grpcSettings;
     public SocketOptions sockopt;
 }
 
@@ -343,6 +379,16 @@ class WsSettings1 {
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+class GrpcSettings1 {
+    public boolean multiMode;
+    public String serviceName;
+}
+
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 class Headers1 {
     public String Host;
 }
@@ -367,6 +413,8 @@ class SocketOptions {
 class Mux {
     public boolean enabled;
     public int concurrency;
+    public int xudpConcurrency;
+    public String xudpProxyUDP443;
 }
 
 @Builder
