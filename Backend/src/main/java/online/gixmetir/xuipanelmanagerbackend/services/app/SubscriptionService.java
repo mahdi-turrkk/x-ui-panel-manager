@@ -333,12 +333,18 @@ public class SubscriptionService {
         } else {
             if (deviceValidationModel.isGenerateV2rayLink()) {
                 for (ClientEntity entity : entities) {
-                    configs.append(clientService.generateClientString(entity, deviceValidationModel)).append("\r\n");
+                    configs.append(clientService.generateClientString(entity, deviceValidationModel, true)).append("\r\n");
+                }
+                for (ClientEntity entity : entities) {
+                    configs.append(clientService.generateClientString(entity, deviceValidationModel, false)).append("\r\n");
                 }
             } else if (deviceValidationModel.isGenerateJson()) {
                 List<Object> objects = new ArrayList<>();
                 for (ClientEntity entity : entities) {
-                    objects.add(clientService.generateClientJson(entity, deviceValidationModel));
+                    objects.add(clientService.generateClientJson(entity, deviceValidationModel, true));
+                }
+                for (ClientEntity entity : entities) {
+                    objects.add(clientService.generateClientJson(entity, deviceValidationModel, false));
                 }
                 jsonConfigs = objects;
             }
@@ -474,14 +480,13 @@ public class SubscriptionService {
         if (client.getInbound().getStreamSettingsObj().getNetwork().equals("ws")) {
             InboundEntity inbound = client.getInbound();
             switch (inbound.getProtocol()) {
-                // get device validation model from setting
                 case "vless":
-                    return new ResponseEntity<>(clientService.createVlessJsonObj(client, deviceValidationModel), HttpStatus.OK);
+                    return new ResponseEntity<>(clientService.createVlessJsonObj(client, deviceValidationModel, true), HttpStatus.OK);
                 case "vmess":
-                    return new ResponseEntity<>(clientService.createVmessJsonObj(client, deviceValidationModel), HttpStatus.OK);
+                    return new ResponseEntity<>(clientService.createVmessJsonObj(client, deviceValidationModel, true), HttpStatus.OK);
             }
         } else {
-            return new ResponseEntity<>(clientService.generateClientString(client, deviceValidationModel), HttpStatus.OK);
+            return new ResponseEntity<>(clientService.generateClientString(client, deviceValidationModel, true), HttpStatus.OK);
         }
         return null;
     }

@@ -14,7 +14,7 @@ public class Schedule {
     //every one hour rerun this mehtos
     @Scheduled(cron = "0 0 * * * *")
     public void run() throws Exception {
-        service.syncWithPanels();
-        service.expiration();
+//        service.syncWithPanels();
+//        service.expiration();
     }
 }

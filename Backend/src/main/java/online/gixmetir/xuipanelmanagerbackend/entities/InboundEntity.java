@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
-import online.gixmetir.xuipanelmanagerbackend.models.ConfigGenerationModels.StreamSettings;
+import online.gixmetir.xuipanelmanagerbackend.models.configgenerationmodels.StreamSettings;
 
 import java.io.IOException;
 
