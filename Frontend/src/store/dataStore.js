@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 export const useDataStore = defineStore('dataStore',{
     state: () => {
         return {
-            serverAddress: 'https://panel.gixmetir.online:5001/api/v1',
+            // serverAddress: 'https://panel.gixmetir.online:5001/api/v1',
+            serverAddress: 'http://panel.privado-vpn.online:5001/api/v1',
             darkStatus : true,
             token : ''
         }
