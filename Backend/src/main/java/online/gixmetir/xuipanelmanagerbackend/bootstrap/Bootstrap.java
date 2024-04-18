@@ -118,7 +118,7 @@ public class Bootstrap implements ApplicationRunner {
     private void bootstrapSetting() {
         if (!globalSettingRepository.findAll().isEmpty()) return;
         GlobalSettingRequest request = GlobalSettingRequest.builder()
-                .subscriptionUrl("http://panel.privado-vpn.online:5001/")
+                .subscriptionUrl("https://panel.privado-vpn.online:5001/")
                 .osSettingRequests(List.of(
                                 OsSettingRequest.builder()
                                         .os(OS.ANDROID)
