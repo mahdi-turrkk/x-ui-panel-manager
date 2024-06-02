@@ -11,5 +11,6 @@ public class Certificate {
     private String certificateFile;
     private String keyFile;
     private String ocspStapling;
-
+    private String[] certificate;
+    private String[] key;
 }
