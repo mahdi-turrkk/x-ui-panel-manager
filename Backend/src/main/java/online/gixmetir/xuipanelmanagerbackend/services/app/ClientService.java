@@ -163,7 +163,19 @@ public class ClientService {
                 }
             }
         }
-        String link = inbound.getProtocol() + "://" + uuid + "@" + address + ":" + inbound.getPort();
+        if (inbound.getStreamSettingsObj().getExternalProxy().length > 0) {
+            StringBuilder link = new StringBuilder();
+            for (ExternalProxy proxy : inbound.getStreamSettingsObj().getExternalProxy())
+                link.append(getVlessLink(client, values, uuid, inbound, proxy.getDest(), proxy.getPort())).append("\r\n");
+            return link.toString();
+        } else {
+            return getVlessLink(client, values, uuid, inbound, address, inbound.getPort());
+        }
+
+    }
+
+    private String getVlessLink(ClientEntity client, Map<String, String> values, String uuid, InboundEntity inbound, String address, String port) {
+        String link = inbound.getProtocol() + "://" + uuid + "@" + address + ":" + port;
         if (!values.isEmpty()) {
             link += "?";
         }
@@ -183,15 +195,53 @@ public class ClientService {
 
     private String generateVmessLink(ClientEntity client, DeviceValidationModel deviceValidationModel, boolean includeFragment) throws IOException {
         InboundEntity inbound = client.getInbound();
+        StreamSettings streamSettings = inbound.getStreamSettingsObj();
+        StringBuilder config = new StringBuilder();
+        for (ExternalProxy proxy : streamSettings.getExternalProxy()) {
+            config.append(generateVmessLinkCore(
+                    client,
+                    client.getInbound(),
+                    deviceValidationModel,
+                    includeFragment,
+                    proxy.getPort(),
+                    proxy.getDest(),
+                    streamSettings
+            )).append("\r\n");
+        }
+
+
+        return config.toString();
+    }
+
+    private String generateVmessLinkCore(
+            ClientEntity client,
+            InboundEntity inbound,
+            DeviceValidationModel deviceValidationModel,
+            boolean includeFragment,
+            String port,
+            String add,
+            StreamSettings streamSettings
+    ) throws IOException {
         ServerEntity server = client.getInbound().getServer();
+
         Map<String, Object> obj = new HashMap<>();
         obj.put("v", "2");
-        if (inbound.getStreamSettingsObj().getTlsSettings().getServerName() != null && !inbound.getStreamSettingsObj().getTlsSettings().getServerName().isEmpty())
-            obj.put("add", inbound.getStreamSettingsObj().getTlsSettings().getServerName());
-        else
-            obj.put("add", server.getUrl());
-        obj.put("port", inbound.getPort());
-        obj.put("port", inbound.getPort());
+        if (port.isBlank()) {
+            if (streamSettings.getTlsSettings().getServerName() != null && !streamSettings.getTlsSettings().getServerName().isEmpty())
+                obj.put("add", streamSettings.getTlsSettings().getServerName());
+            else
+                obj.put("add", server.getUrl());
+        } else {
+            obj.put("add", add);
+        }
+        if (port.isBlank()) {
+            obj.put("port", inbound.getPort());
+
+        } else {
+            obj.put("port", port);
+
+        }
+
         obj.put("type", "none");
         String network = inbound.getStreamSettingsObj().getNetwork();
         obj.put("net", network);

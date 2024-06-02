@@ -332,17 +332,19 @@ public class SubscriptionService {
             }
         } else {
             if (deviceValidationModel.isGenerateV2rayLink()) {
-                for (ClientEntity entity : entities) {
-                    configs.append(clientService.generateClientString(entity, deviceValidationModel, true)).append("\r\n");
-                }
+                if (deviceValidationModel.isApplyFragment())
+                    for (ClientEntity entity : entities) {
+                        configs.append(clientService.generateClientString(entity, deviceValidationModel, true)).append("\r\n");
+                    }
                 for (ClientEntity entity : entities) {
                     configs.append(clientService.generateClientString(entity, deviceValidationModel, false)).append("\r\n");
                 }
             } else if (deviceValidationModel.isGenerateJson()) {
                 List<Object> objects = new ArrayList<>();
-                for (ClientEntity entity : entities) {
-                    objects.add(clientService.generateClientJson(entity, deviceValidationModel, true));
-                }
+                if (deviceValidationModel.isApplyFragment())
+                    for (ClientEntity entity : entities) {
+                        objects.add(clientService.generateClientJson(entity, deviceValidationModel, true));
+                    }
                 for (ClientEntity entity : entities) {
                     objects.add(clientService.generateClientJson(entity, deviceValidationModel, false));
                 }
