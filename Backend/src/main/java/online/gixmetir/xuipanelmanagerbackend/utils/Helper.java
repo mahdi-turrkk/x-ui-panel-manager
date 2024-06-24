@@ -31,7 +31,7 @@ public class Helper {
 
     public String generateLink(String uuid) {
 
-        String SUBSCRIPTION_URL = "https://panel.privado-vpn.online:5001";
+        String SUBSCRIPTION_URL = "https://panel.systemctl.ir:5001";
         return SUBSCRIPTION_URL + "/api/v1/subscriptions/client/" + uuid;
     }
 
